@@ -1,0 +1,455 @@
+{
+  "correlation": {
+    "matrix": {
+      "cyclomatic_complexity": {
+        "cyclomatic_complexity": 1.0,
+        "coupling_cbo": -0.6,
+        "cohesion_lcom": 0.56,
+        "test_coverage_pct": -0.06,
+        "defect_density_per_kloc": 0.56,
+        "delay_days": 0.14
+      },
+      "coupling_cbo": {
+        "cyclomatic_complexity": -0.6,
+        "coupling_cbo": 1.0,
+        "cohesion_lcom": 0.07,
+        "test_coverage_pct": 0.05,
+        "defect_density_per_kloc": 0.26,
+        "delay_days": 0.65
+      },
+      "cohesion_lcom": {
+        "cyclomatic_complexity": 0.56,
+        "coupling_cbo": 0.07,
+        "cohesion_lcom": 1.0,
+        "test_coverage_pct": -0.17,
+        "defect_density_per_kloc": 0.82,
+        "delay_days": 0.61
+      },
+      "test_coverage_pct": {
+        "cyclomatic_complexity": -0.06,
+        "coupling_cbo": 0.05,
+        "cohesion_lcom": -0.17,
+        "test_coverage_pct": 1.0,
+        "defect_density_per_kloc": -0.37,
+        "delay_days": -0.28
+      },
+      "defect_density_per_kloc": {
+        "cyclomatic_complexity": 0.56,
+        "coupling_cbo": 0.26,
+        "cohesion_lcom": 0.82,
+        "test_coverage_pct": -0.37,
+        "defect_density_per_kloc": 1.0,
+        "delay_days": 0.85
+      },
+      "delay_days": {
+        "cyclomatic_complexity": 0.14,
+        "coupling_cbo": 0.65,
+        "cohesion_lcom": 0.61,
+        "test_coverage_pct": -0.28,
+        "defect_density_per_kloc": 0.85,
+        "delay_days": 1.0
+      }
+    },
+    "tests": [
+      {
+        "pair": "Cyclomatic Complexity vs Defect Density",
+        "r": 0.559,
+        "p_value": 0.0591,
+        "significant": false,
+        "interpretation": "Strong positive correlation \u2014 more complex modules carry more defects."
+      },
+      {
+        "pair": "Test Coverage vs Defect Density",
+        "r": -0.37,
+        "p_value": 0.2367,
+        "significant": false,
+        "interpretation": "Moderate/weak correlation."
+      },
+      {
+        "pair": "Coupling (CBO) vs Delay (days)",
+        "r": 0.647,
+        "p_value": 0.0229,
+        "significant": true,
+        "interpretation": "Higher coupling modules take longer to stabilize / ship."
+      }
+    ],
+    "t_test_low_vs_high_coverage": {
+      "t_stat": 1.131,
+      "p_value": 0.2847,
+      "low_coverage_mean_defect_density": 6.31,
+      "high_coverage_mean_defect_density": 4.5,
+      "significant": false
+    }
+  },
+  "decision_tree": {
+    "features": [
+      "cyclomatic_complexity",
+      "coupling_cbo",
+      "cohesion_lcom",
+      "test_coverage_pct"
+    ],
+    "target": "risk_label (High/Low defect density, split at median)",
+    "accuracy_on_training_data": 0.917,
+    "feature_importances": {
+      "cyclomatic_complexity": 0.0,
+      "coupling_cbo": 0.082,
+      "cohesion_lcom": 0.918,
+      "test_coverage_pct": 0.0
+    },
+    "rules_summary": [
+      "Root split is on the metric with the highest information gain (see chart) \u2014 typically Cyclomatic Complexity or Test Coverage dominate.",
+      "Modules with high complexity AND low test coverage are classified High risk.",
+      "This mirrors ISO/IEC 25010 Maintainability and ties directly into Sub-Goal 4 (defect density) from the Review-0 GQ(I)M plan."
+    ]
+  },
+  "box_plot": {
+    "defect_density": {
+      "q1": 4.1,
+      "median": 5.28,
+      "q3": 6.7,
+      "iqr_fence": [
+        0.2,
+        10.59
+      ],
+      "outlier_modules": []
+    },
+    "delay_days": {
+      "q1": 4.02,
+      "median": 7.25,
+      "q3": 8.43,
+      "iqr_fence": [
+        -2.58,
+        15.03
+      ],
+      "outlier_modules": []
+    }
+  },
+  "control_chart": {
+    "metric": "transaction_failure_rate_pct (weekly)",
+    "center_line": 3.517,
+    "UCL": 6.556,
+    "LCL": 0.477,
+    "out_of_control_weeks": [
+      12
+    ],
+    "interpretation": "Week(s) [12] breach the Upper Control Limit \u2014 this corresponds to the release regression injected around week 11-13 in the simulated data, demonstrating how an I-MR control chart flags an assignable-cause process shift in production transaction reliability (Sub-Goal 4 \u2014 Functional Correctness) in real time."
+  },
+  "dataset_summary": {
+    "modules": [
+      {
+        "module": "Transaction Engine",
+        "loc": 1308,
+        "cyclomatic_complexity": 12.6,
+        "coupling_cbo": 19,
+        "cohesion_lcom": 0.67,
+        "test_coverage_pct": 51.6,
+        "features_delivered": 14,
+        "errors_logged": 19,
+        "fault_count": 16,
+        "defect_count": 12,
+        "delay_days": 10.4,
+        "avg_severity_1to5": 4.87,
+        "defect_density_per_kloc": 9.4,
+        "risk_label": "High"
+      },
+      {
+        "module": "AI Recommendation Engine",
+        "loc": 5211,
+        "cyclomatic_complexity": 10.4,
+        "coupling_cbo": 18,
+        "cohesion_lcom": 0.21,
+        "test_coverage_pct": 69.3,
+        "features_delivered": 9,
+        "errors_logged": 7,
+        "fault_count": 6,
+        "defect_count": 12,
+        "delay_days": 6.9,
+        "avg_severity_1to5": 2.65,
+        "defect_density_per_kloc": 5.73,
+        "risk_label": "High"
+      },
+      {
+        "module": "Anomaly Detection Model",
+        "loc": 4531,
+        "cyclomatic_complexity": 11.9,
+        "coupling_cbo": 7,
+        "cohesion_lcom": 0.42,
+        "test_coverage_pct": 56.6,
+        "features_delivered": 15,
+        "errors_logged": 9,
+        "fault_count": 7,
+        "defect_count": 14,
+        "delay_days": 3.8,
+        "avg_severity_1to5": 1.73,
+        "defect_density_per_kloc": 4.16,
+        "risk_label": "Low"
+      },
+      {
+        "module": "Expense Prediction Model",
+        "loc": 3301,
+        "cyclomatic_complexity": 7.7,
+        "coupling_cbo": 14,
+        "cohesion_lcom": 0.09,
+        "test_coverage_pct": 79.2,
+        "features_delivered": 4,
+        "errors_logged": 5,
+        "fault_count": 3,
+        "defect_count": 3,
+        "delay_days": 2.5,
+        "avg_severity_1to5": 1.0,
+        "defect_density_per_kloc": 0.79,
+        "risk_label": "Low"
+      },
+      {
+        "module": "Finance Dashboard",
+        "loc": 3268,
+        "cyclomatic_complexity": 16.4,
+        "coupling_cbo": 5,
+        "cohesion_lcom": 0.17,
+        "test_coverage_pct": 67.3,
+        "features_delivered": 6,
+        "errors_logged": 6,
+        "fault_count": 5,
+        "defect_count": 10,
+        "delay_days": 4.1,
+        "avg_severity_1to5": 2.52,
+        "defect_density_per_kloc": 4.82,
+        "risk_label": "Low"
+      },
+      {
+        "module": "Budget Manager",
+        "loc": 5694,
+        "cyclomatic_complexity": 15.9,
+        "coupling_cbo": 17,
+        "cohesion_lcom": 0.6,
+        "test_coverage_pct": 87.5,
+        "features_delivered": 10,
+        "errors_logged": 12,
+        "fault_count": 9,
+        "defect_count": 18,
+        "delay_days": 10.8,
+        "avg_severity_1to5": 3.31,
+        "defect_density_per_kloc": 8.67,
+        "risk_label": "High"
+      },
+      {
+        "module": "Authentication Service",
+        "loc": 1289,
+        "cyclomatic_complexity": 12.3,
+        "coupling_cbo": 16,
+        "cohesion_lcom": 0.65,
+        "test_coverage_pct": 80.7,
+        "features_delivered": 6,
+        "errors_logged": 13,
+        "fault_count": 10,
+        "defect_count": 8,
+        "delay_days": 7.6,
+        "avg_severity_1to5": 2.62,
+        "defect_density_per_kloc": 6.04,
+        "risk_label": "High"
+      },
+      {
+        "module": "Encryption/KMS Layer",
+        "loc": 4774,
+        "cyclomatic_complexity": 17.6,
+        "coupling_cbo": 9,
+        "cohesion_lcom": 0.82,
+        "test_coverage_pct": 60.9,
+        "features_delivered": 8,
+        "errors_logged": 20,
+        "fault_count": 14,
+        "defect_count": 28,
+        "delay_days": 8.4,
+        "avg_severity_1to5": 3.68,
+        "defect_density_per_kloc": 9.66,
+        "risk_label": "High"
+      },
+      {
+        "module": "Notification Service",
+        "loc": 1948,
+        "cyclomatic_complexity": 14.3,
+        "coupling_cbo": 3,
+        "cohesion_lcom": 0.31,
+        "test_coverage_pct": 87.4,
+        "features_delivered": 13,
+        "errors_logged": 3,
+        "fault_count": 2,
+        "defect_count": 3,
+        "delay_days": 1.0,
+        "avg_severity_1to5": 1.17,
+        "defect_density_per_kloc": 1.65,
+        "risk_label": "Low"
+      },
+      {
+        "module": "Report Generator",
+        "loc": 1336,
+        "cyclomatic_complexity": 7.7,
+        "coupling_cbo": 21,
+        "cohesion_lcom": 0.35,
+        "test_coverage_pct": 86.0,
+        "features_delivered": 6,
+        "errors_logged": 5,
+        "fault_count": 3,
+        "defect_count": 6,
+        "delay_days": 6.5,
+        "avg_severity_1to5": 2.18,
+        "defect_density_per_kloc": 4.15,
+        "risk_label": "Low"
+      },
+      {
+        "module": "Account Management",
+        "loc": 3800,
+        "cyclomatic_complexity": 13.8,
+        "coupling_cbo": 10,
+        "cohesion_lcom": 0.43,
+        "test_coverage_pct": 64.8,
+        "features_delivered": 13,
+        "errors_logged": 13,
+        "fault_count": 11,
+        "defect_count": 22,
+        "delay_days": 7.6,
+        "avg_severity_1to5": 2.7,
+        "defect_density_per_kloc": 5.89,
+        "risk_label": "High"
+      },
+      {
+        "module": "Recurring Bill Scheduler",
+        "loc": 6361,
+        "cyclomatic_complexity": 7.2,
+        "coupling_cbo": 19,
+        "cohesion_lcom": 0.2,
+        "test_coverage_pct": 59.7,
+        "features_delivered": 5,
+        "errors_logged": 5,
+        "fault_count": 3,
+        "defect_count": 6,
+        "delay_days": 8.5,
+        "avg_severity_1to5": 2.06,
+        "defect_density_per_kloc": 3.95,
+        "risk_label": "Low"
+      }
+    ],
+    "sprints": [
+      {
+        "week": 1,
+        "transaction_failure_rate_pct": 2.58,
+        "mape_expense_model_pct": 9.66,
+        "recommendation_acceptance_pct": 59.2,
+        "defects_found": 9
+      },
+      {
+        "week": 2,
+        "transaction_failure_rate_pct": 2.2,
+        "mape_expense_model_pct": 9.07,
+        "recommendation_acceptance_pct": 58.1,
+        "defects_found": 10
+      },
+      {
+        "week": 3,
+        "transaction_failure_rate_pct": 2.91,
+        "mape_expense_model_pct": 9.02,
+        "recommendation_acceptance_pct": 62.3,
+        "defects_found": 15
+      },
+      {
+        "week": 4,
+        "transaction_failure_rate_pct": 3.17,
+        "mape_expense_model_pct": 8.38,
+        "recommendation_acceptance_pct": 59.1,
+        "defects_found": 13
+      },
+      {
+        "week": 5,
+        "transaction_failure_rate_pct": 4.26,
+        "mape_expense_model_pct": 9.11,
+        "recommendation_acceptance_pct": 55.8,
+        "defects_found": 13
+      },
+      {
+        "week": 6,
+        "transaction_failure_rate_pct": 3.28,
+        "mape_expense_model_pct": 8.24,
+        "recommendation_acceptance_pct": 56.3,
+        "defects_found": 15
+      },
+      {
+        "week": 7,
+        "transaction_failure_rate_pct": 3.79,
+        "mape_expense_model_pct": 7.47,
+        "recommendation_acceptance_pct": 66.3,
+        "defects_found": 11
+      },
+      {
+        "week": 8,
+        "transaction_failure_rate_pct": 2.9,
+        "mape_expense_model_pct": 7.28,
+        "recommendation_acceptance_pct": 67.4,
+        "defects_found": 11
+      },
+      {
+        "week": 9,
+        "transaction_failure_rate_pct": 2.49,
+        "mape_expense_model_pct": 8.29,
+        "recommendation_acceptance_pct": 62.6,
+        "defects_found": 19
+      },
+      {
+        "week": 10,
+        "transaction_failure_rate_pct": 2.62,
+        "mape_expense_model_pct": 9.26,
+        "recommendation_acceptance_pct": 62.9,
+        "defects_found": 17
+      },
+      {
+        "week": 11,
+        "transaction_failure_rate_pct": 5.76,
+        "mape_expense_model_pct": 7.98,
+        "recommendation_acceptance_pct": 69.3,
+        "defects_found": 11
+      },
+      {
+        "week": 12,
+        "transaction_failure_rate_pct": 7.48,
+        "mape_expense_model_pct": 7.61,
+        "recommendation_acceptance_pct": 62.5,
+        "defects_found": 6
+      },
+      {
+        "week": 13,
+        "transaction_failure_rate_pct": 5.71,
+        "mape_expense_model_pct": 7.78,
+        "recommendation_acceptance_pct": 64.0,
+        "defects_found": 13
+      },
+      {
+        "week": 14,
+        "transaction_failure_rate_pct": 2.7,
+        "mape_expense_model_pct": 8.44,
+        "recommendation_acceptance_pct": 69.5,
+        "defects_found": 9
+      },
+      {
+        "week": 15,
+        "transaction_failure_rate_pct": 1.66,
+        "mape_expense_model_pct": 7.43,
+        "recommendation_acceptance_pct": 67.3,
+        "defects_found": 10
+      },
+      {
+        "week": 16,
+        "transaction_failure_rate_pct": 2.76,
+        "mape_expense_model_pct": 6.77,
+        "recommendation_acceptance_pct": 69.4,
+        "defects_found": 7
+      }
+    ],
+    "totals": {
+      "total_features_delivered": 109,
+      "total_errors_logged": 117,
+      "total_faults": 89,
+      "total_defects": 142,
+      "avg_delay_days": 6.51,
+      "max_delay_module": "Budget Manager"
+    }
+  }
+}

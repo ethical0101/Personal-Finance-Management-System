@@ -1,0 +1,249 @@
+{
+  "network1_project_risk": {
+    "nodes": [
+      "RequirementVolatility(R)",
+      "TeamExperience(T)",
+      "ScheduleDelay(S)",
+      "DefectDensity(D)",
+      "ProjectRisk(P)"
+    ],
+    "priors": {
+      "P_R": {
+        "Low": 0.55,
+        "High": 0.45
+      },
+      "P_T": {
+        "Low": 0.4,
+        "High": 0.6
+      }
+    },
+    "cpt_schedule_delay_given_R_T": {
+      "Low,Low": {
+        "Low": 0.55,
+        "High": 0.45
+      },
+      "Low,High": {
+        "Low": 0.85,
+        "High": 0.15
+      },
+      "High,Low": {
+        "Low": 0.15,
+        "High": 0.85
+      },
+      "High,High": {
+        "Low": 0.55,
+        "High": 0.45
+      }
+    },
+    "cpt_defect_density_given_R_T": {
+      "Low,Low": {
+        "Low": 0.45,
+        "High": 0.55
+      },
+      "Low,High": {
+        "Low": 0.8,
+        "High": 0.2
+      },
+      "High,Low": {
+        "Low": 0.2,
+        "High": 0.8
+      },
+      "High,High": {
+        "Low": 0.6,
+        "High": 0.4
+      }
+    },
+    "cpt_project_risk_given_S_D": {
+      "Low,Low": {
+        "Low": 0.75,
+        "Medium": 0.2,
+        "High": 0.05
+      },
+      "Low,High": {
+        "Low": 0.25,
+        "Medium": 0.5,
+        "High": 0.25
+      },
+      "High,Low": {
+        "Low": 0.2,
+        "Medium": 0.55,
+        "High": 0.25
+      },
+      "High,High": {
+        "Low": 0.03,
+        "Medium": 0.27,
+        "High": 0.7
+      }
+    },
+    "scenarios": [
+      {
+        "scenario": "Baseline (no evidence \u2014 population prior)",
+        "evidence": {},
+        "posterior_P": {
+          "Low": 0.3755,
+          "Medium": 0.3432,
+          "High": 0.2812
+        }
+      },
+      {
+        "scenario": "Volatile requirements + inexperienced team (worst case)",
+        "evidence": {
+          "R": "High",
+          "T": "Low"
+        },
+        "posterior_P": {
+          "Low": 0.1069,
+          "Medium": 0.3431,
+          "High": 0.55
+        }
+      },
+      {
+        "scenario": "Stable requirements + experienced team (best case)",
+        "evidence": {
+          "R": "Low",
+          "T": "High"
+        },
+        "posterior_P": {
+          "Low": 0.5774,
+          "Medium": 0.2951,
+          "High": 0.1275
+        }
+      },
+      {
+        "scenario": "Observed schedule already slipping (High delay)",
+        "evidence": {
+          "S": "High"
+        },
+        "posterior_P": {
+          "Low": 0.1054,
+          "Medium": 0.3942,
+          "High": 0.5004
+        }
+      },
+      {
+        "scenario": "Observed high defect density in current sprint",
+        "evidence": {
+          "D": "High"
+        },
+        "posterior_P": {
+          "Low": 0.1321,
+          "Medium": 0.3767,
+          "High": 0.4912
+        }
+      },
+      {
+        "scenario": "Mitigation applied: inexperienced team upskilled mid-project (T -> High) despite volatile requirements",
+        "evidence": {
+          "R": "High",
+          "T": "High"
+        },
+        "posterior_P": {
+          "Low": 0.3619,
+          "Medium": 0.3731,
+          "High": 0.265
+        }
+      }
+    ]
+  },
+  "network2_defect_prediction": {
+    "priors": {
+      "P_CodeComplexity": {
+        "Low": 0.5,
+        "High": 0.5
+      },
+      "P_TestCoverage": {
+        "Low": 0.5,
+        "High": 0.5
+      }
+    },
+    "cpt_defect_given_complexity_coverage": {
+      "Low,Low": {
+        "No": 1.0,
+        "Yes": 0.0
+      },
+      "Low,High": {
+        "No": 0.5,
+        "Yes": 0.5
+      },
+      "High,Low": {
+        "No": 0.25,
+        "Yes": 0.75
+      },
+      "High,High": {
+        "No": 0.5,
+        "Yes": 0.5
+      }
+    },
+    "predictions": [
+      {
+        "CodeComplexity": "Low",
+        "TestCoverage": "Low",
+        "P_DefectProne": {
+          "No": 1.0,
+          "Yes": 0.0
+        }
+      },
+      {
+        "CodeComplexity": "Low",
+        "TestCoverage": "High",
+        "P_DefectProne": {
+          "No": 0.5,
+          "Yes": 0.5
+        }
+      },
+      {
+        "CodeComplexity": "High",
+        "TestCoverage": "Low",
+        "P_DefectProne": {
+          "No": 0.25,
+          "Yes": 0.75
+        }
+      },
+      {
+        "CodeComplexity": "High",
+        "TestCoverage": "High",
+        "P_DefectProne": {
+          "No": 0.5,
+          "Yes": 0.5
+        }
+      }
+    ]
+  },
+  "risk_register": [
+    {
+      "risk": "Requirement volatility (frequent scope changes to AI recommendation logic)",
+      "bn_driver": "R -> S, D",
+      "likelihood": "Medium-High",
+      "impact": "High",
+      "mitigation": "Freeze the GQ(I)M-derived acceptance criteria per sprint; route all mid-sprint scope changes through a lightweight change-control board before they enter the backlog."
+    },
+    {
+      "risk": "Inexperienced team members on the Transaction Engine / Auth modules",
+      "bn_driver": "T -> S, D",
+      "likelihood": "Medium",
+      "impact": "High",
+      "mitigation": "Pair junior engineers with senior reviewers on Transaction Engine and Authentication Service PRs; mandatory code review + 85% coverage gate already defined in Sub-Goal 4's CI/CD plan."
+    },
+    {
+      "risk": "Schedule delay cascading from high-coupling modules",
+      "bn_driver": "Coupling (CBO) -> S (r=0.65 from Module 3 correlation analysis)",
+      "likelihood": "Medium",
+      "impact": "Medium",
+      "mitigation": "Refactor the top-2 highest-coupling modules identified by the decision tree/correlation analysis before the next release; track CBO as a Structural-Metrics KPI in the sprint dashboard."
+    },
+    {
+      "risk": "AI model drift degrading recommendation accuracy",
+      "bn_driver": "Feeds Sub-Goal 1 (Section 4.1 of Review-0 report)",
+      "likelihood": "Medium",
+      "impact": "Medium",
+      "mitigation": "Auto-trigger retraining when Drift Score (current MAPE - baseline MAPE) exceeds threshold, as already planned in the GQ(I)M measurement plan."
+    },
+    {
+      "risk": "Production transaction-failure spike (control-chart out-of-control signal)",
+      "bn_driver": "Detected directly by the I-MR control chart (Module 3) at week(s) with failure rate above UCL",
+      "likelihood": "Observed",
+      "impact": "High",
+      "mitigation": "Treat any UCL breach as an assignable-cause incident: trigger the 48-hour post-mortem SLA already defined in Sub-Goal 4's measurement plan; roll back the release that introduced the regression."
+    }
+  ]
+}

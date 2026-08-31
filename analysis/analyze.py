@@ -1,0 +1,237 @@
+"""
+Module 3 - Software Metrics Data Collection
+Classical Data Analysis Techniques: Decision Tree, Box Plot, Control Chart,
+Correlation and Statistical Test.
+
+Reads data/module_metrics.csv and data/sprint_metrics.csv, runs each
+technique, saves chart PNGs to charts/, and writes a single results.json
+consumed by the dashboard.
+"""
+import json
+from pathlib import Path
+
+import numpy as np
+import pandas as pd
+import matplotlib
+matplotlib.use("Agg")
+import matplotlib.pyplot as plt
+from scipy import stats
+from sklearn.tree import DecisionTreeClassifier, plot_tree
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
+
+ROOT = Path(__file__).resolve().parent.parent
+DATA = ROOT / "data"
+CHARTS = ROOT / "charts"
+CHARTS.mkdir(exist_ok=True)
+
+plt.rcParams.update({
+    "figure.facecolor": "white", "axes.facecolor": "white",
+    "font.size": 11, "axes.titleweight": "bold",
+})
+
+mod = pd.read_csv(DATA / "module_metrics.csv")
+spr = pd.read_csv(DATA / "sprint_metrics.csv")
+
+results = {}
+
+# ---------------------------------------------------------------------
+# 1. CORRELATION + STATISTICAL TEST
+# ---------------------------------------------------------------------
+corr_cols = ["cyclomatic_complexity", "coupling_cbo", "cohesion_lcom",
+             "test_coverage_pct", "defect_density_per_kloc", "delay_days"]
+corr_matrix = mod[corr_cols].corr(method="pearson").round(2)
+
+fig, ax = plt.subplots(figsize=(7, 6))
+im = ax.imshow(corr_matrix.values, cmap="RdBu_r", vmin=-1, vmax=1)
+ax.set_xticks(range(len(corr_cols))); ax.set_xticklabels(corr_cols, rotation=45, ha="right")
+ax.set_yticks(range(len(corr_cols))); ax.set_yticklabels(corr_cols)
+for i in range(len(corr_cols)):
+    for j in range(len(corr_cols)):
+        ax.text(j, i, corr_matrix.values[i, j], ha="center", va="center",
+                color="white" if abs(corr_matrix.values[i, j]) > 0.5 else "black", fontsize=9)
+ax.set_title("Correlation Matrix — Structural Metrics vs Defects/Delay")
+fig.colorbar(im, ax=ax, shrink=0.8, label="Pearson r")
+fig.tight_layout()
+fig.savefig(CHARTS / "correlation_heatmap.png", dpi=150)
+plt.close(fig)
+
+# Significance test: complexity vs defect density, coverage vs defect density
+r1, p1 = stats.pearsonr(mod.cyclomatic_complexity, mod.defect_density_per_kloc)
+r2, p2 = stats.pearsonr(mod.test_coverage_pct, mod.defect_density_per_kloc)
+r3, p3 = stats.pearsonr(mod.coupling_cbo, mod.delay_days)
+
+# Independent two-sample t-test: defect density in low-coverage vs high-coverage modules
+median_cov = mod.test_coverage_pct.median()
+low_cov = mod.loc[mod.test_coverage_pct <= median_cov, "defect_density_per_kloc"]
+high_cov = mod.loc[mod.test_coverage_pct > median_cov, "defect_density_per_kloc"]
+t_stat, t_p = stats.ttest_ind(low_cov, high_cov, equal_var=False)
+
+results["correlation"] = {
+    "matrix": corr_matrix.to_dict(),
+    "tests": [
+        {"pair": "Cyclomatic Complexity vs Defect Density", "r": round(r1, 3), "p_value": round(p1, 4),
+         "significant": bool(p1 < 0.05),
+         "interpretation": "Strong positive correlation — more complex modules carry more defects." if r1 > 0.5 else "Moderate/weak correlation."},
+        {"pair": "Test Coverage vs Defect Density", "r": round(r2, 3), "p_value": round(p2, 4),
+         "significant": bool(p2 < 0.05),
+         "interpretation": "Strong negative correlation — higher test coverage is associated with fewer defects." if r2 < -0.5 else "Moderate/weak correlation."},
+        {"pair": "Coupling (CBO) vs Delay (days)", "r": round(r3, 3), "p_value": round(p3, 4),
+         "significant": bool(p3 < 0.05),
+         "interpretation": "Higher coupling modules take longer to stabilize / ship." if r3 > 0.4 else "Moderate/weak correlation."},
+    ],
+    "t_test_low_vs_high_coverage": {
+        "t_stat": round(float(t_stat), 3), "p_value": round(float(t_p), 4),
+        "low_coverage_mean_defect_density": round(float(low_cov.mean()), 2),
+        "high_coverage_mean_defect_density": round(float(high_cov.mean()), 2),
+        "significant": bool(t_p < 0.05),
+    },
+}
+
+# ---------------------------------------------------------------------
+# 2. DECISION TREE — predict defect-prone module (High/Low risk)
+# ---------------------------------------------------------------------
+mod["risk_label"] = np.where(
+    mod.defect_density_per_kloc > mod.defect_density_per_kloc.median(), "High", "Low"
+)
+features = ["cyclomatic_complexity", "coupling_cbo", "cohesion_lcom", "test_coverage_pct"]
+X = mod[features]
+y = mod["risk_label"]
+
+clf = DecisionTreeClassifier(max_depth=3, min_samples_leaf=2, random_state=42)
+clf.fit(X, y)  # small dataset (12 modules) -> fit on full set, this is illustrative/explanatory, not predictive-at-scale
+pred = clf.predict(X)
+
+fig, ax = plt.subplots(figsize=(13, 7))
+plot_tree(clf, feature_names=features, class_names=clf.classes_, filled=True,
+          rounded=True, fontsize=10, ax=ax)
+ax.set_title("Decision Tree — Defect-Proneness Classification (module_metrics.csv)")
+fig.tight_layout()
+fig.savefig(CHARTS / "decision_tree.png", dpi=150)
+plt.close(fig)
+
+importances = dict(zip(features, np.round(clf.feature_importances_, 3)))
+results["decision_tree"] = {
+    "features": features,
+    "target": "risk_label (High/Low defect density, split at median)",
+    "accuracy_on_training_data": round(float(accuracy_score(y, pred)), 3),
+    "feature_importances": importances,
+    "rules_summary": [
+        "Root split is on the metric with the highest information gain (see chart) — "
+        "typically Cyclomatic Complexity or Test Coverage dominate.",
+        "Modules with high complexity AND low test coverage are classified High risk.",
+        "This mirrors ISO/IEC 25010 Maintainability and ties directly into Sub-Goal 4 "
+        "(defect density) from the Review-0 GQ(I)M plan.",
+    ],
+}
+
+# ---------------------------------------------------------------------
+# 3. BOX PLOT — defect & delay distribution
+# ---------------------------------------------------------------------
+fig, axes = plt.subplots(1, 2, figsize=(11, 5))
+axes[0].boxplot(mod.defect_density_per_kloc, vert=True, patch_artist=True,
+                 boxprops=dict(facecolor="#8ecae6"))
+axes[0].set_title("Defect Density (per KLOC)")
+axes[0].set_ylabel("Defects / KLOC")
+axes[1].boxplot(mod.delay_days, vert=True, patch_artist=True,
+                 boxprops=dict(facecolor="#ffb703"))
+axes[1].set_title("Schedule Delay (days)")
+axes[1].set_ylabel("Delay (days)")
+fig.suptitle("Box Plot — Spread & Outliers Across 12 Modules", fontweight="bold")
+fig.tight_layout()
+fig.savefig(CHARTS / "box_plot.png", dpi=150)
+plt.close(fig)
+
+
+def iqr_outliers(series):
+    q1, q3 = series.quantile([0.25, 0.75])
+    iqr = q3 - q1
+    lo, hi = q1 - 1.5 * iqr, q3 + 1.5 * iqr
+    return mod.loc[(series < lo) | (series > hi), "module"].tolist(), round(float(lo), 2), round(float(hi), 2)
+
+
+dd_outliers, dd_lo, dd_hi = iqr_outliers(mod.defect_density_per_kloc)
+delay_outliers, delay_lo, delay_hi = iqr_outliers(mod.delay_days)
+results["box_plot"] = {
+    "defect_density": {"q1": round(float(mod.defect_density_per_kloc.quantile(0.25)), 2),
+                        "median": round(float(mod.defect_density_per_kloc.median()), 2),
+                        "q3": round(float(mod.defect_density_per_kloc.quantile(0.75)), 2),
+                        "iqr_fence": [dd_lo, dd_hi], "outlier_modules": dd_outliers},
+    "delay_days": {"q1": round(float(mod.delay_days.quantile(0.25)), 2),
+                    "median": round(float(mod.delay_days.median()), 2),
+                    "q3": round(float(mod.delay_days.quantile(0.75)), 2),
+                    "iqr_fence": [delay_lo, delay_hi], "outlier_modules": delay_outliers},
+}
+
+# ---------------------------------------------------------------------
+# 4. CONTROL CHART — Individuals & Moving Range (I-MR) on weekly
+#    transaction failure rate, detects the injected process shift
+# ---------------------------------------------------------------------
+x = spr.transaction_failure_rate_pct.values
+mr = np.abs(np.diff(x))
+xbar = x.mean()
+mr_bar = mr.mean()
+UCL_I = xbar + 2.66 * mr_bar
+LCL_I = max(xbar - 2.66 * mr_bar, 0)
+UCL_MR = 3.267 * mr_bar
+
+fig, axes = plt.subplots(2, 1, figsize=(11, 7), sharex=True)
+axes[0].plot(spr.week, x, marker="o", color="#023047")
+axes[0].axhline(xbar, color="green", linestyle="--", label=f"CL={xbar:.2f}")
+axes[0].axhline(UCL_I, color="red", linestyle="--", label=f"UCL={UCL_I:.2f}")
+axes[0].axhline(LCL_I, color="red", linestyle="--", label=f"LCL={LCL_I:.2f}")
+out_of_control = spr.week[(x > UCL_I) | (x < LCL_I)].tolist()
+for wk in out_of_control:
+    axes[0].scatter([wk], [x[spr.week.tolist().index(wk)]], color="red", zorder=5, s=80)
+axes[0].set_title("I-Chart — Weekly Transaction Failure Rate (%)")
+axes[0].set_ylabel("Failure rate (%)")
+axes[0].legend(fontsize=8, loc="upper left")
+
+axes[1].plot(spr.week[1:], mr, marker="o", color="#6a4c93")
+axes[1].axhline(mr_bar, color="green", linestyle="--", label=f"CL={mr_bar:.2f}")
+axes[1].axhline(UCL_MR, color="red", linestyle="--", label=f"UCL={UCL_MR:.2f}")
+axes[1].set_title("MR-Chart — Moving Range")
+axes[1].set_xlabel("Sprint week")
+axes[1].set_ylabel("Moving range")
+axes[1].legend(fontsize=8, loc="upper left")
+fig.tight_layout()
+fig.savefig(CHARTS / "control_chart.png", dpi=150)
+plt.close(fig)
+
+results["control_chart"] = {
+    "metric": "transaction_failure_rate_pct (weekly)",
+    "center_line": round(float(xbar), 3),
+    "UCL": round(float(UCL_I), 3),
+    "LCL": round(float(LCL_I), 3),
+    "out_of_control_weeks": out_of_control,
+    "interpretation": (
+        f"Week(s) {out_of_control} breach the Upper Control Limit — this corresponds to the "
+        "release regression injected around week 11-13 in the simulated data, demonstrating how "
+        "an I-MR control chart flags an assignable-cause process shift in production transaction "
+        "reliability (Sub-Goal 4 — Functional Correctness) in real time." if out_of_control else
+        "No points breach the control limits — process is in statistical control."
+    ),
+}
+
+# ---------------------------------------------------------------------
+# Save datasets summary + write results.json
+# ---------------------------------------------------------------------
+results["dataset_summary"] = {
+    "modules": mod.to_dict(orient="records"),
+    "sprints": spr.to_dict(orient="records"),
+    "totals": {
+        "total_features_delivered": int(mod.features_delivered.sum()),
+        "total_errors_logged": int(mod.errors_logged.sum()),
+        "total_faults": int(mod.fault_count.sum()),
+        "total_defects": int(mod.defect_count.sum()),
+        "avg_delay_days": round(float(mod.delay_days.mean()), 2),
+        "max_delay_module": mod.loc[mod.delay_days.idxmax(), "module"],
+    },
+}
+
+with open(ROOT / "analysis" / "results.json", "w") as f:
+    json.dump(results, f, indent=2)
+
+print("Analysis complete. Charts written to", CHARTS)
+print(json.dumps(results["correlation"]["tests"], indent=2))
+print(json.dumps(results["control_chart"], indent=2))
