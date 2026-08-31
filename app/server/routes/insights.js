@@ -1,6 +1,7 @@
 const express = require("express");
 const db = require("../db");
 const { forecastNextMonth, monthlyTotals } = require("../lib/ai");
+const { generateRecommendations } = require("../lib/gemini");
 
 const router = express.Router();
 
@@ -15,7 +16,7 @@ router.get("/forecast", (req, res) => {
   res.json(results);
 });
 
-router.get("/recommendations", (req, res) => {
+router.get("/recommendations", async (req, res) => {
   const categories = db.find("categories", c => c.userId === req.userId);
   const budgets = db.find("budgets", b => b.userId === req.userId && b.month === new Date().toISOString().slice(0, 7));
   const recs = [];
@@ -61,6 +62,66 @@ router.get("/recommendations", (req, res) => {
         message: `Your overall savings rate is ${(savingsRate * 100).toFixed(0)}% of income, below the recommended 10-20%.`,
         suggestion: "Consider automating a fixed transfer to a savings goal right after each income transaction.",
       });
+    }
+  }
+
+  // Gemini-generated recommendations layer -- built from the same real data,
+  // appended after the deterministic rules above (which never fail/timeout).
+  const user = db.findOne("users", u => u.id === req.userId);
+  const accounts = db.find("accounts", a => a.userId === req.userId);
+  const netWorth = accounts.reduce((s, a) => s + a.balance, 0);
+  const month = new Date().toISOString().slice(0, 7);
+  const txThisMonth = db.find("transactions", t => t.userId === req.userId && t.date.slice(0, 7) === month);
+  const incomeThisMonth = txThisMonth.filter(t => t.type === "income").reduce((s, t) => s + t.amount, 0);
+  const expenseThisMonth = txThisMonth.filter(t => t.type === "expense").reduce((s, t) => s + t.amount, 0);
+  const spendMap = {};
+  for (const t of txThisMonth.filter(t => t.type === "expense")) spendMap[t.categoryId] = (spendMap[t.categoryId] || 0) + t.amount;
+  const spendByCategory = Object.entries(spendMap).map(([categoryId, total]) => ({
+    categoryName: (categories.find(c => c.id === categoryId) || {}).name || "Other", total: Number(total.toFixed(2)),
+  }));
+
+  const budgetsWithSpend = budgets.map(b => ({
+    categoryId: b.categoryId,
+    categoryName: (categories.find(c => c.id === b.categoryId) || {}).name,
+    monthlyLimit: b.monthlyLimit,
+    spent: Number((spendMap[b.categoryId] || 0).toFixed(2)),
+  }));
+
+  const forecasts = categories.filter(c => c.name !== "Income").map(cat => {
+    const expenses = db.find("transactions", t => t.userId === req.userId && t.categoryId === cat.id && t.type === "expense");
+    if (expenses.length === 0) return null;
+    const { forecast, confidence } = forecastNextMonth(expenses);
+    return { categoryName: cat.name, forecast, confidence };
+  }).filter(Boolean);
+
+  const anomalyContext = anomalies.map(a => ({
+    amount: a.amount, date: a.date, zScore: a.anomalyZScore,
+    categoryName: (categories.find(c => c.id === a.categoryId) || {}).name,
+  }));
+
+  if (user) {
+    const gemini = await generateRecommendations({
+      user: { name: user.name },
+      summary: {
+        netWorth: Number(netWorth.toFixed(2)),
+        incomeThisMonth: Number(incomeThisMonth.toFixed(2)),
+        expenseThisMonth: Number(expenseThisMonth.toFixed(2)),
+        savingsRateThisMonth: incomeThisMonth > 0 ? Number((((incomeThisMonth - expenseThisMonth) / incomeThisMonth) * 100).toFixed(1)) : 0,
+        spendByCategory,
+      },
+      budgets: budgetsWithSpend,
+      forecasts,
+      anomalies: anomalyContext,
+    });
+
+    if (gemini.ok && gemini.recommendations.length) {
+      gemini.recommendations.forEach((text, i) => recs.push({
+        id: `gemini-${month}-${i}`, type: "gemini", severity: "good", source: "gemini-3.6-flash",
+        message: text, suggestion: "",
+      }));
+    } else if (!gemini.ok && gemini.reason !== "no-api-key") {
+      // Surface the failure quietly in server logs; the deterministic recs above still render.
+      console.warn("Gemini recommendations unavailable:", gemini.reason, gemini.detail || "");
     }
   }
 

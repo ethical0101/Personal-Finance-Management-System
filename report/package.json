@@ -1,0 +1,6 @@
+{
+  "name": "report-builder",
+  "private": true,
+  "scripts": { "build": "node build_full_report.js" },
+  "dependencies": { "docx": "^9.0.0" }
+}

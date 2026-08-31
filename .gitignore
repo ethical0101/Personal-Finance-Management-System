@@ -5,4 +5,9 @@ __pycache__/
 node_modules/
 app/server/data/*.json
 app/server/server.log
+.env
+*.env
+app/web/dist/
+~$*.docx
+report/screenshots/**/profile/
 
