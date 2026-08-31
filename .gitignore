@@ -2,3 +2,7 @@ __pycache__/
 *.pyc
 .DS_Store
 *.egg-info/
+node_modules/
+app/server/data/*.json
+app/server/server.log
+

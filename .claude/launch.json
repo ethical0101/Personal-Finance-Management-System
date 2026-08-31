@@ -6,6 +6,11 @@
       "runtimeExecutable": "python",
       "runtimeArgs": ["-m", "http.server", "8731", "--directory", "dashboard"],
       "port": 8731
+    },
+    {
+      "name": "finance-app",
+      "url": "http://localhost:4000",
+      "port": 4000
     }
   ]
 }

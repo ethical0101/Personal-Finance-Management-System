@@ -1,0 +1,173 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Wealthline — Personal Finance</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<!-- ===================== AUTH SCREEN ===================== -->
+<div id="authScreen">
+  <div class="auth-card">
+    <div class="auth-brand">
+      <span class="mark">W</span>
+      <span class="name">Wealthline</span>
+    </div>
+    <div class="auth-tabs" role="tablist">
+      <button role="tab" aria-selected="true" data-authtab="login">Log in</button>
+      <button role="tab" aria-selected="false" data-authtab="signup">Sign up</button>
+    </div>
+
+    <form id="loginForm">
+      <div class="field"><label for="loginEmail">Email</label><input id="loginEmail" type="email" autocomplete="email" required></div>
+      <div class="field"><label for="loginPassword">Password</label><input id="loginPassword" type="password" autocomplete="current-password" required></div>
+      <div class="form-error" id="loginError"></div>
+      <button class="btn btn-primary" type="submit">Log in</button>
+    </form>
+
+    <form id="signupForm" class="hidden">
+      <div class="field"><label for="signupName">Full name</label><input id="signupName" type="text" autocomplete="name" required></div>
+      <div class="field"><label for="signupEmail">Email</label><input id="signupEmail" type="email" autocomplete="email" required></div>
+      <div class="field"><label for="signupPassword">Password</label><input id="signupPassword" type="password" autocomplete="new-password" minlength="8" required></div>
+      <div class="form-error" id="signupError"></div>
+      <button class="btn btn-primary" type="submit">Create account</button>
+    </form>
+
+    <p class="auth-foot">Demo credentials are created instantly — no email verification. Passwords are hashed with bcrypt server-side.</p>
+  </div>
+</div>
+
+<!-- ===================== APP SHELL ===================== -->
+<div id="appShell" class="hidden">
+  <aside class="sidebar">
+    <div class="brand"><span class="mark">W</span><span>Wealthline</span></div>
+    <button class="navlink active" data-view="dashboardView">Dashboard</button>
+    <button class="navlink" data-view="transactionsView">Transactions</button>
+    <button class="navlink" data-view="accountsView">Accounts</button>
+    <button class="navlink" data-view="budgetsView">Budgets</button>
+    <button class="navlink" data-view="goalsView">Goals</button>
+    <button class="navlink" data-view="billsView">Recurring Bills</button>
+    <button class="navlink" data-view="insightsView">AI Insights</button>
+    <button class="navlink" data-view="notificationsView">Notifications<span class="badge hidden" id="notifBadge"></span></button>
+    <div class="sidebar-foot">
+      <div class="user-chip">
+        <span class="avatar" id="userAvatar">U</span>
+        <span class="who"><span class="n" id="userName">—</span><span class="e" id="userEmail">—</span></span>
+      </div>
+      <button class="navlink" id="logoutBtn">Log out</button>
+      <p class="link-out" style="padding:8px;">Metrics program for this system: see the <a href="../dashboard/index.html" target="_blank" rel="noopener">Metrics Command Deck</a>.</p>
+    </div>
+  </aside>
+
+  <div class="sidebar-scrim" id="sidebarScrim"></div>
+  <div>
+    <div class="topbar">
+      <button class="mobileNavToggle" id="mobileNavToggle" title="Menu" aria-label="Open menu">☰</button>
+      <button class="icon-btn" id="themeToggle" title="Toggle theme">◐</button>
+    </div>
+    <main class="content">
+
+      <!-- ---------- Dashboard ---------- -->
+      <section class="view active" id="dashboardView">
+        <div class="page-head"><div><h1>Dashboard</h1><p>Your finances at a glance.</p></div></div>
+        <div class="grid cols-4" id="kpiGrid"></div>
+        <div class="grid cols-2" style="margin-top:16px;">
+          <div class="card">
+            <div class="section-title"><h3>Spend by category (this month)</h3></div>
+            <div id="spendByCategory"></div>
+          </div>
+          <div class="card">
+            <div class="section-title"><h3>Recent transactions</h3></div>
+            <div id="recentTransactions"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ---------- Transactions ---------- -->
+      <section class="view" id="transactionsView">
+        <div class="page-head">
+          <div><h1>Transactions</h1><p>Every transaction is checked for anomalies against your category history.</p></div>
+          <button class="btn btn-primary" id="openAddTx">+ Add transaction</button>
+        </div>
+        <div class="table-scroll">
+          <table>
+            <thead><tr><th>Date</th><th>Description</th><th>Category</th><th>Account</th><th class="num">Amount</th><th>Flag</th><th></th></tr></thead>
+            <tbody id="txTableBody"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- ---------- Accounts ---------- -->
+      <section class="view" id="accountsView">
+        <div class="page-head">
+          <div><h1>Accounts</h1><p>Savings, checking and credit card accounts.</p></div>
+          <button class="btn btn-primary" id="openAddAccount">+ Add account</button>
+        </div>
+        <div class="grid cols-3" id="accountsGrid"></div>
+      </section>
+
+      <!-- ---------- Budgets ---------- -->
+      <section class="view" id="budgetsView">
+        <div class="page-head">
+          <div><h1>Budgets</h1><p>Monthly limits per category, tracked against real spend.</p></div>
+          <button class="btn btn-primary" id="openAddBudget">+ Set budget</button>
+        </div>
+        <div class="card"><div id="budgetsList"></div></div>
+      </section>
+
+      <!-- ---------- Goals ---------- -->
+      <section class="view" id="goalsView">
+        <div class="page-head">
+          <div><h1>Financial Goals</h1><p>Track progress toward what you're saving for.</p></div>
+          <button class="btn btn-primary" id="openAddGoal">+ Add goal</button>
+        </div>
+        <div class="grid cols-3" id="goalsGrid"></div>
+      </section>
+
+      <!-- ---------- Bills ---------- -->
+      <section class="view" id="billsView">
+        <div class="page-head">
+          <div><h1>Recurring Bills</h1><p>Bills that repeat every month.</p></div>
+          <button class="btn btn-primary" id="openAddBill">+ Add bill</button>
+        </div>
+        <div class="table-scroll">
+          <table>
+            <thead><tr><th>Name</th><th>Category</th><th class="num">Amount</th><th class="num">Due day</th><th></th></tr></thead>
+            <tbody id="billsTableBody"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- ---------- AI Insights ---------- -->
+      <section class="view" id="insightsView">
+        <div class="page-head"><div><h1>AI Insights</h1><p>Expense forecasts (linear regression) and recommendations, generated from your own transaction history — the same models described in the project's Review 0 class diagram.</p></div></div>
+        <div class="grid cols-2">
+          <div class="card">
+            <div class="section-title"><h3>Next-month expense forecast</h3></div>
+            <div id="forecastList"></div>
+          </div>
+          <div class="card">
+            <div class="section-title"><h3>Recommendations</h3></div>
+            <div id="recommendationsList"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ---------- Notifications ---------- -->
+      <section class="view" id="notificationsView">
+        <div class="page-head"><div><h1>Notifications</h1><p>Anomaly alerts and budget warnings.</p></div></div>
+        <div class="card"><div id="notificationsList"></div></div>
+      </section>
+
+    </main>
+  </div>
+</div>
+
+<div id="modalRoot"></div>
+<div class="toast-wrap" id="toastWrap"></div>
+
+<script src="app.js"></script>
+</body>
+</html>
