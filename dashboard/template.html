@@ -341,9 +341,14 @@ footer.foot { margin-top: 60px; padding-top: 22px; border-top: 1px solid var(--b
 
   <div class="grid cols-2">
     <div class="card">
-      <div class="hgroup"><h3>Correlation &amp; statistical test</h3><span class="tag">Pearson &middot; Spearman &middot; Kendall</span></div>
+      <div class="hgroup"><h3>Correlation &amp; statistical test</h3><span class="tag">3 individual matrices</span></div>
+      <div class="seg" id="corrMethodSeg" style="margin-bottom:10px;">
+        <button data-method="pearson" aria-pressed="true">Pearson</button>
+        <button data-method="spearman" aria-pressed="false">Spearman</button>
+        <button data-method="kendall" aria-pressed="false">Kendall</button>
+      </div>
       <figure><img id="imgCorr" alt="Correlation heatmap of structural metrics vs defects and delay">
-        <figcaption>Pearson correlation across complexity, coupling, cohesion, coverage, defect density and delay.</figcaption>
+        <figcaption id="imgCorrCaption">Pearson correlation across complexity, coupling, cohesion, coverage, defect density and delay.</figcaption>
       </figure>
       <figure style="margin-top:14px;"><img id="imgCorr3" alt="Grouped bar chart comparing Pearson, Spearman and Kendall correlation coefficients across three variable pairs">
         <figcaption>All three correlation types run on the same three pairs &mdash; a single method on 12 rows can mislead.</figcaption>
@@ -503,6 +508,23 @@ const DATA = JSON.parse(document.getElementById('DATA_BLOB').textContent);
 /* ---------------- images ---------------- */
 document.getElementById('imgCorr').src = DATA.images.correlation;
 document.getElementById('imgCorr3').src = DATA.images.correlation3;
+
+/* ---------------- correlation matrix method switcher ---------------- */
+(function () {
+  const captions = {
+    pearson: 'Pearson correlation (linear relationship) across complexity, coupling, cohesion, coverage, defect density and delay.',
+    spearman: 'Spearman rank correlation (monotonic relationship, robust to outliers) across the same six metrics.',
+    kendall: 'Kendall rank correlation (pairwise concordance, most conservative on small samples) across the same six metrics.',
+  };
+  const images = { pearson: DATA.images.correlation, spearman: DATA.images.correlation_spearman, kendall: DATA.images.correlation_kendall };
+  const seg = document.getElementById('corrMethodSeg');
+  seg.querySelectorAll('button').forEach(btn => btn.addEventListener('click', () => {
+    seg.querySelectorAll('button').forEach(b => b.setAttribute('aria-pressed', b === btn ? 'true' : 'false'));
+    const method = btn.dataset.method;
+    document.getElementById('imgCorr').src = images[method];
+    document.getElementById('imgCorrCaption').textContent = captions[method];
+  }));
+})();
 document.getElementById('imgTree').src = DATA.images.tree;
 document.getElementById('imgBox').src = DATA.images.box;
 document.getElementById('imgControl').src = DATA.images.control;

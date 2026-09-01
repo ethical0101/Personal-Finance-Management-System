@@ -40,21 +40,30 @@ results = {}
 # ---------------------------------------------------------------------
 corr_cols = ["cyclomatic_complexity", "coupling_cbo", "cohesion_lcom",
              "test_coverage_pct", "defect_density_per_kloc", "delay_days"]
-corr_matrix = mod[corr_cols].corr(method="pearson").round(2)
 
-fig, ax = plt.subplots(figsize=(7, 6))
-im = ax.imshow(corr_matrix.values, cmap="RdBu_r", vmin=-1, vmax=1)
-ax.set_xticks(range(len(corr_cols))); ax.set_xticklabels(corr_cols, rotation=45, ha="right")
-ax.set_yticks(range(len(corr_cols))); ax.set_yticklabels(corr_cols)
-for i in range(len(corr_cols)):
-    for j in range(len(corr_cols)):
-        ax.text(j, i, corr_matrix.values[i, j], ha="center", va="center",
-                color="white" if abs(corr_matrix.values[i, j]) > 0.5 else "black", fontsize=9)
-ax.set_title("Correlation Matrix (Pearson) — Structural Metrics vs Defects/Delay")
-fig.colorbar(im, ax=ax, shrink=0.8, label="Pearson r")
-fig.tight_layout()
-fig.savefig(CHARTS / "correlation_heatmap.png", dpi=150)
-plt.close(fig)
+
+def draw_corr_matrix(method, filename, label):
+    """Full 6x6 correlation matrix heatmap for one method (pearson/spearman/kendall)."""
+    matrix = mod[corr_cols].corr(method=method).round(2)
+    fig, ax = plt.subplots(figsize=(7, 6))
+    im = ax.imshow(matrix.values, cmap="RdBu_r", vmin=-1, vmax=1)
+    ax.set_xticks(range(len(corr_cols))); ax.set_xticklabels(corr_cols, rotation=45, ha="right")
+    ax.set_yticks(range(len(corr_cols))); ax.set_yticklabels(corr_cols)
+    for i in range(len(corr_cols)):
+        for j in range(len(corr_cols)):
+            ax.text(j, i, matrix.values[i, j], ha="center", va="center",
+                    color="white" if abs(matrix.values[i, j]) > 0.5 else "black", fontsize=9)
+    ax.set_title(f"Correlation Matrix ({label}) — Structural Metrics vs Defects/Delay")
+    fig.colorbar(im, ax=ax, shrink=0.8, label=f"{label} coefficient")
+    fig.tight_layout()
+    fig.savefig(CHARTS / filename, dpi=150)
+    plt.close(fig)
+    return matrix
+
+
+corr_matrix = draw_corr_matrix("pearson", "correlation_heatmap.png", "Pearson")
+corr_matrix_spearman = draw_corr_matrix("spearman", "correlation_heatmap_spearman.png", "Spearman")
+corr_matrix_kendall = draw_corr_matrix("kendall", "correlation_heatmap_kendall.png", "Kendall")
 
 # ---------------------------------------------------------------------
 # Correlation -- three types, each run on the same three variable pairs:
@@ -119,6 +128,8 @@ t_stat, t_p = stats.ttest_ind(low_cov, high_cov, equal_var=False)
 
 results["correlation"] = {
     "matrix": corr_matrix.to_dict(),
+    "matrix_spearman": corr_matrix_spearman.to_dict(),
+    "matrix_kendall": corr_matrix_kendall.to_dict(),
     "tests": corr_tests,
     "t_test_low_vs_high_coverage": {
         "t_stat": round(float(t_stat), 3), "p_value": round(float(t_p), 4),

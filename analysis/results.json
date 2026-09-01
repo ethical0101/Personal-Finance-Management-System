@@ -50,6 +50,106 @@
         "delay_days": 1.0
       }
     },
+    "matrix_spearman": {
+      "cyclomatic_complexity": {
+        "cyclomatic_complexity": 1.0,
+        "coupling_cbo": -0.6,
+        "cohesion_lcom": 0.47,
+        "test_coverage_pct": 0.09,
+        "defect_density_per_kloc": 0.59,
+        "delay_days": 0.16
+      },
+      "coupling_cbo": {
+        "cyclomatic_complexity": -0.6,
+        "coupling_cbo": 1.0,
+        "cohesion_lcom": 0.1,
+        "test_coverage_pct": -0.04,
+        "defect_density_per_kloc": 0.12,
+        "delay_days": 0.56
+      },
+      "cohesion_lcom": {
+        "cyclomatic_complexity": 0.47,
+        "coupling_cbo": 0.1,
+        "cohesion_lcom": 1.0,
+        "test_coverage_pct": -0.17,
+        "defect_density_per_kloc": 0.85,
+        "delay_days": 0.6
+      },
+      "test_coverage_pct": {
+        "cyclomatic_complexity": 0.09,
+        "coupling_cbo": -0.04,
+        "cohesion_lcom": -0.17,
+        "test_coverage_pct": 1.0,
+        "defect_density_per_kloc": -0.23,
+        "delay_days": -0.22
+      },
+      "defect_density_per_kloc": {
+        "cyclomatic_complexity": 0.59,
+        "coupling_cbo": 0.12,
+        "cohesion_lcom": 0.85,
+        "test_coverage_pct": -0.23,
+        "defect_density_per_kloc": 1.0,
+        "delay_days": 0.73
+      },
+      "delay_days": {
+        "cyclomatic_complexity": 0.16,
+        "coupling_cbo": 0.56,
+        "cohesion_lcom": 0.6,
+        "test_coverage_pct": -0.22,
+        "defect_density_per_kloc": 0.73,
+        "delay_days": 1.0
+      }
+    },
+    "matrix_kendall": {
+      "cyclomatic_complexity": {
+        "cyclomatic_complexity": 1.0,
+        "coupling_cbo": -0.43,
+        "cohesion_lcom": 0.38,
+        "test_coverage_pct": 0.05,
+        "defect_density_per_kloc": 0.47,
+        "delay_days": 0.15
+      },
+      "coupling_cbo": {
+        "cyclomatic_complexity": -0.43,
+        "coupling_cbo": 1.0,
+        "cohesion_lcom": 0.08,
+        "test_coverage_pct": 0.02,
+        "defect_density_per_kloc": 0.11,
+        "delay_days": 0.37
+      },
+      "cohesion_lcom": {
+        "cyclomatic_complexity": 0.38,
+        "coupling_cbo": 0.08,
+        "cohesion_lcom": 1.0,
+        "test_coverage_pct": -0.12,
+        "defect_density_per_kloc": 0.73,
+        "delay_days": 0.44
+      },
+      "test_coverage_pct": {
+        "cyclomatic_complexity": 0.05,
+        "coupling_cbo": 0.02,
+        "cohesion_lcom": -0.12,
+        "test_coverage_pct": 1.0,
+        "defect_density_per_kloc": -0.15,
+        "delay_days": -0.26
+      },
+      "defect_density_per_kloc": {
+        "cyclomatic_complexity": 0.47,
+        "coupling_cbo": 0.11,
+        "cohesion_lcom": 0.73,
+        "test_coverage_pct": -0.15,
+        "defect_density_per_kloc": 1.0,
+        "delay_days": 0.6
+      },
+      "delay_days": {
+        "cyclomatic_complexity": 0.15,
+        "coupling_cbo": 0.37,
+        "cohesion_lcom": 0.44,
+        "test_coverage_pct": -0.26,
+        "defect_density_per_kloc": 0.6,
+        "delay_days": 1.0
+      }
+    },
     "tests": [
       {
         "pair": "Cyclomatic Complexity vs Defect Density",

@@ -1,0 +1,151 @@
+<title>Review Talking Points</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap');
+
+:root {
+  --bg: #F5F7F5; --surface: #FFFFFF; --surface-2: #EDF1EE;
+  --ink: #101A17; --ink-dim: #4C5B55; --ink-faint: #7C8B85; --border: #D7E0DA;
+  --accent: #00625E; --accent-ink: #FFFFFF; --accent-soft: #DCEEEC;
+  --warn: #8A5A00; --warn-soft: #FBEBCC;
+  --shadow: 0 1px 2px rgba(16,26,23,0.06), 0 6px 20px -8px rgba(16,26,23,0.18);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0B1613; --surface: #10201C; --surface-2: #152722;
+    --ink: #E7F0EB; --ink-dim: #A2B6AE; --ink-faint: #71857C; --border: #22352E;
+    --accent: #3FD9CE; --accent-ink: #04211D; --accent-soft: #143430;
+    --warn: #F0C24B; --warn-soft: #362A0C;
+    --shadow: 0 1px 2px rgba(0,0,0,.3), 0 10px 30px -12px rgba(0,0,0,.6);
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0B1613; --surface: #10201C; --surface-2: #152722;
+  --ink: #E7F0EB; --ink-dim: #A2B6AE; --ink-faint: #71857C; --border: #22352E;
+  --accent: #3FD9CE; --accent-ink: #04211D; --accent-soft: #143430;
+  --warn: #F0C24B; --warn-soft: #362A0C;
+  --shadow: 0 1px 2px rgba(0,0,0,.3), 0 10px 30px -12px rgba(0,0,0,.6);
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--ink); font-family: "IBM Plex Sans", system-ui, sans-serif; line-height: 1.55; }
+.wrap { max-width: 760px; margin: 0 auto; padding: 32px 24px 90px; }
+h1 { font-size: 24px; margin: 0 0 4px; }
+.sub { color: var(--ink-faint); font-size: 14px; margin-bottom: 28px; }
+h2 { font-size: 15px; text-transform: uppercase; letter-spacing: .06em; color: var(--accent); font-family: "IBM Plex Mono"; margin: 40px 0 14px; border-bottom: 1px solid var(--border); padding-bottom: 8px; }
+h2:first-of-type { margin-top: 0; }
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 18px 20px; box-shadow: var(--shadow); margin-bottom: 12px; }
+.say { background: var(--accent-soft); border-left: 3px solid var(--accent); border-radius: 0 10px 10px 0; padding: 12px 16px; margin: 10px 0; font-size: 15px; }
+.say b { color: var(--accent); font-family: "IBM Plex Mono"; font-size: 11px; text-transform: uppercase; letter-spacing: .06em; display: block; margin-bottom: 4px; }
+.step { display: flex; gap: 12px; margin-bottom: 16px; align-items: flex-start; }
+.step .n { flex: none; width: 26px; height: 26px; border-radius: 50%; background: var(--accent); color: var(--accent-ink); display: grid; place-items: center; font: 700 12px "IBM Plex Mono"; }
+.step .body { flex: 1; }
+.step .click { font: 600 13px "IBM Plex Mono"; color: var(--ink-dim); margin-bottom: 4px; }
+.qa { margin-bottom: 16px; }
+.qa .q { font-weight: 600; margin-bottom: 4px; }
+.qa .a { color: var(--ink-dim); }
+.num-grid { display: grid; grid-template-columns: repeat(2,1fr); gap: 10px; }
+.num-tile { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 12px 14px; }
+.num-tile .v { font: 700 20px "IBM Plex Mono"; }
+.num-tile .l { font-size: 12px; color: var(--ink-faint); }
+.term { display: grid; grid-template-columns: 110px 1fr; gap: 10px; padding: 8px 0; border-bottom: 1px dashed var(--border); font-size: 14px; }
+.term:last-child { border-bottom: none; }
+.term .k { font-weight: 600; font-family: "IBM Plex Mono"; font-size: 13px; }
+.toggle { position: fixed; top: 16px; right: 16px; border: 1px solid var(--border); background: var(--surface); border-radius: 8px; width: 32px; height: 32px; cursor: pointer; color: var(--ink-dim); }
+p { margin: 6px 0; }
+</style>
+
+<button class="toggle" id="t" title="Toggle theme">◐</button>
+<div class="wrap">
+  <h1>Review Talking Points</h1>
+  <div class="sub">Plain-language script for explaining Modules 3 &amp; 4 to your reviewer — read it once before, glance at it during.</div>
+
+  <h2>1. The 30-second opener</h2>
+  <div class="say"><b>Say this first</b>
+    "We built a personal finance app. On top of that, we tracked <b>software metrics</b> on it the way a real engineering team would — how many bugs each part has, whether the project is on schedule, and how risky it is. Module 3 is us <em>collecting and analyzing</em> that data. Module 4 is us using it to <em>predict and manage risk</em>."
+  </div>
+
+  <h2>2. "Where did this data come from?"</h2>
+  <div class="say"><b>If she asks this — say</b>
+    "Our app doesn't have real users yet, so we generated a realistic dataset for 12 parts of the app — like Login, Transactions, the AI engine — across 16 weekly sprints. It's not random: we built in the same relationships a real project shows, like 'messier code tends to have more bugs.' Then we ran the exact same analysis on it that a real team would run on real data."
+  </div>
+
+  <h2>3. Module 3 walkthrough (what to click, what to say)</h2>
+
+  <div class="step">
+    <div class="n">1</div>
+    <div class="body">
+      <div class="click">Click: Data Collection tab</div>
+      <div class="say">"Here are our 12 modules. For each one we track four things — and these four words are <em>not</em> the same thing:"</div>
+      <div class="term"><span class="k">Error</span><span>A person's mistake — like misreading a requirement.</span></div>
+      <div class="term"><span class="k">Fault / Bug</span><span>The wrong code that mistake caused.</span></div>
+      <div class="term"><span class="k">Defect</span><span>A bug that QA actually caught and logged.</span></div>
+      <div class="term"><span class="k">Failure</span><span>A defect that actually broke something for a real user.</span></div>
+      <div class="say">"So a bug can sit quietly in the code for months — it only becomes a <em>failure</em> once a user actually hits it."</div>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="n">2</div>
+    <div class="body">
+      <div class="click">Click: Analysis Techniques tab</div>
+      <div class="say"><b>Decision Tree</b>"This is a flowchart that guesses whether a module is high-risk or low-risk just from its code stats. It got it right 91.7% of the time on our data."</div>
+      <div class="say"><b>Box Plot</b>"This just shows the spread — are most modules similar, or is one badly sticking out?"</div>
+      <div class="say"><b>Control Chart</b>"This is the same tool factories use to catch a machine going out of whack. We ran it on our weekly failure rate, and it correctly caught the exact week we simulated a bad release."</div>
+      <div class="say"><b>Correlation — 3 types</b>"We checked if messy code (complexity) really is linked to more bugs — three different statistical ways, so one method alone can't mislead us with such a small dataset. All three agreed: yes."</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="click" style="margin-bottom:8px;">If she asks "why three correlation types?"</div>
+    <div class="term"><span class="k">Pearson</span><span>Do the two numbers move together in a straight line?</span></div>
+    <div class="term"><span class="k">Spearman</span><span>Do they move in the same <em>direction</em>, even if not a straight line?</span></div>
+    <div class="term"><span class="k">Kendall</span><span>Out of every possible pair of modules, how often does "more complex" also mean "more bugs"? The most cautious of the three — best for a small dataset like ours.</span></div>
+  </div>
+
+  <h2>4. Module 4 walkthrough</h2>
+
+  <div class="step">
+    <div class="n">1</div>
+    <div class="body">
+      <div class="click">Click: Bayesian Risk tab</div>
+      <div class="say">"Correlation only tells you two things are related — it doesn't tell you what happens if you actually fix one of them. For that we need something smarter: a <b>Bayesian Network</b>. Think of it as a smart calculator — you tell it what you know about the project, it tells you the % chance it turns risky."</div>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="n">2</div>
+    <div class="body">
+      <div class="click">Demo: click "High" for Requirement Volatility and "Low" for Team Experience</div>
+      <div class="say">"Watch — High risk jumps to 55%." <br>Then click Team Experience to "High": <br>"Same volatile requirements, but now an experienced team — High risk drops back to 26%. That's the whole point: it shows <em>which lever</em>, if we pull it, actually helps."</div>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="n">3</div>
+    <div class="body">
+      <div class="click">Click: Risk Register tab</div>
+      <div class="say">"Last piece — we turned all of that into plain-English risks, each with one concrete idea to fix it. Just the idea, not a full implementation — that's what was asked for."</div>
+    </div>
+  </div>
+
+  <h2>5. Likely questions — quick answers</h2>
+  <div class="qa"><div class="q">Why generated data instead of real data?</div><div class="a">Our app has no real user history yet. We simulated a realistic 12-module, 16-sprint dataset with the same statistical relationships a real project shows, then ran identical analysis to what we'd run on live data.</div></div>
+  <div class="qa"><div class="q">What's a Bayesian Network in one line?</div><div class="a">A probability calculator built from a small network of "if this, then that" tables — give it evidence, it updates its guess.</div></div>
+  <div class="qa"><div class="q">What does "risk overcome, idea only" mean?</div><div class="a">For each risk we found, we wrote one concrete mitigation idea — e.g. pair a junior developer with a senior reviewer on the riskiest module — without building the full process around it.</div></div>
+  <div class="qa"><div class="q">Where does the Metrics tab live?</div><div class="a">It's not a separate document — it's served by our own app server and embedded as a tab inside the finance app itself, so it's one click away from the product it's measuring.</div></div>
+
+  <h2>6. Key numbers — memorize these five</h2>
+  <div class="num-grid">
+    <div class="num-tile"><div class="v">12 / 16</div><div class="l">modules / sprints tracked</div></div>
+    <div class="num-tile"><div class="v">91.7%</div><div class="l">decision tree accuracy</div></div>
+    <div class="num-tile"><div class="v">55% vs 28%</div><div class="l">worst-case vs baseline project risk</div></div>
+    <div class="num-tile"><div class="v">week 12</div><div class="l">control chart caught the bad release</div></div>
+  </div>
+</div>
+
+<script>
+document.getElementById('t').addEventListener('click', () => {
+  const r = document.documentElement;
+  const cur = r.getAttribute('data-theme') || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+  r.setAttribute('data-theme', cur === 'dark' ? 'light' : 'dark');
+});
+</script>

@@ -144,10 +144,15 @@ const doc = new Document({
       bullet("Pearson r — linear relationship; assumes roughly interval, near-normal data."),
       bullet("Spearman \u03C1 (rho) — monotonic relationship on ranks; robust to non-linearity and outliers."),
       bullet("Kendall \u03C4 (tau) — concordance of pairwise rank ordering; the most conservative of the three, well suited to small n."),
-      image(CHARTS, "correlation_heatmap.png", 5.0, 4.3),
-      caption("Figure 4 — Pearson correlation matrix across structural metrics, defect density and delay."),
+      p("Each method's full 6×6 matrix (not just the three headline pairs) is shown individually below, since a matrix computed one way can disagree with another on the borderline pairs:"),
+      image(CHARTS, "correlation_heatmap.png", 4.6, 3.9),
+      caption("Figure 4a — Individual correlation matrix: Pearson."),
+      image(CHARTS, "correlation_heatmap_spearman.png", 4.6, 3.9),
+      caption("Figure 4b — Individual correlation matrix: Spearman."),
+      image(CHARTS, "correlation_heatmap_kendall.png", 4.6, 3.9),
+      caption("Figure 4c — Individual correlation matrix: Kendall."),
       image(CHARTS, "correlation_three_types.png", 5.4, 3.4),
-      caption("Figure 5 — Pearson vs Spearman vs Kendall on the same three variable pairs."),
+      caption("Figure 5 — Pearson vs Spearman vs Kendall on the three headline pairs, side by side."),
       table(["Variable pair", "Method", "Coefficient", "p-value"], corrRows3, [3200, 1800, 1800, 1600]),
       ...results.correlation.tests.map(t => p(`${t.pair}: ${t.interpretation}`, { italics: true, color: GREY, size: 19 })),
       p(`Statistical test: an independent two-sample t-test compared defect density between low-coverage and high-coverage modules (split at the median). Mean defect density was ${results.correlation.t_test_low_vs_high_coverage.low_coverage_mean_defect_density} defects/KLOC for low-coverage modules versus ${results.correlation.t_test_low_vs_high_coverage.high_coverage_mean_defect_density} for high-coverage modules (t = ${results.correlation.t_test_low_vs_high_coverage.t_stat}, p = ${results.correlation.t_test_low_vs_high_coverage.p_value}, ${results.correlation.t_test_low_vs_high_coverage.significant ? "significant" : "not significant"} at \u03B1=0.05).`),
@@ -215,6 +220,6 @@ const doc = new Document({
 });
 
 Packer.toBuffer(doc).then(buf => {
-  fs.writeFileSync(path.join(ROOT, "report/Project_Report_Modules_3-4.docx"), buf);
+  fs.writeFileSync(path.join(ROOT, "report/Project_Report_Modules_3-4_new.docx"), buf);
   console.log("wrote report, bytes:", buf.length);
 });
