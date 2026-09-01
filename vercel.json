@@ -1,0 +1,14 @@
+{
+  "installCommand": "npm install --prefix app/server && npm install --prefix app/web",
+  "buildCommand": "npm run build --prefix app/web",
+  "outputDirectory": "app/web/dist",
+  "functions": {
+    "api/index.js": {
+      "includeFiles": "app/server/**"
+    }
+  },
+  "rewrites": [
+    { "source": "/api/(.*)", "destination": "/api" },
+    { "source": "/((?!api|metrics|assets|.*\\..*).*)", "destination": "/index.html" }
+  ]
+}

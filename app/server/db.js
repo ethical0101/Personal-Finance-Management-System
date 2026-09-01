@@ -2,12 +2,20 @@
  * Tiny synchronous JSON-file datastore. Good enough for a single-instance
  * demo/review deployment; swap for a real database (Postgres/Mongo) before
  * any multi-instance or production use -- there is no locking here.
+ *
+ * On Vercel the deployment bundle is read-only except /tmp, and /tmp is not
+ * persistent or shared across invocations/regions -- so on Vercel this data
+ * resets unpredictably (typically on every cold start). That's an accepted
+ * limitation for a demo deployment; swap this module for a hosted database
+ * (Vercel Postgres, MongoDB Atlas, etc.) before relying on data surviving.
  */
 const fs = require("fs");
 const path = require("path");
 const crypto = require("crypto");
 
-const DATA_DIR = path.join(__dirname, "data");
+const DATA_DIR = process.env.VERCEL
+  ? path.join("/tmp", "wealthline-data")
+  : path.join(__dirname, "data");
 if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR, { recursive: true });
 
 const COLLECTIONS = [

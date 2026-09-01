@@ -1,13 +1,28 @@
-__pycache__/
-*.pyc
-.DS_Store
-*.egg-info/
+# Dependencies
 node_modules/
+
+# Build output
+app/web/dist/
+app/web/public/metrics/
+
+# Local runtime data (JSON-file datastore) & logs
 app/server/data/*.json
 app/server/server.log
+
+# Secrets
 .env
 *.env
-app/web/dist/
+
+# Vercel
+.vercel/
+
+# Python
+__pycache__/
+*.pyc
+*.egg-info/
+
+# OS / editor
+.DS_Store
+Thumbs.db
 ~$*.docx
 report/screenshots/**/profile/
-

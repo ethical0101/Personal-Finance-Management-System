@@ -8,15 +8,26 @@ Review 0 class diagram: `User`, `Account` (Savings/Checking/CreditCard),
 
 ## Stack
 
-- `server/` — Node.js + Express REST API. JWT auth (`jsonwebtoken`), bcrypt
+- `server/app.js` — the Express app itself (routes, middleware, error
+  handler), with no `.listen()` call. JWT auth (`jsonwebtoken`), bcrypt
   password hashing (`bcryptjs`). Storage is a small synchronous JSON-file
   datastore (`server/db.js`) — swap for Postgres/Mongo before any real
-  multi-user deployment; there's no row locking.
+  multi-user deployment; there's no row locking, and on Vercel it writes to
+  `/tmp` (non-persistent) since the deployment bundle is read-only — see
+  the root README's Vercel section.
+- `server/index.js` — local dev entrypoint: `app.js` plus static file
+  serving for the React build, all on one port. Not used on Vercel.
 - `web/` — React 19 + Vite single-page app (`app/web`).
+- `../api/index.js` (repo root) — the Vercel serverless entrypoint; just
+  re-exports `server/app.js`. Static files (the React build and the
+  metrics dashboard) are served directly by Vercel's CDN, not by this
+  function — see `vercel.json`.
 
-The Express server also serves the Module 3/4 metrics dashboard
-(`../dashboard`) under `/metrics`, which the React app embeds in its own
-**Metrics** tab.
+`web/scripts/sync-metrics.cjs` copies `../dashboard/index.html` (the
+self-contained Module 3/4 dashboard) into `web/public/metrics/index.html`
+on every `npm run dev` / `npm run build`, so it's served as a plain static
+file at `/metrics` — identical behavior locally and on Vercel, and the
+React app embeds it in its own **Metrics** tab via `<iframe src="/metrics/">`.
 
 ## Run it
 
