@@ -480,19 +480,42 @@ const DATA = JSON.parse(document.getElementById('DATA_BLOB').textContent);
 (function () {
   const root = document.documentElement;
   const btn = document.getElementById('themeToggle');
+  // Embedded inside the Wealthline app's Metrics tab (an <iframe>)? Then the
+  // parent app owns theme -- take it from the ?theme= query param on load
+  // and stay in sync via postMessage, instead of running our own toggle
+  // (which would otherwise disagree with the sidebar/topbar theme).
+  const isEmbedded = window.self !== window.top;
+
   function apply(mode) {
     if (mode) root.setAttribute('data-theme', mode); else root.removeAttribute('data-theme');
   }
-  let saved = null;
-  try { saved = localStorage.getItem('metricsdeck-theme'); } catch (e) {}
-  apply(saved);
-  btn.addEventListener('click', () => {
-    const current = root.getAttribute('data-theme') ||
-      (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
-    const next = current === 'dark' ? 'light' : 'dark';
-    apply(next);
-    try { localStorage.setItem('metricsdeck-theme', next); } catch (e) {}
-  });
+
+  let initial = null;
+  if (isEmbedded) {
+    // Trust only the parent app's ?theme= param -- never this iframe's own
+    // localStorage, which belongs to a separate standalone visit and would
+    // otherwise disagree with the app's sidebar/topbar theme.
+    const urlTheme = new URLSearchParams(location.search).get('theme');
+    initial = (urlTheme === 'dark' || urlTheme === 'light') ? urlTheme : null;
+  } else {
+    try { initial = localStorage.getItem('metricsdeck-theme'); } catch (e) {}
+  }
+  apply(initial);
+
+  if (isEmbedded) {
+    btn.style.display = 'none';
+    window.addEventListener('message', (e) => {
+      if (e.data && e.data.type === 'wealthline-theme') apply(e.data.theme || null);
+    });
+  } else {
+    btn.addEventListener('click', () => {
+      const current = root.getAttribute('data-theme') ||
+        (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+      const next = current === 'dark' ? 'light' : 'dark';
+      apply(next);
+      try { localStorage.setItem('metricsdeck-theme', next); } catch (e) {}
+    });
+  }
 })();
 
 /* ---------------- tabs ---------------- */

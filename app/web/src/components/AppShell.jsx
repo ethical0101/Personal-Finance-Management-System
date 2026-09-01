@@ -67,7 +67,7 @@ export default function AppShell() {
     bills: <BillsView refreshKey={refreshKey} bumpRefresh={bumpRefresh} />,
     insights: <InsightsView refreshKey={refreshKey} bumpRefresh={bumpRefresh} />,
     notifications: <NotificationsView refreshKey={refreshKey} bumpRefresh={bumpRefresh} />,
-    metrics: <MetricsView />,
+    metrics: <MetricsView theme={theme} />,
   }
 
   return (

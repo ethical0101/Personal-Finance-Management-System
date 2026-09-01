@@ -48,6 +48,20 @@ Open http://localhost:4000.
 Sign up (creates default categories and a Primary Checking account), then
 add accounts/transactions/budgets/goals.
 
+### Demo account with sample data
+
+To populate a ready-to-show account instead of starting empty:
+
+```bash
+node server/scripts/seed_demo.js
+```
+
+Logs in as **demo@gmail.com / 12345678** (signs it up if it doesn't exist
+yet) and adds 3 accounts, 24 transactions across two months (including one
+deliberate anomaly to show the flag/notification), 4 budgets (one
+intentionally over), 3 goals with contributions, and 3 recurring bills —
+so every tab has something real to show. Safe to re-run.
+
 ## Gemini API key
 
 Recommendations in AI Insights call the Gemini API. Copy `server/.env.example`

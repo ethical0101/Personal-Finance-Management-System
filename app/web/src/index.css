@@ -102,9 +102,9 @@ aside.sidebar { width: 220px; flex: none; background: var(--surface); border-rig
 .sidebar-foot { margin-top: auto; padding-top: 10px; border-top: 1px solid var(--border); }
 .user-chip { display: flex; align-items: center; gap: 8px; padding: 8px; }
 .user-chip .avatar { width: 28px; height: 28px; border-radius: 50%; background: var(--surface-2); display: grid; place-items: center; font: 700 12px "IBM Plex Mono"; color: var(--ink-dim); flex: none; }
-.user-chip .who { flex: 1; min-width: 0; }
-.user-chip .who .n { font-size: 13px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.user-chip .who .e { font-size: 11px; color: var(--ink-faint); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.user-chip .who { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 1px; }
+.user-chip .who .n { display: block; font-size: 13px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.user-chip .who .e { display: block; font-size: 11px; color: var(--ink-faint); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
 .main { flex: 1; min-width: 0; display: flex; flex-direction: column; }
 main.content { padding: 26px 34px 60px; max-width: 1180px; width: 100%; }
