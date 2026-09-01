@@ -68,7 +68,15 @@ p { margin: 6px 0; }
     "Our app doesn't have real users yet, so we generated a realistic dataset for 12 parts of the app — like Login, Transactions, the AI engine — across 16 weekly sprints. It's not random: we built in the same relationships a real project shows, like 'messier code tends to have more bugs.' Then we ran the exact same analysis on it that a real team would run on real data."
   </div>
 
-  <h2>3. Module 3 walkthrough (what to click, what to say)</h2>
+  <h2>3. Show the live app first</h2>
+  <div class="card">
+    <div class="term"><span class="k">Live link</span><span><a href="https://wealthline-eight.vercel.app" target="_blank" rel="noopener">wealthline-eight.vercel.app</a></span></div>
+    <div class="term"><span class="k">Demo login</span><span>demo@gmail.com / 12345678</span></div>
+    <div class="say"><b>Say this</b>"Before the metrics, here's the actual product — a real finance app, deployed, with real login and a real database behind it, not a mock-up." Log in, click through Dashboard → Transactions (point out the flagged ₹9,800 anomaly) → Budgets (Groceries is over, shown in red) → AI Insights (the Gemini-written recommendations at the bottom, not just fixed rules) → Metrics tab.</div>
+    <div class="say"><b>If she asks "is this really deployed?"</b>"Yes — it's on Vercel with a MongoDB database, so it's not just running on our laptop. Anyone with the link can sign up and use it right now."</div>
+  </div>
+
+  <h2>4. Module 3 walkthrough (what to click, what to say)</h2>
 
   <div class="step">
     <div class="n">1</div>
@@ -101,7 +109,7 @@ p { margin: 6px 0; }
     <div class="term"><span class="k">Kendall</span><span>Out of every possible pair of modules, how often does "more complex" also mean "more bugs"? The most cautious of the three — best for a small dataset like ours.</span></div>
   </div>
 
-  <h2>4. Module 4 walkthrough</h2>
+  <h2>5. Module 4 walkthrough</h2>
 
   <div class="step">
     <div class="n">1</div>
@@ -127,13 +135,13 @@ p { margin: 6px 0; }
     </div>
   </div>
 
-  <h2>5. Likely questions — quick answers</h2>
+  <h2>6. Likely questions — quick answers</h2>
   <div class="qa"><div class="q">Why generated data instead of real data?</div><div class="a">Our app has no real user history yet. We simulated a realistic 12-module, 16-sprint dataset with the same statistical relationships a real project shows, then ran identical analysis to what we'd run on live data.</div></div>
   <div class="qa"><div class="q">What's a Bayesian Network in one line?</div><div class="a">A probability calculator built from a small network of "if this, then that" tables — give it evidence, it updates its guess.</div></div>
   <div class="qa"><div class="q">What does "risk overcome, idea only" mean?</div><div class="a">For each risk we found, we wrote one concrete mitigation idea — e.g. pair a junior developer with a senior reviewer on the riskiest module — without building the full process around it.</div></div>
   <div class="qa"><div class="q">Where does the Metrics tab live?</div><div class="a">It's not a separate document — it's served by our own app server and embedded as a tab inside the finance app itself, so it's one click away from the product it's measuring.</div></div>
 
-  <h2>6. Key numbers — memorize these five</h2>
+  <h2>7. Key numbers — memorize these five</h2>
   <div class="num-grid">
     <div class="num-tile"><div class="v">12 / 16</div><div class="l">modules / sprints tracked</div></div>
     <div class="num-tile"><div class="v">91.7%</div><div class="l">decision tree accuracy</div></div>
