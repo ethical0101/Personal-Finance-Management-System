@@ -10,11 +10,10 @@ Review 0 class diagram: `User`, `Account` (Savings/Checking/CreditCard),
 
 - `server/app.js` — the Express app itself (routes, middleware, error
   handler), with no `.listen()` call. JWT auth (`jsonwebtoken`), bcrypt
-  password hashing (`bcryptjs`). Storage is a small synchronous JSON-file
-  datastore (`server/db.js`) — swap for Postgres/Mongo before any real
-  multi-user deployment; there's no row locking, and on Vercel it writes to
-  `/tmp` (non-persistent) since the deployment bundle is read-only — see
-  the root README's Vercel section.
+  password hashing (`bcryptjs`). Storage is MongoDB (`server/db.js`), behind
+  a tiny `all/find/findOne/insert/update/remove` interface — the client is
+  cached at module scope so warm serverless invocations on Vercel reuse the
+  same connection instead of reconnecting per request.
 - `server/index.js` — local dev entrypoint: `app.js` plus static file
   serving for the React build, all on one port. Not used on Vercel.
 - `web/` — React 19 + Vite single-page app (`app/web`).
@@ -28,6 +27,13 @@ self-contained Module 3/4 dashboard) into `web/public/metrics/index.html`
 on every `npm run dev` / `npm run build`, so it's served as a plain static
 file at `/metrics` — identical behavior locally and on Vercel, and the
 React app embeds it in its own **Metrics** tab via `<iframe src="/metrics/">`.
+
+## Environment
+
+Copy `server/.env.example` to `server/.env` and set `MONGODB_URI` (required)
+— `.env` is gitignored and must never be committed. See the root README's
+Environment Variables section for the full list and a note on a local DNS
+quirk some sandboxed networks hit with `mongodb+srv://`.
 
 ## Run it
 

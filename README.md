@@ -42,7 +42,7 @@ document.
 **Backend** — Node.js, Express, JWT (`jsonwebtoken`), `bcryptjs`, `dotenv`
 **AI** — Google Gemini API (`gemini-3.6-flash`)
 **Data & analysis** — Python: pandas, numpy, scipy, scikit-learn, matplotlib
-**Storage** — a small synchronous JSON-file datastore (demo-grade; see [Environment variables](#environment-variables) and the Vercel section for the production caveat)
+**Storage** — MongoDB Atlas
 **Deployment** — Vercel (serverless function for the API, static hosting for the React build and the metrics dashboard)
 
 ## Project structure
@@ -53,7 +53,7 @@ document.
 │   ├── server/             Express API
 │   │   ├── app.js           the Express app (no .listen — reused by api/index.js)
 │   │   ├── index.js         local dev entrypoint (app.js + static file serving)
-│   │   ├── db.js            JSON-file datastore
+│   │   ├── db.js            MongoDB datastore (async find/insert/update/remove)
 │   │   ├── routes/          auth, accounts, transactions, budgets, goals, bills,
 │   │   │                    notifications, insights, dashboard
 │   │   ├── lib/              ai.js (forecast/anomaly), gemini.js (Gemini API)
@@ -118,9 +118,21 @@ gitignored and must never be committed):
 
 | Variable | Required | Description |
 |---|---|---|
+| `MONGODB_URI` | **Required** | Connection string for a MongoDB Atlas cluster (or any MongoDB instance). All data lives in a `wealthline` database, created automatically on first write. |
 | `GEMINI_API_KEY` | Recommended | Enables live AI Insights recommendations. Without it, the route falls back to rule-based recommendations only. |
 | `JWT_SECRET` | Recommended | Signs auth tokens. Set a real random value in production. |
 | `PORT` | No | Local server port (default `4000`). Not used on Vercel. |
+
+> If `mongodb+srv://...` fails to connect locally with a DNS `ECONNREFUSED`
+> on the SRV lookup (some sandboxed/corporate networks block Node's direct
+> DNS queries even though the OS resolver works fine), get the direct
+> non-SRV connection string instead: MongoDB Atlas → Connect → Drivers →
+> "I don't have DNS SRV support" — or resolve it yourself with
+> `nslookup -type=SRV _mongodb._tcp.<cluster>.mongodb.net` and
+> `nslookup -type=TXT <cluster>.mongodb.net` for the replica set name, then
+> build `mongodb://host1,host2,host3:27017/?ssl=true&replicaSet=...&authSource=admin`.
+> This is a local-network quirk, not a code issue — `mongodb+srv://` works
+> fine on Vercel's infrastructure.
 
 ## Reproducing the metrics analysis
 
@@ -156,26 +168,15 @@ file at `/metrics`.
 npm install -g vercel
 vercel login
 vercel link                 # first time only — creates/links the Vercel project
+vercel env add MONGODB_URI
 vercel env add GEMINI_API_KEY
 vercel env add JWT_SECRET
 vercel --prod
 ```
 
-### ⚠️ Storage caveat — read before you rely on this deployment
-
-The JSON-file datastore (`app/server/db.js`) writes to local disk. On
-Vercel, the deployed bundle is **read-only** except for `/tmp`, and `/tmp`
-is **not persistent** — it can be wiped on every cold start and is not
-shared across regions or concurrent instances. `db.js` automatically
-detects `process.env.VERCEL` and writes to `/tmp` there instead of
-crashing, so the app **runs** on Vercel, but signups/transactions **are
-not guaranteed to persist** — that's fine for a live walkthrough or demo,
-not for real users.
-
-For a production deployment, swap `app/server/db.js` for a hosted
-database (e.g. Vercel Postgres, MongoDB Atlas, or Neon) — the rest of the
-codebase (routes, auth, AI layer) doesn't need to change, only the four
-functions in `db.js` (`all`, `find`, `insert`, `update`, `remove`).
+Data is stored in MongoDB Atlas and persists normally — no serverless
+storage caveat. The connection is cached at module scope in `db.js` so
+warm serverless invocations reuse it instead of reconnecting per request.
 
 ## API reference
 

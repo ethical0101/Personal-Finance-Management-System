@@ -17,7 +17,7 @@ const DEFAULT_CATEGORIES = [
   { name: "Other", icon: "dots" },
 ];
 
-router.post("/signup", (req, res) => {
+router.post("/signup", async (req, res) => {
   const { name, email, password } = req.body || {};
   if (!name || !email || !password) {
     return res.status(400).json({ error: "Name, email and password are required." });
@@ -25,24 +25,24 @@ router.post("/signup", (req, res) => {
   if (password.length < 8) {
     return res.status(400).json({ error: "Password must be at least 8 characters." });
   }
-  const existing = db.findOne("users", u => u.email.toLowerCase() === email.toLowerCase());
+  const existing = await db.findOne("users", u => u.email.toLowerCase() === email.toLowerCase());
   if (existing) return res.status(409).json({ error: "An account with this email already exists." });
 
   const passwordHash = bcrypt.hashSync(password, 10);
-  const user = db.insert("users", { name, email, passwordHash });
+  const user = await db.insert("users", { name, email, passwordHash });
 
-  for (const c of DEFAULT_CATEGORIES) db.insert("categories", { userId: user.id, ...c });
-  db.insert("accounts", { userId: user.id, name: "Primary Checking", type: "Checking", balance: 0 });
+  for (const c of DEFAULT_CATEGORIES) await db.insert("categories", { userId: user.id, ...c });
+  await db.insert("accounts", { userId: user.id, name: "Primary Checking", type: "Checking", balance: 0 });
 
   const token = sign(user);
   return res.status(201).json({ token, user: { id: user.id, name: user.name, email: user.email } });
 });
 
-router.post("/login", (req, res) => {
+router.post("/login", async (req, res) => {
   const { email, password } = req.body || {};
   if (!email || !password) return res.status(400).json({ error: "Email and password are required." });
 
-  const user = db.findOne("users", u => u.email.toLowerCase() === (email || "").toLowerCase());
+  const user = await db.findOne("users", u => u.email.toLowerCase() === (email || "").toLowerCase());
   if (!user || !bcrypt.compareSync(password, user.passwordHash)) {
     return res.status(401).json({ error: "Incorrect email or password." });
   }

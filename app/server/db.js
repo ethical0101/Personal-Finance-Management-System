@@ -1,82 +1,70 @@
 /**
- * Tiny synchronous JSON-file datastore. Good enough for a single-instance
- * demo/review deployment; swap for a real database (Postgres/Mongo) before
- * any multi-instance or production use -- there is no locking here.
+ * MongoDB-backed datastore, kept behind the same tiny interface the JSON-file
+ * version used (all/find/findOne/insert/update/remove) so every route file
+ * only needed async/await added, not rewritten.
  *
- * On Vercel the deployment bundle is read-only except /tmp, and /tmp is not
- * persistent or shared across invocations/regions -- so on Vercel this data
- * resets unpredictably (typically on every cold start). That's an accepted
- * limitation for a demo deployment; swap this module for a hosted database
- * (Vercel Postgres, MongoDB Atlas, etc.) before relying on data surviving.
+ * `find`/`findOne` still take a plain JS predicate function, same as before
+ * -- filtered in memory after fetching the collection, rather than translated
+ * into a Mongo query. Collections here are small (a single demo/review
+ * deployment), so that's a deliberate simplicity-over-scale tradeoff, not an
+ * oversight; push filters down into the query if this ever needs to handle
+ * real production volume.
+ *
+ * The client is cached at module scope so serverless invocations reuse the
+ * same connection (and its connection pool) instead of opening a new one on
+ * every request -- important on Vercel, where re-connecting per invocation
+ * would both be slow and exhaust Atlas's connection limit under load.
  */
-const fs = require("fs");
-const path = require("path");
+const { MongoClient } = require("mongodb");
 const crypto = require("crypto");
 
-const DATA_DIR = process.env.VERCEL
-  ? path.join("/tmp", "wealthline-data")
-  : path.join(__dirname, "data");
-if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR, { recursive: true });
+let clientPromise = null;
 
-const COLLECTIONS = [
-  "users", "accounts", "categories", "transactions",
-  "budgets", "goals", "bills", "notifications",
-];
-
-const cache = {};
-
-function fileFor(name) {
-  return path.join(DATA_DIR, `${name}.json`);
-}
-
-function load(name) {
-  if (cache[name]) return cache[name];
-  const f = fileFor(name);
-  if (!fs.existsSync(f)) {
-    cache[name] = [];
-    return cache[name];
+function getClient() {
+  if (!clientPromise) {
+    const uri = process.env.MONGODB_URI;
+    if (!uri) throw new Error("MONGODB_URI is not set.");
+    clientPromise = new MongoClient(uri).connect();
   }
-  cache[name] = JSON.parse(fs.readFileSync(f, "utf-8"));
-  return cache[name];
+  return clientPromise;
 }
 
-function persist(name) {
-  fs.writeFileSync(fileFor(name), JSON.stringify(cache[name], null, 2));
+async function collection(name) {
+  const client = await getClient();
+  return client.db("wealthline").collection(name);
 }
 
-for (const c of COLLECTIONS) load(c);
+const NO_ID = { projection: { _id: 0 } };
 
 const db = {
-  all(name) {
-    return load(name);
+  async all(name) {
+    const c = await collection(name);
+    return c.find({}, NO_ID).toArray();
   },
-  find(name, predicate) {
-    return load(name).filter(predicate);
+  async find(name, predicate) {
+    const rows = await db.all(name);
+    return rows.filter(predicate);
   },
-  findOne(name, predicate) {
-    return load(name).find(predicate) || null;
+  async findOne(name, predicate) {
+    const rows = await db.all(name);
+    return rows.find(predicate) || null;
   },
-  insert(name, record) {
+  async insert(name, record) {
+    const c = await collection(name);
     const row = { id: crypto.randomUUID(), createdAt: new Date().toISOString(), ...record };
-    load(name).push(row);
-    persist(name);
+    await c.insertOne({ ...row });
     return row;
   },
-  update(name, id, patch) {
-    const rows = load(name);
-    const idx = rows.findIndex(r => r.id === id);
-    if (idx === -1) return null;
-    rows[idx] = { ...rows[idx], ...patch, updatedAt: new Date().toISOString() };
-    persist(name);
-    return rows[idx];
+  async update(name, id, patch) {
+    const c = await collection(name);
+    const updatedFields = { ...patch, updatedAt: new Date().toISOString() };
+    const result = await c.findOneAndUpdate({ id }, { $set: updatedFields }, { returnDocument: "after", projection: { _id: 0 } });
+    return result?.value ?? result ?? null;
   },
-  remove(name, id) {
-    const rows = load(name);
-    const idx = rows.findIndex(r => r.id === id);
-    if (idx === -1) return false;
-    rows.splice(idx, 1);
-    persist(name);
-    return true;
+  async remove(name, id) {
+    const c = await collection(name);
+    const result = await c.deleteOne({ id });
+    return result.deletedCount > 0;
   },
 };
 

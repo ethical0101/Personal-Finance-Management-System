@@ -5,26 +5,26 @@ const { generateRecommendations } = require("../lib/gemini");
 
 const router = express.Router();
 
-router.get("/forecast", (req, res) => {
-  const categories = db.find("categories", c => c.userId === req.userId && c.name !== "Income");
-  const results = categories.map(cat => {
-    const expenses = db.find("transactions", t => t.userId === req.userId && t.categoryId === cat.id && t.type === "expense");
+router.get("/forecast", async (req, res) => {
+  const categories = await db.find("categories", c => c.userId === req.userId && c.name !== "Income");
+  const results = (await Promise.all(categories.map(async cat => {
+    const expenses = await db.find("transactions", t => t.userId === req.userId && t.categoryId === cat.id && t.type === "expense");
     if (expenses.length === 0) return null;
     const { forecast, method, confidence, history } = forecastNextMonth(expenses);
     return { categoryId: cat.id, categoryName: cat.name, forecast, method, confidence, history };
-  }).filter(Boolean);
+  }))).filter(Boolean);
   res.json(results);
 });
 
 router.get("/recommendations", async (req, res) => {
-  const categories = db.find("categories", c => c.userId === req.userId);
-  const budgets = db.find("budgets", b => b.userId === req.userId && b.month === new Date().toISOString().slice(0, 7));
+  const categories = await db.find("categories", c => c.userId === req.userId);
+  const budgets = await db.find("budgets", b => b.userId === req.userId && b.month === new Date().toISOString().slice(0, 7));
   const recs = [];
 
   for (const budget of budgets) {
     const cat = categories.find(c => c.id === budget.categoryId);
     if (!cat) continue;
-    const expenses = db.find("transactions", t => t.userId === req.userId && t.categoryId === cat.id && t.type === "expense");
+    const expenses = await db.find("transactions", t => t.userId === req.userId && t.categoryId === cat.id && t.type === "expense");
     const { forecast } = forecastNextMonth(expenses);
     if (forecast > budget.monthlyLimit) {
       recs.push({
@@ -37,7 +37,7 @@ router.get("/recommendations", async (req, res) => {
     }
   }
 
-  const anomalies = db.find("transactions", t => t.userId === req.userId && t.flaggedAnomaly)
+  const anomalies = (await db.find("transactions", t => t.userId === req.userId && t.flaggedAnomaly))
     .slice().sort((a, b) => new Date(b.date) - new Date(a.date)).slice(0, 5);
   for (const a of anomalies) {
     const cat = categories.find(c => c.id === a.categoryId);
@@ -50,8 +50,8 @@ router.get("/recommendations", async (req, res) => {
     });
   }
 
-  const totalIncome = db.find("transactions", t => t.userId === req.userId && t.type === "income").reduce((s, t) => s + t.amount, 0);
-  const totalExpense = db.find("transactions", t => t.userId === req.userId && t.type === "expense").reduce((s, t) => s + t.amount, 0);
+  const totalIncome = (await db.find("transactions", t => t.userId === req.userId && t.type === "income")).reduce((s, t) => s + t.amount, 0);
+  const totalExpense = (await db.find("transactions", t => t.userId === req.userId && t.type === "expense")).reduce((s, t) => s + t.amount, 0);
   if (totalIncome > 0) {
     const savingsRate = (totalIncome - totalExpense) / totalIncome;
     if (savingsRate < 0.1) {
@@ -67,11 +67,11 @@ router.get("/recommendations", async (req, res) => {
 
   // Gemini-generated recommendations layer -- built from the same real data,
   // appended after the deterministic rules above (which never fail/timeout).
-  const user = db.findOne("users", u => u.id === req.userId);
-  const accounts = db.find("accounts", a => a.userId === req.userId);
+  const user = await db.findOne("users", u => u.id === req.userId);
+  const accounts = await db.find("accounts", a => a.userId === req.userId);
   const netWorth = accounts.reduce((s, a) => s + a.balance, 0);
   const month = new Date().toISOString().slice(0, 7);
-  const txThisMonth = db.find("transactions", t => t.userId === req.userId && t.date.slice(0, 7) === month);
+  const txThisMonth = await db.find("transactions", t => t.userId === req.userId && t.date.slice(0, 7) === month);
   const incomeThisMonth = txThisMonth.filter(t => t.type === "income").reduce((s, t) => s + t.amount, 0);
   const expenseThisMonth = txThisMonth.filter(t => t.type === "expense").reduce((s, t) => s + t.amount, 0);
   const spendMap = {};
@@ -87,12 +87,12 @@ router.get("/recommendations", async (req, res) => {
     spent: Number((spendMap[b.categoryId] || 0).toFixed(2)),
   }));
 
-  const forecasts = categories.filter(c => c.name !== "Income").map(cat => {
-    const expenses = db.find("transactions", t => t.userId === req.userId && t.categoryId === cat.id && t.type === "expense");
+  const forecasts = (await Promise.all(categories.filter(c => c.name !== "Income").map(async cat => {
+    const expenses = await db.find("transactions", t => t.userId === req.userId && t.categoryId === cat.id && t.type === "expense");
     if (expenses.length === 0) return null;
     const { forecast, confidence } = forecastNextMonth(expenses);
     return { categoryName: cat.name, forecast, confidence };
-  }).filter(Boolean);
+  }))).filter(Boolean);
 
   const anomalyContext = anomalies.map(a => ({
     amount: a.amount, date: a.date, zScore: a.anomalyZScore,
@@ -128,12 +128,12 @@ router.get("/recommendations", async (req, res) => {
   res.json(recs);
 });
 
-router.post("/recommendations/:id/action", (req, res) => {
+router.post("/recommendations/:id/action", async (req, res) => {
   // Accept/reject event logging -- feeds the Recommendation Acceptance Rate
   // metric defined in the Review 0 GQ(I)M plan (Sub-Goal 1).
   const { action } = req.body || {};
   if (!["accepted", "dismissed"].includes(action)) return res.status(400).json({ error: "action must be 'accepted' or 'dismissed'." });
-  const row = db.insert("notifications", {
+  const row = await db.insert("notifications", {
     userId: req.userId, type: "recommendation-event",
     message: `Recommendation ${req.params.id} ${action}`, read: true, recommendationId: req.params.id, action,
   });
