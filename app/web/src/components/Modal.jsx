@@ -1,6 +1,6 @@
 import { useState } from 'react'
 
-export default function Modal({ title, children, onClose, onSubmit, submitLabel = 'Save' }) {
+export default function Modal({ title, children, onClose, onSubmit, submitLabel = 'Save', submitDisabled = false }) {
   const [error, setError] = useState('')
   const [busy, setBusy] = useState(false)
 
@@ -27,7 +27,7 @@ export default function Modal({ title, children, onClose, onSubmit, submitLabel 
           <div className="form-error">{error}</div>
           <div className="modal-foot">
             <button type="button" className="btn btn-ghost" onClick={onClose}>Cancel</button>
-            <button type="submit" className="btn btn-primary" disabled={busy}>{busy ? 'Saving…' : submitLabel}</button>
+            <button type="submit" className="btn btn-primary" disabled={busy || submitDisabled}>{busy ? 'Saving…' : submitLabel}</button>
           </div>
         </form>
       </div>

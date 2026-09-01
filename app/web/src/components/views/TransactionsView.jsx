@@ -1,21 +1,34 @@
 import { useEffect, useState } from 'react'
 import { api, money } from '../../lib/api.js'
 import { useToast } from '../../context/ToastContext.jsx'
+import { SkelTableRows } from '../Skeleton.jsx'
 import AddTransactionModal from './AddTransactionModal.jsx'
 
 export default function TransactionsView({ refreshKey, bumpRefresh }) {
   const [tx, setTx] = useState([])
   const [categories, setCategories] = useState([])
   const [accounts, setAccounts] = useState([])
+  const [loading, setLoading] = useState(true)
   const [showAdd, setShowAdd] = useState(false)
   const toast = useToast()
 
-  async function load() {
-    const [t, cats, accs] = await Promise.all([api('/transactions'), api('/categories'), api('/accounts')])
-    setTx(t); setCategories(cats); setAccounts(accs)
-  }
-
-  useEffect(() => { load() }, [refreshKey])
+  useEffect(() => {
+    let cancelled = false
+    async function load() {
+      try {
+        const [t, cats, accs] = await Promise.all([api('/transactions'), api('/categories'), api('/accounts')])
+        if (cancelled) return
+        setTx(t); setCategories(cats); setAccounts(accs)
+      } catch (e) {
+        if (!cancelled) toast(e.message, 'error')
+      } finally {
+        if (!cancelled) setLoading(false)
+      }
+    }
+    load()
+    return () => { cancelled = true }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [refreshKey])
 
   async function handleDelete(id) {
     try {
@@ -28,13 +41,13 @@ export default function TransactionsView({ refreshKey, bumpRefresh }) {
     <section className="view active">
       <div className="page-head">
         <div><h1>Transactions</h1><p>Every transaction is checked for anomalies against your category history.</p></div>
-        <button className="btn btn-primary" onClick={() => setShowAdd(true)}>+ Add transaction</button>
+        <button className="btn btn-primary" onClick={() => setShowAdd(true)} disabled={loading}>+ Add transaction</button>
       </div>
       <div className="table-scroll">
         <table>
           <thead><tr><th>Date</th><th>Description</th><th>Category</th><th>Account</th><th className="num">Amount</th><th>Flag</th><th></th></tr></thead>
           <tbody>
-            {tx.length ? tx.map(t => {
+            {loading ? <SkelTableRows rows={6} cols={7} /> : tx.length ? tx.map(t => {
               const cat = categories.find(c => c.id === t.categoryId)
               const acc = accounts.find(a => a.id === t.accountId)
               return (

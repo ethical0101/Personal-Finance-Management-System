@@ -1,30 +1,83 @@
 import { useEffect, useState } from 'react'
 import { api, money } from '../../lib/api.js'
+import { useToast } from '../../context/ToastContext.jsx'
+import { SkelBar, SkelKpis } from '../Skeleton.jsx'
 import AddTransactionModal from './AddTransactionModal.jsx'
 
 export default function DashboardView({ refreshKey, bumpRefresh }) {
   const [summary, setSummary] = useState(null)
   const [recent, setRecent] = useState([])
   const [categories, setCategories] = useState([])
+  const [loading, setLoading] = useState(true)
   const [showAdd, setShowAdd] = useState(false)
+  const toast = useToast()
 
   useEffect(() => {
     let cancelled = false
     async function load() {
-      const [s, r, cats] = await Promise.all([
-        api('/dashboard/summary'),
-        api('/transactions?limit=6'),
-        api('/categories'),
-      ])
-      if (cancelled) return
-      setSummary(s); setRecent(r); setCategories(cats)
+      try {
+        const [s, r, cats] = await Promise.all([
+          api('/dashboard/summary'),
+          api('/transactions?limit=6'),
+          api('/categories'),
+        ])
+        if (cancelled) return
+        setSummary(s); setRecent(r); setCategories(cats)
+      } catch (e) {
+        if (!cancelled) toast(e.message, 'error')
+      } finally {
+        if (!cancelled) setLoading(false)
+      }
     }
     load()
     return () => { cancelled = true }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [refreshKey])
 
-  if (!summary) return null
+  return (
+    <section className="view active">
+      <div className="page-head">
+        <div><h1>Dashboard</h1><p>Your finances at a glance.</p></div>
+        <button className="btn btn-primary" onClick={() => setShowAdd(true)} disabled={loading}>+ Add transaction</button>
+      </div>
 
+      {loading || !summary ? <DashboardSkeleton /> : <DashboardContent summary={summary} recent={recent} categories={categories} />}
+
+      {showAdd && <AddTransactionModal onClose={() => setShowAdd(false)} onSaved={bumpRefresh} />}
+    </section>
+  )
+}
+
+function DashboardSkeleton() {
+  return (
+    <>
+      <SkelKpis count={4} />
+      <div className="grid cols-2" style={{ marginTop: 16 }}>
+        <div className="card">
+          <div className="section-title"><h3>Spend by category (this month)</h3></div>
+          {Array.from({ length: 3 }).map((_, i) => (
+            <div className="bar-row" key={i}>
+              <SkelBar w="70%" h={12} />
+              <SkelBar w="100%" h={14} />
+              <SkelBar w="60%" h={12} />
+            </div>
+          ))}
+        </div>
+        <div className="card">
+          <div className="section-title"><h3>Recent transactions</h3></div>
+          {Array.from({ length: 4 }).map((_, i) => (
+            <div className="bar-row mini" key={i} style={{ padding: '9px 0' }}>
+              <SkelBar w="60%" h={12} />
+              <SkelBar w={70} h={12} />
+            </div>
+          ))}
+        </div>
+      </div>
+    </>
+  )
+}
+
+function DashboardContent({ summary, recent, categories }) {
   const kpis = [
     { label: 'Net worth', value: money(summary.netWorth), delta: `${summary.transactionCount} total transactions`, cls: '' },
     { label: 'Income (month)', value: money(summary.incomeThisMonth), delta: 'this calendar month', cls: 'good' },
@@ -34,12 +87,7 @@ export default function DashboardView({ refreshKey, bumpRefresh }) {
   const max = Math.max(1, ...summary.spendByCategory.map(c => c.total))
 
   return (
-    <section className="view active">
-      <div className="page-head">
-        <div><h1>Dashboard</h1><p>Your finances at a glance.</p></div>
-        <button className="btn btn-primary" onClick={() => setShowAdd(true)}>+ Add transaction</button>
-      </div>
-
+    <>
       <div className="grid cols-4">
         {kpis.map(k => (
           <div className="card kpi" key={k.label}>
@@ -74,8 +122,6 @@ export default function DashboardView({ refreshKey, bumpRefresh }) {
           }) : <div className="empty">No transactions yet — add your first one.</div>}
         </div>
       </div>
-
-      {showAdd && <AddTransactionModal onClose={() => setShowAdd(false)} onSaved={bumpRefresh} />}
-    </section>
+    </>
   )
 }

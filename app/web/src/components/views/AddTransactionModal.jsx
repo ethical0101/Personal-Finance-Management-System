@@ -6,14 +6,17 @@ import Modal from '../Modal.jsx'
 export default function AddTransactionModal({ onClose, onSaved }) {
   const [categories, setCategories] = useState([])
   const [accounts, setAccounts] = useState([])
+  const [loading, setLoading] = useState(true)
   const toast = useToast()
 
   useEffect(() => {
     let cancelled = false
-    Promise.all([api('/categories'), api('/accounts')]).then(([cats, accs]) => {
-      if (!cancelled) { setCategories(cats); setAccounts(accs) }
-    })
+    Promise.all([api('/categories'), api('/accounts')])
+      .then(([cats, accs]) => { if (!cancelled) { setCategories(cats); setAccounts(accs) } })
+      .catch(e => { if (!cancelled) toast(e.message, 'error') })
+      .finally(() => { if (!cancelled) setLoading(false) })
     return () => { cancelled = true }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   async function handleSubmit(fd) {
@@ -36,7 +39,7 @@ export default function AddTransactionModal({ onClose, onSaved }) {
   }
 
   return (
-    <Modal title="Add transaction" onClose={onClose} onSubmit={handleSubmit}>
+    <Modal title="Add transaction" onClose={onClose} onSubmit={handleSubmit} submitDisabled={loading}>
       <div className="field">
         <label>Type</label>
         <select name="type" defaultValue="expense">
@@ -47,14 +50,14 @@ export default function AddTransactionModal({ onClose, onSaved }) {
       <div className="field"><label>Amount</label><input name="amount" type="number" step="0.01" min="0.01" required /></div>
       <div className="field">
         <label>Category</label>
-        <select name="categoryId">
-          {categories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+        <select name="categoryId" disabled={loading}>
+          {loading ? <option>Loading…</option> : categories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
         </select>
       </div>
       <div className="field">
         <label>Account</label>
-        <select name="accountId">
-          {accounts.map(a => <option key={a.id} value={a.id}>{a.name}</option>)}
+        <select name="accountId" disabled={loading}>
+          {loading ? <option>Loading…</option> : accounts.map(a => <option key={a.id} value={a.id}>{a.name}</option>)}
         </select>
       </div>
       <div className="field"><label>Description</label><input name="description" type="text" placeholder="e.g. Grocery run" /></div>

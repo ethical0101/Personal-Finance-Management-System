@@ -1,21 +1,31 @@
 import { useEffect, useState } from 'react'
 import { api, money } from '../../lib/api.js'
 import { useToast } from '../../context/ToastContext.jsx'
+import { SkelTableRows } from '../Skeleton.jsx'
 import Modal from '../Modal.jsx'
 
 export default function BillsView({ refreshKey, bumpRefresh }) {
   const [bills, setBills] = useState([])
   const [categories, setCategories] = useState([])
+  const [loading, setLoading] = useState(true)
   const [showAdd, setShowAdd] = useState(false)
   const toast = useToast()
 
   useEffect(() => {
-    Promise.all([api('/bills'), api('/categories')]).then(([b, c]) => { setBills(b); setCategories(c) })
+    let cancelled = false
+    Promise.all([api('/bills'), api('/categories')])
+      .then(([b, c]) => { if (!cancelled) { setBills(b); setCategories(c) } })
+      .catch(e => { if (!cancelled) toast(e.message, 'error') })
+      .finally(() => { if (!cancelled) setLoading(false) })
+    return () => { cancelled = true }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [refreshKey])
 
   async function handleDelete(id) {
-    await api(`/bills/${id}`, { method: 'DELETE' })
-    bumpRefresh()
+    try {
+      await api(`/bills/${id}`, { method: 'DELETE' })
+      bumpRefresh()
+    } catch (e) { toast(e.message, 'error') }
   }
 
   async function handleSubmit(fd) {
@@ -34,13 +44,13 @@ export default function BillsView({ refreshKey, bumpRefresh }) {
     <section className="view active">
       <div className="page-head">
         <div><h1>Recurring Bills</h1><p>Bills that repeat every month.</p></div>
-        <button className="btn btn-primary" onClick={() => setShowAdd(true)}>+ Add bill</button>
+        <button className="btn btn-primary" onClick={() => setShowAdd(true)} disabled={loading}>+ Add bill</button>
       </div>
       <div className="table-scroll">
         <table>
           <thead><tr><th>Name</th><th>Category</th><th className="num">Amount</th><th className="num">Due day</th><th></th></tr></thead>
           <tbody>
-            {bills.length ? bills.map(b => {
+            {loading ? <SkelTableRows rows={3} cols={5} /> : bills.length ? bills.map(b => {
               const cat = categories.find(c => c.id === b.categoryId)
               return (
                 <tr key={b.id}>

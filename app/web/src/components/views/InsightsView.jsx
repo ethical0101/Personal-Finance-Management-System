@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { api, money } from '../../lib/api.js'
 import { useToast } from '../../context/ToastContext.jsx'
+import { SkelRows, SkelList } from '../Skeleton.jsx'
 
 export default function InsightsView({ refreshKey }) {
   const [forecasts, setForecasts] = useState([])
@@ -12,11 +13,12 @@ export default function InsightsView({ refreshKey }) {
   useEffect(() => {
     let cancelled = false
     setLoading(true)
-    Promise.all([api('/insights/forecast'), api('/insights/recommendations')]).then(([f, r]) => {
-      if (cancelled) return
-      setForecasts(f); setRecs(r); setLoading(false)
-    })
+    Promise.all([api('/insights/forecast'), api('/insights/recommendations')])
+      .then(([f, r]) => { if (!cancelled) { setForecasts(f); setRecs(r) } })
+      .catch(e => { if (!cancelled) toast(e.message, 'error') })
+      .finally(() => { if (!cancelled) setLoading(false) })
     return () => { cancelled = true }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [refreshKey])
 
   async function handleAction(id, action) {
@@ -36,7 +38,7 @@ export default function InsightsView({ refreshKey }) {
       <div className="grid cols-2">
         <div className="card">
           <div className="section-title"><h3>Next-month expense forecast</h3></div>
-          {forecasts.length ? forecasts.map(f => (
+          {loading ? <SkelRows count={3} /> : forecasts.length ? forecasts.map(f => (
             <div key={f.categoryId} style={{ padding: '10px 0', borderBottom: '1px solid var(--border)' }}>
               <div className="section-title" style={{ marginBottom: 2 }}>
                 <h3 style={{ fontSize: 13.5 }}>{f.categoryName}</h3>
@@ -48,7 +50,7 @@ export default function InsightsView({ refreshKey }) {
         </div>
         <div className="card">
           <div className="section-title"><h3>Recommendations</h3></div>
-          {loading ? <div className="empty">Loading…</div> : recs.length ? recs.map(r => (
+          {loading ? <SkelList count={3} /> : recs.length ? recs.map(r => (
             <div className="rec-card" key={r.id}>
               <div className={`stripe ${r.severity}`} />
               <div className="body">

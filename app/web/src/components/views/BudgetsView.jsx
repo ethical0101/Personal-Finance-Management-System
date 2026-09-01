@@ -1,16 +1,24 @@
 import { useEffect, useState } from 'react'
 import { api, money } from '../../lib/api.js'
 import { useToast } from '../../context/ToastContext.jsx'
+import { SkelRows } from '../Skeleton.jsx'
 import Modal from '../Modal.jsx'
 
 export default function BudgetsView({ refreshKey, bumpRefresh }) {
   const [budgets, setBudgets] = useState([])
   const [categories, setCategories] = useState([])
+  const [loading, setLoading] = useState(true)
   const [showAdd, setShowAdd] = useState(false)
   const toast = useToast()
 
   useEffect(() => {
-    Promise.all([api('/budgets'), api('/categories')]).then(([b, c]) => { setBudgets(b); setCategories(c) })
+    let cancelled = false
+    Promise.all([api('/budgets'), api('/categories')])
+      .then(([b, c]) => { if (!cancelled) { setBudgets(b); setCategories(c) } })
+      .catch(e => { if (!cancelled) toast(e.message, 'error') })
+      .finally(() => { if (!cancelled) setLoading(false) })
+    return () => { cancelled = true }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [refreshKey])
 
   async function handleSubmit(fd) {
@@ -26,10 +34,10 @@ export default function BudgetsView({ refreshKey, bumpRefresh }) {
     <section className="view active">
       <div className="page-head">
         <div><h1>Budgets</h1><p>Monthly limits per category, tracked against real spend.</p></div>
-        <button className="btn btn-primary" onClick={() => setShowAdd(true)}>+ Set budget</button>
+        <button className="btn btn-primary" onClick={() => setShowAdd(true)} disabled={loading}>+ Set budget</button>
       </div>
       <div className="card">
-        {budgets.length ? budgets.map(b => {
+        {loading ? <SkelRows count={4} /> : budgets.length ? budgets.map(b => {
           const cat = categories.find(c => c.id === b.categoryId)
           const over = b.percentUsed > 100
           return (
