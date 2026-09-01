@@ -4,7 +4,8 @@ Module 3 - Data Collection
 
 Generates realistic (synthetic but internally-consistent) software-metrics
 data for the system's modules and sprints, covering:
-  - Faults, Features, Errors, Delays (per module)
+  - Errors, Faults/Bugs, Failures, Features, Delays (per module) -- see the
+    Error -> Fault -> Failure chain documented in report/README
   - Structural/complexity metrics (feeds correlation + decision tree)
   - Weekly quality indicators (feeds control chart / trend analysis)
 
@@ -61,6 +62,14 @@ feature_count = RNG.integers(4, 18, n)                     # delivered features 
 delay_days = np.round(RNG.normal(1 + 3 * (coupling_cbo / 22) + 8 * risk_score, 1.0, n).clip(0, None), 1)    # schedule slip
 severity_avg = np.round(1 + 3 * risk_score + RNG.normal(0, 0.3, n), 2).clip(1, 5)
 
+# Failure = the subset of defects that actually manifested as an observable
+# incorrect behaviour in production (as distinct from a Fault/Bug, which is
+# the incorrect code artifact itself, whether or not it was ever triggered).
+# Drawn from an independent RNG stream so this addition can't perturb the
+# shared RNG's draw sequence for anything generated below (sprint_metrics).
+FAILURE_RNG = np.random.default_rng(43)
+failures_observed = np.round(defect_count * FAILURE_RNG.uniform(0.35, 0.65, n)).astype(int)
+
 df_modules = pd.DataFrame({
     "module": MODULES,
     "loc": loc,
@@ -72,6 +81,7 @@ df_modules = pd.DataFrame({
     "errors_logged": errors_logged,
     "fault_count": fault_count,
     "defect_count": defect_count,
+    "failures_observed": failures_observed,
     "delay_days": delay_days,
     "avg_severity_1to5": severity_avg,
 })

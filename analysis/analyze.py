@@ -1,7 +1,7 @@
 """
 Module 3 - Software Metrics Data Collection
 Classical Data Analysis Techniques: Decision Tree, Box Plot, Control Chart,
-Correlation and Statistical Test.
+Correlation (Pearson, Spearman, Kendall) and Statistical Test.
 
 Reads data/module_metrics.csv and data/sprint_metrics.csv, runs each
 technique, saves chart PNGs to charts/, and writes a single results.json
@@ -50,16 +50,66 @@ for i in range(len(corr_cols)):
     for j in range(len(corr_cols)):
         ax.text(j, i, corr_matrix.values[i, j], ha="center", va="center",
                 color="white" if abs(corr_matrix.values[i, j]) > 0.5 else "black", fontsize=9)
-ax.set_title("Correlation Matrix — Structural Metrics vs Defects/Delay")
+ax.set_title("Correlation Matrix (Pearson) — Structural Metrics vs Defects/Delay")
 fig.colorbar(im, ax=ax, shrink=0.8, label="Pearson r")
 fig.tight_layout()
 fig.savefig(CHARTS / "correlation_heatmap.png", dpi=150)
 plt.close(fig)
 
-# Significance test: complexity vs defect density, coverage vs defect density
-r1, p1 = stats.pearsonr(mod.cyclomatic_complexity, mod.defect_density_per_kloc)
-r2, p2 = stats.pearsonr(mod.test_coverage_pct, mod.defect_density_per_kloc)
-r3, p3 = stats.pearsonr(mod.coupling_cbo, mod.delay_days)
+# ---------------------------------------------------------------------
+# Correlation -- three types, each run on the same three variable pairs:
+#   Pearson  (linear relationship, assumes roughly-normal, interval data)
+#   Spearman (monotonic relationship on ranks, robust to outliers/non-linearity)
+#   Kendall  (concordance of pairwise rank ordering, most robust on small n)
+# Running all three on a 12-row dataset is itself the right practice: a
+# single-method correlation on this little data can be misleading, so the
+# three are reported side by side rather than picking one.
+# ---------------------------------------------------------------------
+PAIRS = [
+    ("Cyclomatic Complexity vs Defect Density", mod.cyclomatic_complexity, mod.defect_density_per_kloc, "pos"),
+    ("Test Coverage vs Defect Density", mod.test_coverage_pct, mod.defect_density_per_kloc, "neg"),
+    ("Coupling (CBO) vs Delay (days)", mod.coupling_cbo, mod.delay_days, "pos"),
+]
+
+corr_tests = []
+for name, x, y, direction in PAIRS:
+    r_p, p_p = stats.pearsonr(x, y)
+    r_s, p_s = stats.spearmanr(x, y)
+    r_k, p_k = stats.kendalltau(x, y)
+    any_sig = (p_p < 0.05) or (p_s < 0.05) or (p_k < 0.05)
+    strong = abs(r_p) > 0.5 and abs(r_s) > 0.5
+    if direction == "pos":
+        interp = "All three methods agree on a positive relationship." if (r_p > 0 and r_s > 0 and r_k > 0) else "Methods disagree on direction — treat as inconclusive on this sample size."
+    else:
+        interp = "All three methods agree on a negative relationship." if (r_p < 0 and r_s < 0 and r_k < 0) else "Methods disagree on direction — treat as inconclusive on this sample size."
+    corr_tests.append({
+        "pair": name,
+        "pearson": {"r": round(float(r_p), 3), "p_value": round(float(p_p), 4)},
+        "spearman": {"rho": round(float(r_s), 3), "p_value": round(float(p_s), 4)},
+        "kendall": {"tau": round(float(r_k), 3), "p_value": round(float(p_k), 4)},
+        "significant": bool(any_sig),
+        "interpretation": interp,
+    })
+
+# Grouped bar chart comparing the three correlation coefficients per pair
+fig, ax = plt.subplots(figsize=(8, 5))
+x_pos = np.arange(len(corr_tests))
+width = 0.25
+pearson_vals = [t["pearson"]["r"] for t in corr_tests]
+spearman_vals = [t["spearman"]["rho"] for t in corr_tests]
+kendall_vals = [t["kendall"]["tau"] for t in corr_tests]
+ax.bar(x_pos - width, pearson_vals, width, label="Pearson r", color="#023047")
+ax.bar(x_pos, spearman_vals, width, label="Spearman rho", color="#219ebc")
+ax.bar(x_pos + width, kendall_vals, width, label="Kendall tau", color="#8ecae6")
+ax.axhline(0, color="black", linewidth=0.8)
+ax.set_xticks(x_pos)
+ax.set_xticklabels([t["pair"].replace(" vs ", "\nvs\n") for t in corr_tests], fontsize=8)
+ax.set_ylabel("Correlation coefficient")
+ax.set_title("Correlation — Pearson vs Spearman vs Kendall")
+ax.legend()
+fig.tight_layout()
+fig.savefig(CHARTS / "correlation_three_types.png", dpi=150)
+plt.close(fig)
 
 # Independent two-sample t-test: defect density in low-coverage vs high-coverage modules
 median_cov = mod.test_coverage_pct.median()
@@ -69,17 +119,7 @@ t_stat, t_p = stats.ttest_ind(low_cov, high_cov, equal_var=False)
 
 results["correlation"] = {
     "matrix": corr_matrix.to_dict(),
-    "tests": [
-        {"pair": "Cyclomatic Complexity vs Defect Density", "r": round(r1, 3), "p_value": round(p1, 4),
-         "significant": bool(p1 < 0.05),
-         "interpretation": "Strong positive correlation — more complex modules carry more defects." if r1 > 0.5 else "Moderate/weak correlation."},
-        {"pair": "Test Coverage vs Defect Density", "r": round(r2, 3), "p_value": round(p2, 4),
-         "significant": bool(p2 < 0.05),
-         "interpretation": "Strong negative correlation — higher test coverage is associated with fewer defects." if r2 < -0.5 else "Moderate/weak correlation."},
-        {"pair": "Coupling (CBO) vs Delay (days)", "r": round(r3, 3), "p_value": round(p3, 4),
-         "significant": bool(p3 < 0.05),
-         "interpretation": "Higher coupling modules take longer to stabilize / ship." if r3 > 0.4 else "Moderate/weak correlation."},
-    ],
+    "tests": corr_tests,
     "t_test_low_vs_high_coverage": {
         "t_stat": round(float(t_stat), 3), "p_value": round(float(t_p), 4),
         "low_coverage_mean_defect_density": round(float(low_cov.mean()), 2),
@@ -224,6 +264,7 @@ results["dataset_summary"] = {
         "total_errors_logged": int(mod.errors_logged.sum()),
         "total_faults": int(mod.fault_count.sum()),
         "total_defects": int(mod.defect_count.sum()),
+        "total_failures": int(mod.failures_observed.sum()),
         "avg_delay_days": round(float(mod.delay_days.mean()), 2),
         "max_delay_module": mod.loc[mod.delay_days.idxmax(), "module"],
     },

@@ -1,11 +1,13 @@
 # Software Metrics-Driven AI-Powered Personal Finance Management System
 
-Full-stack personal finance app (`app/`) plus the full Modules 1-4 metrics
+Full-stack personal finance app (`app/`) plus the Module 3/4 metrics
 program (`data/`, `analysis/`, `charts/`, `dashboard/`, `report/`) that
-measures it. `report/Full_Project_Report_Modules_1-4.docx` is the
-consolidated write-up: the ten scopes and GQ(I)M plan (Modules 1-2), data
-collection and classical analysis techniques (Module 3), Bayesian
-risk/defect networks (Module 4), and real screenshots of the working app.
+measures it. `report/Project_Report_Modules_3-4.docx` is the write-up:
+data collection and fault/failure/error/bug identification, classical
+analysis techniques including three correlation methods (Module 3),
+Bayesian risk/defect networks (Module 4), and real screenshots of the
+working app. (Modules 1-2 — the ten scopes and the GQ(I)M plan — were
+covered in the separate Review 0 report.)
 
 ## Layout
 
@@ -20,8 +22,8 @@ risk/defect networks (Module 4), and real screenshots of the working app.
 - `charts/` — PNG output of the analysis
 - `dashboard/` — self-contained interactive dashboard (`index.html`, built by
   `build_dashboard.py` from `template.html` + the analysis JSON + charts)
-- `report/` — `Full_Project_Report_Modules_1-4.docx` (consolidated report,
-  built by `build_full_report.js`) plus `screenshots/` used in it
+- `report/` — `Project_Report_Modules_3-4.docx` (built by
+  `build_module34_report.js`) plus `screenshots/` used in it
 
 ## Running the finance app
 

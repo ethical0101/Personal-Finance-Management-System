@@ -1,13 +1,13 @@
-module,loc,cyclomatic_complexity,coupling_cbo,cohesion_lcom,test_coverage_pct,features_delivered,errors_logged,fault_count,defect_count,delay_days,avg_severity_1to5,defect_density_per_kloc
-Transaction Engine,1308,12.6,19,0.67,51.6,14,19,16,12,10.4,4.87,9.4
-AI Recommendation Engine,5211,10.4,18,0.21,69.3,9,7,6,12,6.9,2.65,5.73
-Anomaly Detection Model,4531,11.9,7,0.42,56.6,15,9,7,14,3.8,1.73,4.16
-Expense Prediction Model,3301,7.7,14,0.09,79.2,4,5,3,3,2.5,1.0,0.79
-Finance Dashboard,3268,16.4,5,0.17,67.3,6,6,5,10,4.1,2.52,4.82
-Budget Manager,5694,15.9,17,0.6,87.5,10,12,9,18,10.8,3.31,8.67
-Authentication Service,1289,12.3,16,0.65,80.7,6,13,10,8,7.6,2.62,6.04
-Encryption/KMS Layer,4774,17.6,9,0.82,60.9,8,20,14,28,8.4,3.68,9.66
-Notification Service,1948,14.3,3,0.31,87.4,13,3,2,3,1.0,1.17,1.65
-Report Generator,1336,7.7,21,0.35,86.0,6,5,3,6,6.5,2.18,4.15
-Account Management,3800,13.8,10,0.43,64.8,13,13,11,22,7.6,2.7,5.89
-Recurring Bill Scheduler,6361,7.2,19,0.2,59.7,5,5,3,6,8.5,2.06,3.95
+module,loc,cyclomatic_complexity,coupling_cbo,cohesion_lcom,test_coverage_pct,features_delivered,errors_logged,fault_count,defect_count,failures_observed,delay_days,avg_severity_1to5,defect_density_per_kloc
+Transaction Engine,1308,12.6,19,0.67,51.6,14,19,16,12,7,10.4,4.87,9.4
+AI Recommendation Engine,5211,10.4,18,0.21,69.3,9,7,6,12,4,6.9,2.65,5.73
+Anomaly Detection Model,4531,11.9,7,0.42,56.6,15,9,7,14,5,3.8,1.73,4.16
+Expense Prediction Model,3301,7.7,14,0.09,79.2,4,5,3,3,2,2.5,1.0,0.79
+Finance Dashboard,3268,16.4,5,0.17,67.3,6,6,5,10,5,4.1,2.52,4.82
+Budget Manager,5694,15.9,17,0.6,87.5,10,12,9,18,8,10.8,3.31,8.67
+Authentication Service,1289,12.3,16,0.65,80.7,6,13,10,8,5,7.6,2.62,6.04
+Encryption/KMS Layer,4774,17.6,9,0.82,60.9,8,20,14,28,12,8.4,3.68,9.66
+Notification Service,1948,14.3,3,0.31,87.4,13,3,2,3,1,1.0,1.17,1.65
+Report Generator,1336,7.7,21,0.35,86.0,6,5,3,6,3,6.5,2.18,4.15
+Account Management,3800,13.8,10,0.43,64.8,13,13,11,22,14,7.6,2.7,5.89
+Recurring Bill Scheduler,6361,7.2,19,0.2,59.7,5,5,3,6,4,8.5,2.06,3.95

@@ -53,24 +53,54 @@
     "tests": [
       {
         "pair": "Cyclomatic Complexity vs Defect Density",
-        "r": 0.559,
-        "p_value": 0.0591,
-        "significant": false,
-        "interpretation": "Strong positive correlation \u2014 more complex modules carry more defects."
+        "pearson": {
+          "r": 0.559,
+          "p_value": 0.0591
+        },
+        "spearman": {
+          "rho": 0.592,
+          "p_value": 0.0426
+        },
+        "kendall": {
+          "tau": 0.473,
+          "p_value": 0.0331
+        },
+        "significant": true,
+        "interpretation": "All three methods agree on a positive relationship."
       },
       {
         "pair": "Test Coverage vs Defect Density",
-        "r": -0.37,
-        "p_value": 0.2367,
+        "pearson": {
+          "r": -0.37,
+          "p_value": 0.2367
+        },
+        "spearman": {
+          "rho": -0.231,
+          "p_value": 0.4705
+        },
+        "kendall": {
+          "tau": -0.152,
+          "p_value": 0.5452
+        },
         "significant": false,
-        "interpretation": "Moderate/weak correlation."
+        "interpretation": "All three methods agree on a negative relationship."
       },
       {
         "pair": "Coupling (CBO) vs Delay (days)",
-        "r": 0.647,
-        "p_value": 0.0229,
+        "pearson": {
+          "r": 0.647,
+          "p_value": 0.0229
+        },
+        "spearman": {
+          "rho": 0.558,
+          "p_value": 0.0594
+        },
+        "kendall": {
+          "tau": 0.369,
+          "p_value": 0.0982
+        },
         "significant": true,
-        "interpretation": "Higher coupling modules take longer to stabilize / ship."
+        "interpretation": "All three methods agree on a positive relationship."
       }
     ],
     "t_test_low_vs_high_coverage": {
@@ -147,6 +177,7 @@
         "errors_logged": 19,
         "fault_count": 16,
         "defect_count": 12,
+        "failures_observed": 7,
         "delay_days": 10.4,
         "avg_severity_1to5": 4.87,
         "defect_density_per_kloc": 9.4,
@@ -163,6 +194,7 @@
         "errors_logged": 7,
         "fault_count": 6,
         "defect_count": 12,
+        "failures_observed": 4,
         "delay_days": 6.9,
         "avg_severity_1to5": 2.65,
         "defect_density_per_kloc": 5.73,
@@ -179,6 +211,7 @@
         "errors_logged": 9,
         "fault_count": 7,
         "defect_count": 14,
+        "failures_observed": 5,
         "delay_days": 3.8,
         "avg_severity_1to5": 1.73,
         "defect_density_per_kloc": 4.16,
@@ -195,6 +228,7 @@
         "errors_logged": 5,
         "fault_count": 3,
         "defect_count": 3,
+        "failures_observed": 2,
         "delay_days": 2.5,
         "avg_severity_1to5": 1.0,
         "defect_density_per_kloc": 0.79,
@@ -211,6 +245,7 @@
         "errors_logged": 6,
         "fault_count": 5,
         "defect_count": 10,
+        "failures_observed": 5,
         "delay_days": 4.1,
         "avg_severity_1to5": 2.52,
         "defect_density_per_kloc": 4.82,
@@ -227,6 +262,7 @@
         "errors_logged": 12,
         "fault_count": 9,
         "defect_count": 18,
+        "failures_observed": 8,
         "delay_days": 10.8,
         "avg_severity_1to5": 3.31,
         "defect_density_per_kloc": 8.67,
@@ -243,6 +279,7 @@
         "errors_logged": 13,
         "fault_count": 10,
         "defect_count": 8,
+        "failures_observed": 5,
         "delay_days": 7.6,
         "avg_severity_1to5": 2.62,
         "defect_density_per_kloc": 6.04,
@@ -259,6 +296,7 @@
         "errors_logged": 20,
         "fault_count": 14,
         "defect_count": 28,
+        "failures_observed": 12,
         "delay_days": 8.4,
         "avg_severity_1to5": 3.68,
         "defect_density_per_kloc": 9.66,
@@ -275,6 +313,7 @@
         "errors_logged": 3,
         "fault_count": 2,
         "defect_count": 3,
+        "failures_observed": 1,
         "delay_days": 1.0,
         "avg_severity_1to5": 1.17,
         "defect_density_per_kloc": 1.65,
@@ -291,6 +330,7 @@
         "errors_logged": 5,
         "fault_count": 3,
         "defect_count": 6,
+        "failures_observed": 3,
         "delay_days": 6.5,
         "avg_severity_1to5": 2.18,
         "defect_density_per_kloc": 4.15,
@@ -307,6 +347,7 @@
         "errors_logged": 13,
         "fault_count": 11,
         "defect_count": 22,
+        "failures_observed": 14,
         "delay_days": 7.6,
         "avg_severity_1to5": 2.7,
         "defect_density_per_kloc": 5.89,
@@ -323,6 +364,7 @@
         "errors_logged": 5,
         "fault_count": 3,
         "defect_count": 6,
+        "failures_observed": 4,
         "delay_days": 8.5,
         "avg_severity_1to5": 2.06,
         "defect_density_per_kloc": 3.95,
@@ -448,6 +490,7 @@
       "total_errors_logged": 117,
       "total_faults": 89,
       "total_defects": 142,
+      "total_failures": 70,
       "avg_delay_days": 6.51,
       "max_delay_module": "Budget Manager"
     }

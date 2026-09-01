@@ -26,6 +26,7 @@ data_blob = {
     "bn": bn,
     "images": {
         "correlation": b64_png(CHARTS / "correlation_heatmap.png"),
+        "correlation3": b64_png(CHARTS / "correlation_three_types.png"),
         "tree": b64_png(CHARTS / "decision_tree.png"),
         "box": b64_png(CHARTS / "box_plot.png"),
         "control": b64_png(CHARTS / "control_chart.png"),

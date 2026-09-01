@@ -258,10 +258,10 @@ footer.foot { margin-top: 60px; padding-top: 22px; border-top: 1px solid var(--b
   <div class="grid cols-2" style="margin-top:16px;">
     <div class="card">
       <div class="hgroup"><h3>Module 3 &mdash; Software Metrics Data Collection</h3><span class="tag">6 hrs</span></div>
-      <p style="max-width:none">Data collection infrastructure, fault/feature/error/delay identification across
+      <p style="max-width:none">Data collection infrastructure, fault/failure/error/bug identification across
         12 system modules, and four classical analysis techniques applied to that data:
         <b style="color:var(--ink)">Decision Tree</b>, <b style="color:var(--ink)">Box Plot</b>,
-        <b style="color:var(--ink)">Control Chart</b>, and <b style="color:var(--ink)">Correlation / Statistical Test</b>.</p>
+        <b style="color:var(--ink)">Control Chart</b>, and <b style="color:var(--ink)">Correlation (Pearson, Spearman, Kendall) / Statistical Test</b>.</p>
     </div>
     <div class="card">
       <div class="hgroup"><h3>Module 4 &mdash; Metrics for Decision Support</h3><span class="tag">6 hrs</span></div>
@@ -287,7 +287,7 @@ footer.foot { margin-top: 60px; padding-top: 22px; border-top: 1px solid var(--b
 <section class="panel" id="panel-collection">
   <div class="section-head">
     <span class="eyebrow">Module 3 &middot; Item 1&ndash;2</span>
-    <h2>Data collection &amp; fault / feature / error / delay tracking</h2>
+    <h2>Data collection &amp; fault / failure / error / bug tracking</h2>
     <p>Each module's engineering activity is logged as it would be from Git/JIRA history, CI pipelines and QA
       triage in production &mdash; here reconstructed as a clean, queryable dataset so every downstream chart in this
       deck traces back to a specific row below.</p>
@@ -305,7 +305,8 @@ footer.foot { margin-top: 60px; padding-top: 22px; border-top: 1px solid var(--b
     <div class="card">
       <div class="hgroup"><h3>Vocabulary used</h3></div>
       <div class="stat-line"><span class="k">Error</span><span class="v">root-cause mistake</span></div>
-      <div class="stat-line"><span class="k">Fault</span><span class="v">defect injected in code</span></div>
+      <div class="stat-line"><span class="k">Fault / Bug</span><span class="v">defect injected in code</span></div>
+      <div class="stat-line"><span class="k">Failure</span><span class="v">defect observed in production</span></div>
       <div class="stat-line"><span class="k">Defect</span><span class="v">QA-confirmed fault</span></div>
       <div class="stat-line"><span class="k">Feature</span><span class="v">delivered capability</span></div>
       <div class="stat-line"><span class="k">Delay</span><span class="v">schedule slip, days</span></div>
@@ -321,7 +322,7 @@ footer.foot { margin-top: 60px; padding-top: 22px; border-top: 1px solid var(--b
       <thead><tr>
         <th>Module</th><th class="num">LOC</th><th class="num">Complexity</th><th class="num">Coupling (CBO)</th>
         <th class="num">Coverage %</th><th class="num">Features</th><th class="num">Errors</th>
-        <th class="num">Faults</th><th class="num">Defects</th><th class="num">Delay (d)</th><th>Risk</th>
+        <th class="num">Faults/Bugs</th><th class="num">Defects</th><th class="num">Failures</th><th class="num">Delay (d)</th><th>Risk</th>
       </tr></thead>
       <tbody id="moduleTableBody"></tbody>
     </table>
@@ -340,9 +341,12 @@ footer.foot { margin-top: 60px; padding-top: 22px; border-top: 1px solid var(--b
 
   <div class="grid cols-2">
     <div class="card">
-      <div class="hgroup"><h3>Correlation &amp; statistical test</h3><span class="tag">Pearson r</span></div>
+      <div class="hgroup"><h3>Correlation &amp; statistical test</h3><span class="tag">Pearson &middot; Spearman &middot; Kendall</span></div>
       <figure><img id="imgCorr" alt="Correlation heatmap of structural metrics vs defects and delay">
         <figcaption>Pearson correlation across complexity, coupling, cohesion, coverage, defect density and delay.</figcaption>
+      </figure>
+      <figure style="margin-top:14px;"><img id="imgCorr3" alt="Grouped bar chart comparing Pearson, Spearman and Kendall correlation coefficients across three variable pairs">
+        <figcaption>All three correlation types run on the same three pairs &mdash; a single method on 12 rows can mislead.</figcaption>
       </figure>
       <div id="corrTests" style="margin-top:14px;"></div>
     </div>
@@ -498,6 +502,7 @@ const DATA = JSON.parse(document.getElementById('DATA_BLOB').textContent);
 
 /* ---------------- images ---------------- */
 document.getElementById('imgCorr').src = DATA.images.correlation;
+document.getElementById('imgCorr3').src = DATA.images.correlation3;
 document.getElementById('imgTree').src = DATA.images.tree;
 document.getElementById('imgBox').src = DATA.images.box;
 document.getElementById('imgControl').src = DATA.images.control;
@@ -508,7 +513,7 @@ document.getElementById('imgControl').src = DATA.images.control;
   const kpis = [
     { label: 'Features delivered', value: t.total_features_delivered, delta: 'across 12 modules' },
     { label: 'Errors logged', value: t.total_errors_logged, delta: 'root-cause mistakes' },
-    { label: 'Faults / Defects', value: t.total_faults + ' / ' + t.total_defects, delta: 'injected vs QA-confirmed' },
+    { label: 'Faults / Defects / Failures', value: t.total_faults + ' / ' + t.total_defects + ' / ' + t.total_failures, delta: 'injected vs QA-confirmed vs observed' },
     { label: 'Avg delay', value: t.avg_delay_days + 'd', delta: 'worst: ' + t.max_delay_module },
   ];
   document.getElementById('kpiGrid').innerHTML = kpis.map(k => `
@@ -539,6 +544,7 @@ document.getElementById('imgControl').src = DATA.images.control;
         <td class="num">${m.errors_logged}</td>
         <td class="num">${m.fault_count}</td>
         <td class="num">${m.defect_count}</td>
+        <td class="num">${m.failures_observed}</td>
         <td class="num">${m.delay_days}</td>
         <td>${chip}</td>
       </tr>`;
@@ -548,8 +554,9 @@ document.getElementById('imgControl').src = DATA.images.control;
   document.getElementById('totalsBox').innerHTML = `
     <div class="stat-line"><span class="k">Features</span><span class="v">${t.total_features_delivered}</span></div>
     <div class="stat-line"><span class="k">Errors</span><span class="v">${t.total_errors_logged}</span></div>
-    <div class="stat-line"><span class="k">Faults</span><span class="v">${t.total_faults}</span></div>
+    <div class="stat-line"><span class="k">Faults / Bugs</span><span class="v">${t.total_faults}</span></div>
     <div class="stat-line"><span class="k">Defects</span><span class="v">${t.total_defects}</span></div>
+    <div class="stat-line"><span class="k">Failures</span><span class="v">${t.total_failures}</span></div>
     <div class="stat-line"><span class="k">Avg delay</span><span class="v">${t.avg_delay_days}d</span></div>`;
 })();
 
@@ -558,11 +565,16 @@ document.getElementById('imgControl').src = DATA.images.control;
   const c = DATA.results.correlation;
   document.getElementById('corrTests').innerHTML = c.tests.map(t => {
     const cls = t.significant ? 'good' : 'neutral';
-    return `<div class="stat-line">
-      <span class="k">${t.pair}</span>
-      <span class="v">r = ${t.r} <span class="chip ${cls}" style="margin-left:6px;">p = ${t.p_value}</span></span>
+    return `<div class="stat-line" style="flex-direction:column;align-items:flex-start;gap:4px;">
+      <span class="k" style="font-weight:600;color:var(--ink);">${t.pair}</span>
+      <span class="v" style="display:flex;gap:8px;flex-wrap:wrap;">
+        <span class="chip neutral">Pearson r=${t.pearson.r} (p=${t.pearson.p_value})</span>
+        <span class="chip neutral">Spearman &rho;=${t.spearman.rho} (p=${t.spearman.p_value})</span>
+        <span class="chip neutral">Kendall &tau;=${t.kendall.tau} (p=${t.kendall.p_value})</span>
+        <span class="chip ${cls}">${t.significant ? 'significant' : 'not significant'}</span>
+      </span>
     </div>`;
-  }).join('') + `<div class="callout" style="margin-top:10px;"><p>${c.tests[0].interpretation} ${c.tests[1].interpretation}</p></div>`;
+  }).join('') + `<div class="callout" style="margin-top:10px;"><p>${c.tests.map(t=>t.interpretation).join(' ')}</p></div>`;
 
   const dt = DATA.results.decision_tree;
   const importEntries = Object.entries(dt.feature_importances).sort((a,b)=>b[1]-a[1]);
