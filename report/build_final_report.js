@@ -97,7 +97,7 @@ c.push(...T(["Aspect", "What was done"], [
   ["AI methods", "z-score anomaly detection, exponential-smoothing forecast, LLM extraction / recommendations / Q&A with model fallback and caching"],
   ["Metrics program", "GQ(I)M, ISO 25010, error→fault→failure→bug taxonomy, decision tree, box plot, I-MR chart, Pearson/Spearman/Kendall, two Bayesian networks"],
   ["Evaluation", "10 labelled bills + 1 non-bill; 300 simulated anomaly trials; 2,400 forecast backtests; leave-one-out decision-tree test; API latency"],
-  ["UI", "Complete redesign: graphite and ember-orange palette, light and dark themes, mobile layout"],
+  ["UI", "Complete redesign: warm canvas with pastel tiles, slim icon rail, docked AI assistant panel with animated orb, motion effects; light and dark themes, mobile layout"],
 ], [2300, 7060]));
 c.push(P("Honest headline findings: bill-total extraction was exact on every test bill, and a date sanity check caught the one date the model misread; the anomaly rule is very precise but misses small anomalies; exponential smoothing beat linear regression; and the decision tree that scores 91.7% on its own training data scores only 58.3% under leave-one-out testing, so it is explanatory rather than predictive on our 12-module dataset."));
 

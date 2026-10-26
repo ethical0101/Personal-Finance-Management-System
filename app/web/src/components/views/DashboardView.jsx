@@ -3,6 +3,7 @@ import { api, money } from '../../lib/api.js'
 import { useToast } from '../../context/ToastContext.jsx'
 import { SkelBar } from '../Skeleton.jsx'
 import Icon from '../Icon.jsx'
+import CountUp from '../CountUp.jsx'
 import { TrendChart, Donut, ScoreRing } from '../charts.jsx'
 import AddTransactionModal from './AddTransactionModal.jsx'
 
@@ -54,17 +55,18 @@ function Content({ s, recent, categories, budgets, go }) {
   const spentTotal = s.spendByCategory.reduce((a, c) => a + c.total, 0)
   const onPace = sts.projectedMonthExpense <= sts.typicalMonthlyExpense * 1.1
   return (
-    <div className="grid cols-3">
+    <div className="grid cols-3 stagger">
+      <div className="kpi-tiles span-3">
+        <Tile tone="mint" icon="transactions" label="Income this month" value={s.incomeThisMonth} />
+        <Tile tone="peach" icon="budgets" label="Spent this month" value={s.expenseThisMonth} />
+        <Tile tone="lav" icon="goals" label="Savings rate" value={s.savingsRateThisMonth} fmt={v => `${Math.round(v)}%`} />
+        <Tile tone="sky" icon="zap" label="Safe to spend / day" value={sts.perDay ?? 0} dim={sts.perDay === null} />
+      </div>
       <div className="card hero span-2">
         <div>
           <div className="eyebrow">Net worth</div>
           <div className="big">{short(s.netWorth)}</div>
           <div className="sub">Across {s.accounts.length} account{s.accounts.length === 1 ? '' : 's'} · {s.transactionCount} transactions tracked</div>
-        </div>
-        <div className="hero-chips">
-          <div className="hero-chip"><div className="l">Income this month</div><div className="v">{short(s.incomeThisMonth)}</div></div>
-          <div className="hero-chip"><div className="l">Spent this month</div><div className="v">{short(s.expenseThisMonth)}</div></div>
-          <div className="hero-chip"><div className="l">Savings rate</div><div className="v">{s.savingsRateThisMonth}%</div></div>
         </div>
       </div>
 
@@ -154,6 +156,16 @@ function Content({ s, recent, categories, budgets, go }) {
           }) : <div className="empty">No budgets yet.</div>}
         </div>
       </div>
+    </div>
+  )
+}
+
+function Tile({ tone, icon, label, value, fmt, dim }) {
+  return (
+    <div className={`kpi-tile ${tone}`}>
+      <span className="kpi-ico"><Icon name={icon} size={18} /></span>
+      <div className="kpi-label">{label}</div>
+      <div className="kpi-val">{dim ? '—' : <CountUp value={value} format={fmt || (v => short(v))} />}</div>
     </div>
   )
 }

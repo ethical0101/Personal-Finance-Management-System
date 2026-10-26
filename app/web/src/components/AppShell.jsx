@@ -13,6 +13,8 @@ import NotificationsView from './views/NotificationsView.jsx'
 import MetricsView from './views/MetricsView.jsx'
 import ScanView from './views/ScanView.jsx'
 import AskView from './views/AskView.jsx'
+import AssistantPanel from './AssistantPanel.jsx'
+import { useAssistant } from '../lib/useAssistant.js'
 
 const NAV = [
   { group: 'Overview', items: [
@@ -46,6 +48,9 @@ export default function AppShell() {
   const [theme, setTheme] = useState(() => localStorage.getItem('wealthline_theme') || null)
   const [refreshKey, setRefreshKey] = useState(0)
   const [unread, setUnread] = useState(0)
+  const [assistantOpen, setAssistantOpen] = useState(() => localStorage.getItem('wealthline_assistant') !== 'closed')
+  const assistant = useAssistant()
+  const firstName = user?.name?.split(' ')[0]
 
   const bumpRefresh = useCallback(() => setRefreshKey(k => k + 1), [])
 
@@ -68,6 +73,11 @@ export default function AppShell() {
     setTheme(next)
     localStorage.setItem('wealthline_theme', next)
   }
+  function toggleAssistant() {
+    const next = !assistantOpen
+    setAssistantOpen(next)
+    localStorage.setItem('wealthline_assistant', next ? 'open' : 'closed')
+  }
   function go(id) { setView(id); setSidebarOpen(false) }
 
   const props = { refreshKey, bumpRefresh, go }
@@ -79,7 +89,7 @@ export default function AppShell() {
     goals: <GoalsView {...props} />,
     bills: <BillsView {...props} />,
     insights: <InsightsView {...props} />,
-    ask: <AskView {...props} />,
+    ask: <AskView {...props} assistant={assistant} name={firstName} />,
     scan: <ScanView {...props} />,
     notifications: <NotificationsView {...props} />,
     metrics: <MetricsView theme={theme} />,
@@ -114,18 +124,23 @@ export default function AppShell() {
       <div className="main">
         <header className="topbar">
           <button className="icon-btn mobile-nav-toggle" aria-label="Open menu" onClick={() => setSidebarOpen(true)}><Icon name="menu" /></button>
-          <span className="greet">{greeting()}, {user?.name?.split(' ')[0]}</span>
+          <span className="greet">{greeting()}, <b>{firstName}</b></span>
           <span className="spacer" />
+          <button className={`icon-btn ai-toggle ${assistantOpen ? 'on' : ''}`} title="AI assistant" onClick={toggleAssistant}><Icon name="insights" /></button>
           <button className="icon-btn" title="Scan a bill" onClick={() => go('scan')}><Icon name="camera" /></button>
           <button className="icon-btn" title="Notifications" onClick={() => go('notifications')}>
             <Icon name="bell" />{unread > 0 && <span className="dotbadge">{unread}</span>}
           </button>
           <button className="icon-btn" title="Toggle theme" onClick={toggleTheme}><Icon name={isDark ? 'sun' : 'moon'} /></button>
         </header>
-        <main className={`content ${view === 'metrics' ? 'full-bleed' : ''}`}>
+        <main key={view} className={`content ${view === 'metrics' ? 'full-bleed' : ''}`}>
           {views[view]}
         </main>
       </div>
+
+      {assistantOpen && view !== 'ask' && view !== 'metrics' && (
+        <aside className="assistant"><AssistantPanel assistant={assistant} name={firstName} onClose={toggleAssistant} /></aside>
+      )}
     </div>
   )
 }

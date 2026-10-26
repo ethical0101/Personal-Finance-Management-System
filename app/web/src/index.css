@@ -1,53 +1,57 @@
 @import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600&display=swap');
 
 /* ============================================================
-   Wealthline design tokens -- graphite + ember orange.
+   Wealthline design tokens -- warm canvas, white cards, pastel
+   tiles, ink buttons and an indigo "AI" accent.
    Light is the base; dark redefines the same tokens (system
    preference, or an explicit data-theme stamp from the toggle).
    ============================================================ */
 :root {
-  --bg: #F1F3F8;
+  --bg: #E9E8E3;
   --surface: #FFFFFF;
-  --surface-2: #EAEEF5;
-  --surface-3: #DDE3EE;
-  --ink: #0F1420;
-  --ink-dim: #485168;
-  --ink-faint: #78819A;
-  --border: #DCE2EC;
-  --accent: #C2410C;
+  --surface-2: #F4F3EF;
+  --surface-3: #E6E4DD;
+  --ink: #14161C;
+  --ink-dim: #4A4F5C;
+  --ink-faint: #858A97;
+  --border: #E4E2DA;
+  --accent: #4C5CF0;
   --accent-ink: #FFFFFF;
-  --accent-soft: #FDEADB;
+  --accent-soft: #E7E9FF;
   --good: #0B7F58;
-  --good-soft: #D9F3E8;
+  --good-soft: #D7EEE0;
   --warn: #8A5A00;
-  --warn-soft: #FDEFC6;
+  --warn-soft: #F6EBC0;
   --critical: #C9254A;
-  --critical-soft: #FCE1E7;
+  --critical-soft: #FBDDE3;
   --info: #2459D6;
-  --info-soft: #E1EAFF;
-  --c1: #E8590C; --c2: #3B7BF0; --c3: #1FA971; --c4: #E3A917; --c5: #DB4F8E; --c6: #8B6BEA; --c7: #3FB4C4;
-  --shadow: 0 1px 2px rgba(15,20,32,.05), 0 8px 24px -12px rgba(15,20,32,.16);
-  --radius: 18px;
+  --info-soft: #D8E8F7;
+  --p-mint: #D7EEE0; --p-peach: #FBE0CF; --p-lav: #E4DDF8; --p-sky: #D8E8F7; --p-butter: #F6EBC0;
+  --c1: #4C5CF0; --c2: #F08A4B; --c3: #2FAE7F; --c4: #E3B341; --c5: #E0568F; --c6: #8B6BEA; --c7: #3FB4C4;
+  --shadow: 0 1px 2px rgba(20,22,28,.04), 0 10px 30px -16px rgba(20,22,28,.18);
+  --radius: 22px;
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
-    --bg: #0C0F16; --surface: #141924; --surface-2: #1C2230; --surface-3: #262E41;
-    --ink: #F1F3F8; --ink-dim: #AAB2C5; --ink-faint: #6F788E; --border: #262D3E;
-    --accent: #FF8A3D; --accent-ink: #1B0D03; --accent-soft: #3A2314;
-    --good: #3DDC97; --good-soft: #12332A; --warn: #F5C451; --warn-soft: #3A2E10;
-    --critical: #FF6B85; --critical-soft: #3C1520; --info: #6FA0FF; --info-soft: #172547;
-    --c1: #FF8A3D; --c2: #5B93FF; --c3: #35D393; --c4: #F5C451; --c5: #F46FA6; --c6: #A68CFF; --c7: #55CBDA;
-    --shadow: 0 1px 2px rgba(0,0,0,.35), 0 12px 32px -14px rgba(0,0,0,.7);
+    --bg: #0D0E12; --surface: #17181F; --surface-2: #1E2028; --surface-3: #2A2C37;
+    --ink: #F2F3F7; --ink-dim: #B0B4C2; --ink-faint: #737888; --border: #262833;
+    --accent: #8D98FF; --accent-ink: #0E1030; --accent-soft: #23264A;
+    --good: #46DE9E; --good-soft: #143328; --warn: #F5C451; --warn-soft: #3A3010;
+    --critical: #FF6B85; --critical-soft: #3C1520; --info: #7DA8FF; --info-soft: #172547;
+    --p-mint: #17382C; --p-peach: #3E2A1E; --p-lav: #2B2547; --p-sky: #1A2F47; --p-butter: #3A3216;
+    --c1: #8D98FF; --c2: #FF9B5E; --c3: #46DE9E; --c4: #F5C451; --c5: #F46FA6; --c6: #A68CFF; --c7: #55CBDA;
+    --shadow: 0 1px 2px rgba(0,0,0,.35), 0 14px 34px -16px rgba(0,0,0,.75);
   }
 }
 :root[data-theme="dark"] {
-  --bg: #0C0F16; --surface: #141924; --surface-2: #1C2230; --surface-3: #262E41;
-  --ink: #F1F3F8; --ink-dim: #AAB2C5; --ink-faint: #6F788E; --border: #262D3E;
-  --accent: #FF8A3D; --accent-ink: #1B0D03; --accent-soft: #3A2314;
-  --good: #3DDC97; --good-soft: #12332A; --warn: #F5C451; --warn-soft: #3A2E10;
-  --critical: #FF6B85; --critical-soft: #3C1520; --info: #6FA0FF; --info-soft: #172547;
-  --c1: #FF8A3D; --c2: #5B93FF; --c3: #35D393; --c4: #F5C451; --c5: #F46FA6; --c6: #A68CFF; --c7: #55CBDA;
-  --shadow: 0 1px 2px rgba(0,0,0,.35), 0 12px 32px -14px rgba(0,0,0,.7);
+  --bg: #0D0E12; --surface: #17181F; --surface-2: #1E2028; --surface-3: #2A2C37;
+  --ink: #F2F3F7; --ink-dim: #B0B4C2; --ink-faint: #737888; --border: #262833;
+  --accent: #8D98FF; --accent-ink: #0E1030; --accent-soft: #23264A;
+  --good: #46DE9E; --good-soft: #143328; --warn: #F5C451; --warn-soft: #3A3010;
+  --critical: #FF6B85; --critical-soft: #3C1520; --info: #7DA8FF; --info-soft: #172547;
+  --p-mint: #17382C; --p-peach: #3E2A1E; --p-lav: #2B2547; --p-sky: #1A2F47; --p-butter: #3A3216;
+  --c1: #8D98FF; --c2: #FF9B5E; --c3: #46DE9E; --c4: #F5C451; --c5: #F46FA6; --c6: #A68CFF; --c7: #55CBDA;
+  --shadow: 0 1px 2px rgba(0,0,0,.35), 0 14px 34px -16px rgba(0,0,0,.75);
 }
 
 * { box-sizing: border-box; }
@@ -422,3 +426,132 @@ td.amount.expense { color: var(--ink); font-weight: 600; }
 .safe-num { font: 800 46px "Manrope"; letter-spacing: -0.035em; color: var(--accent); line-height: 1.05; margin-top: 4px; }
 .safe-num small { font-size: 16px; color: var(--ink-faint); font-weight: 700; letter-spacing: 0; }
 .chips { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 4px; }
+
+/* ============================================================
+   Look & feel v3 -- slim icon rail, pastel tiles, docked AI
+   assistant, motion. Placed last so it overrides earlier rules.
+   ============================================================ */
+.btn { border-radius: 14px; }
+.btn-primary { background: var(--ink); color: var(--surface); }
+.btn-primary:hover:not(:disabled) { filter: none; opacity: .88; }
+.scan-cta { background: linear-gradient(135deg, #5C6CFF, #8B6BEA); color: #fff; }
+.card { border: none; box-shadow: var(--shadow); }
+.icon-btn { background: var(--surface); border-radius: 50%; }
+.icon-btn.sm { width: 30px; height: 30px; font-size: 12px; box-shadow: none; background: var(--surface-2); }
+.icon-btn.ai-toggle.on { background: var(--accent-soft); color: var(--accent); }
+.navlink.active { background: var(--ink); color: var(--surface); }
+.user-chip .avatar { background: var(--p-lav); color: var(--accent); }
+.logo-mark { background: var(--ink); color: var(--surface); border-radius: 14px; }
+.auth-hero { background: radial-gradient(120% 90% at 85% 0%, #5C6CFF 0%, #2A2F6B 45%, #14161C 100%); color: #fff; }
+.auth-hero .logo-mark { background: rgba(255,255,255,.18); color: #fff; }
+
+/* hero: dark glass card with a soft glow */
+.hero { background: radial-gradient(90% 120% at 100% 0%, #5C6CFF 0%, #2B2F6E 40%, #14161C 85%); color: #fff; min-height: 190px; }
+.hero::before { background: rgba(255,255,255,.07); }
+.hero::after { background: rgba(139,107,234,.25); filter: blur(30px); }
+.hero .big { font-size: 48px; }
+.safe-num { color: var(--ink); }
+
+/* pastel KPI tiles */
+.kpi-tiles { grid-column: 1 / -1; display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+.kpi-tile { border-radius: 22px; padding: 18px 20px; position: relative; overflow: hidden; transition: transform .25s cubic-bezier(.2,.8,.2,1), box-shadow .25s ease; color: var(--ink); }
+.kpi-tile:hover { transform: translateY(-4px); box-shadow: 0 18px 34px -18px rgba(20,22,28,.35); }
+.kpi-tile.mint { background: var(--p-mint); }
+.kpi-tile.peach { background: var(--p-peach); }
+.kpi-tile.lav { background: var(--p-lav); }
+.kpi-tile.sky { background: var(--p-sky); }
+.kpi-ico { width: 36px; height: 36px; border-radius: 12px; background: rgba(255,255,255,.65); display: grid; place-items: center; margin-bottom: 18px; }
+:root[data-theme="dark"] .kpi-ico { background: rgba(255,255,255,.08); }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .kpi-ico { background: rgba(255,255,255,.08); } }
+.kpi-label { font: 700 12px "Manrope"; opacity: .7; }
+.kpi-val { font: 800 28px "Manrope"; letter-spacing: -0.03em; margin-top: 2px; }
+
+/* slim icon rail (desktop): expands on hover / keyboard focus */
+@media (min-width: 1001px) {
+  aside.sidebar { position: fixed; left: 0; top: 0; bottom: 0; width: 76px; padding: 18px 12px; overflow: hidden; z-index: 40;
+    border-right: none; background: var(--surface); transition: width .25s cubic-bezier(.2,.8,.2,1), box-shadow .25s ease; border-radius: 0 28px 28px 0; }
+  aside.sidebar:hover, aside.sidebar:focus-within { width: 248px; box-shadow: 0 30px 60px -20px rgba(20,22,28,.35); overflow-y: auto; }
+  .sidebar .brand { padding-left: 8px; white-space: nowrap; }
+  .navlink, .scan-cta { white-space: nowrap; padding-left: 16px; overflow: hidden; }
+  .scan-cta { border-radius: 16px; }
+  .nav-group { white-space: nowrap; opacity: 0; height: 8px; padding: 0 12px; overflow: hidden; transition: opacity .2s ease, height .25s ease; }
+  aside.sidebar:hover .nav-group, aside.sidebar:focus-within .nav-group { opacity: 1; height: 30px; padding: 14px 12px 4px; }
+  .user-chip .who { opacity: 0; transition: opacity .2s ease; }
+  aside.sidebar:hover .user-chip .who { opacity: 1; }
+  .main { margin-left: 76px; }
+  .topbar { padding-top: 22px; }
+}
+.topbar .greet { font-size: 18px; font-weight: 600; color: var(--ink-dim); }
+.topbar .greet b { color: var(--ink); font-weight: 800; }
+
+/* docked AI assistant */
+.assistant { width: 340px; flex: none; position: sticky; top: 0; height: 100vh; padding: 16px 16px 16px 0; display: none; }
+@media (min-width: 1280px) { .assistant { display: block; } }
+.assistant-inner { height: 100%; background: var(--surface); border-radius: 28px; box-shadow: var(--shadow); padding: 16px; display: flex; flex-direction: column; min-height: 0; }
+.assistant-inner.page { box-shadow: none; padding: 0; border-radius: 0; background: transparent; }
+.assistant-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+.assistant-title { display: inline-flex; gap: 8px; align-items: center; font: 800 13px "Manrope"; color: var(--ink-dim); }
+.assistant-title svg { color: var(--accent); }
+.assistant-hero { text-align: center; padding: 14px 6px 8px; }
+.assistant-hero h3 { font-size: 22px; margin-top: 14px; }
+.assistant-hero p { margin: 4px 0 0; font-size: 13.5px; }
+.assistant-inner .chat-log { flex: 1; min-height: 0; }
+.assistant-inner .bubble { max-width: 92%; font-size: 13.5px; padding: 10px 14px; }
+.bubble.me { background: var(--ink); color: var(--surface); }
+.suggest-col { display: grid; gap: 8px; margin-bottom: 10px; }
+.suggest-col button { appearance: none; text-align: left; border: none; background: var(--surface-2); color: var(--ink); border-radius: 16px; padding: 11px 14px; font: 600 12.5px "Manrope"; cursor: pointer; transition: transform .15s ease, background .15s ease; }
+.suggest-col button:hover { transform: translateX(3px); background: var(--accent-soft); color: var(--accent); }
+.assistant-input { display: flex; align-items: center; gap: 8px; background: var(--surface-2); border-radius: 999px; padding: 5px 5px 5px 16px; }
+.assistant-input input { flex: 1; min-width: 0; border: none; background: transparent; color: var(--ink); font: 500 13.5px "Manrope"; outline: none; }
+.assistant-input button { width: 36px; height: 36px; border-radius: 50%; border: none; background: var(--ink); color: var(--surface); display: grid; place-items: center; cursor: pointer; flex: none; }
+.assistant-input button:disabled { opacity: .35; cursor: not-allowed; }
+.chat { height: calc(100vh - 230px); padding: 22px; }
+.chat .assistant-inner { padding: 0; }
+
+/* the AI orb */
+.orb { position: relative; margin: 0 auto; border-radius: 50%;
+  background: radial-gradient(circle at 32% 28%, #BFD0FF 0%, #6F83FF 38%, #4B3FD8 72%, #2A1F8F 100%);
+  box-shadow: 0 0 0 8px rgba(92,108,255,.12), 0 0 40px 6px rgba(92,108,255,.45), inset 0 -8px 18px rgba(20,10,80,.35);
+  animation: orbFloat 4s ease-in-out infinite, orbGlow 3s ease-in-out infinite; }
+.orb-eye { position: absolute; top: 40%; width: 11%; height: 18%; border-radius: 99px; background: #fff; animation: blinkEye 5s infinite; }
+.orb-eye.l { left: 32%; }
+.orb-eye.r { right: 32%; }
+.orb.thinking { animation: orbFloat 1.2s ease-in-out infinite, orbGlow .9s ease-in-out infinite; }
+@keyframes orbFloat { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
+@keyframes orbGlow { 0%,100% { box-shadow: 0 0 0 8px rgba(92,108,255,.12), 0 0 34px 4px rgba(92,108,255,.4), inset 0 -8px 18px rgba(20,10,80,.35); } 50% { box-shadow: 0 0 0 14px rgba(92,108,255,.08), 0 0 56px 12px rgba(92,108,255,.55), inset 0 -8px 18px rgba(20,10,80,.35); } }
+@keyframes blinkEye { 0%,92%,100% { transform: scaleY(1); } 95% { transform: scaleY(.1); } }
+
+/* motion: staggered entrance, hover lift, page fade */
+@keyframes riseIn { from { opacity: 0; transform: translateY(14px) scale(.985); } to { opacity: 1; transform: none; } }
+main.content > section { animation: riseIn .45s cubic-bezier(.2,.8,.2,1) both; }
+.stagger > * { animation: riseIn .55s cubic-bezier(.2,.8,.2,1) both; }
+.stagger > *:nth-child(1) { animation-delay: .02s; }
+.stagger > *:nth-child(2) { animation-delay: .08s; }
+.stagger > *:nth-child(3) { animation-delay: .14s; }
+.stagger > *:nth-child(4) { animation-delay: .2s; }
+.stagger > *:nth-child(5) { animation-delay: .26s; }
+.stagger > *:nth-child(6) { animation-delay: .32s; }
+.stagger > *:nth-child(n+7) { animation-delay: .38s; }
+.kpi-tiles .kpi-tile { animation: riseIn .55s cubic-bezier(.2,.8,.2,1) both; }
+.kpi-tiles .kpi-tile:nth-child(2) { animation-delay: .06s; }
+.kpi-tiles .kpi-tile:nth-child(3) { animation-delay: .12s; }
+.kpi-tiles .kpi-tile:nth-child(4) { animation-delay: .18s; }
+.card { transition: transform .25s cubic-bezier(.2,.8,.2,1), box-shadow .25s ease; }
+.grid > .card:hover, .stack > .card:hover { transform: translateY(-3px); box-shadow: 0 20px 40px -22px rgba(20,22,28,.3); }
+.bar-fill, .mini-fill, .progress-fill { animation: growX .9s cubic-bezier(.2,.8,.2,1) both; transform-origin: left; }
+@keyframes growX { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+@media (prefers-reduced-motion: reduce) {
+  main.content > section, .stagger > *, .kpi-tile, .bar-fill, .mini-fill, .progress-fill, .orb, .orb-eye { animation: none !important; }
+  .card, .kpi-tile { transition: none; }
+}
+@media (max-width: 1000px) { .kpi-tiles { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 520px) { .kpi-tiles { gap: 10px; } .kpi-val { font-size: 22px; } }
+
+/* collapsed rail: icons only (labels appear on hover/focus) */
+@media (min-width: 1001px) {
+  aside.sidebar:not(:hover):not(:focus-within) .navlink,
+  aside.sidebar:not(:hover):not(:focus-within) .scan-cta { font-size: 0; gap: 0; }
+  aside.sidebar:not(:hover):not(:focus-within) .brand .t { opacity: 0; }
+  .scan-cta { justify-content: flex-start; }
+}
+.hero { min-height: 150px; justify-content: flex-start; }

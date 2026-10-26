@@ -10,7 +10,7 @@ const CH = path.join(ROOT, "charts");
 const A = f => JSON.parse(fs.readFileSync(path.join(ROOT, "analysis", f)));
 const em = A("eval_models.json"), es = A("eval_scan.json").summary, tcv = A("eval_tree_cv.json"), bn = A("bn_results.json");
 
-const INK = "111827", SUB = "4B5563", ORANGE = "C2410C", SOFT = "FFF1E8", BG = "F5F6FA", WHITE = "FFFFFF", GREEN = "047857", LINE = "D1D5DB";
+const INK = "14161C", SUB = "4B5563", ORANGE = "4C5CF0", SOFT = "E7E9FF", BG = "F5F6FA", WHITE = "FFFFFF", GREEN = "047857", LINE = "D1D5DB";
 const FONT = "Calibri";
 const pptx = new pptxgen();
 pptx.layout = "LAYOUT_WIDE"; // 13.33 x 7.5
@@ -52,13 +52,13 @@ function table(s, rows, x, y, w, colW, o = {}) {
   s.background = { color: INK };
   s.addShape("rect", { x: 0, y: 0, w: 0.35, h: 7.5, fill: { color: ORANGE }, line: { color: ORANGE } });
   s.addText("WEALTHLINE", { x: 0.9, y: 1.0, w: 11, h: 0.9, fontFace: FONT, fontSize: 54, bold: true, color: WHITE });
-  s.addText("Software Metrics-Driven, AI-Powered Personal Finance Management System", { x: 0.9, y: 1.95, w: 11, h: 0.9, fontFace: FONT, fontSize: 24, color: "FFB48A" });
-  s.addText("TEAM", { x: 0.9, y: 3.55, w: 4, h: 0.4, fontFace: FONT, fontSize: 14, bold: true, color: "FF8A3D", charSpacing: 3 });
+  s.addText("Software Metrics-Driven, AI-Powered Personal Finance Management System", { x: 0.9, y: 1.95, w: 11, h: 0.9, fontFace: FONT, fontSize: 24, color: "B8C0FF" });
+  s.addText("TEAM", { x: 0.9, y: 3.55, w: 4, h: 0.4, fontFace: FONT, fontSize: 14, bold: true, color: "8D98FF", charSpacing: 3 });
   const team = [["K Druthendra", "23MIS0213"], ["G Sai Santhosh", "23MIS0227"], ["P Siva Kiran", "23MIS0674"], ["Shaik Nihal", "23MIS0491"]];
   team.forEach(([nm, id], i) => {
     s.addShape("roundRect", { x: 0.9 + i * 3.0, y: 4.05, w: 2.8, h: 1.2, fill: { color: "1F2937" }, line: { color: "374151" }, rectRadius: 0.08 });
     s.addText(nm, { x: 1.0 + i * 3.0, y: 4.15, w: 2.6, h: 0.5, fontFace: FONT, fontSize: 20, bold: true, color: WHITE });
-    s.addText(id, { x: 1.0 + i * 3.0, y: 4.7, w: 2.6, h: 0.4, fontFace: "Consolas", fontSize: 16, color: "FFB48A" });
+    s.addText(id, { x: 1.0 + i * 3.0, y: 4.7, w: 2.6, h: 0.4, fontFace: "Consolas", fontSize: 16, color: "B8C0FF" });
   });
   s.addText("Live: wealthline-eight.vercel.app   ·   Code: github.com/ethical0101/Personal-Finance-Management-System", { x: 0.9, y: 6.4, w: 12, h: 0.4, fontFace: FONT, fontSize: 14, color: "9CA3AF" });
 }
@@ -100,7 +100,7 @@ function table(s, rows, x, y, w, colW, o = {}) {
     ["Daily-use features", "Safe-to-spend, subscriptions, goal ETA, what-if, month-end projection, health score, Ask AI"],
     ["AI methods", "z-score anomalies, exponential-smoothing forecast, LLM extraction / advice / Q&A"],
     ["Metrics program", "GQ(I)M, ISO 25010, defect taxonomy, decision tree, I-MR chart, 3 correlations, 2 Bayesian networks"],
-    ["UI", "Full redesign: graphite + ember orange, light / dark / mobile"],
+    ["UI", "Full redesign: warm canvas, pastel tiles, icon rail, docked AI assistant; light / dark / mobile"],
   ], 0.6, 1.6, 12.1, [2.8, 9.3], { size: 15 });
   s.addText(`Bill totals exact on ${es.totalExactMatch}% of ${es.receipts} test bills  ·  anomaly precision ${em.anomalyDetector.byThreshold["2.5"].precision}  ·  forecast MAPE ${em.forecaster.overall.exponentialSmoothing.MAPE}% vs ${em.forecaster.overall.linearRegression.MAPE}% (regression)`, { x: 0.6, y: 6.2, w: 12.1, h: 0.5, fontFace: FONT, fontSize: 16, bold: true, color: ORANGE });
 }
