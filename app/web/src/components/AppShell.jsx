@@ -13,6 +13,7 @@ import NotificationsView from './views/NotificationsView.jsx'
 import MetricsView from './views/MetricsView.jsx'
 import ScanView from './views/ScanView.jsx'
 import AskView from './views/AskView.jsx'
+import SettingsView from './views/SettingsView.jsx'
 import AssistantPanel from './AssistantPanel.jsx'
 import { useAssistant } from '../lib/useAssistant.js'
 
@@ -34,6 +35,9 @@ const NAV = [
   { group: 'Project', items: [
     { id: 'metrics', label: 'Metrics Deck', icon: 'metrics' },
   ] },
+  { group: 'Account', items: [
+    { id: 'settings', label: 'Settings', icon: 'settings' },
+  ] },
 ]
 
 function greeting() {
@@ -50,6 +54,10 @@ export default function AppShell() {
   const [unread, setUnread] = useState(0)
   const [assistantOpen, setAssistantOpen] = useState(() => localStorage.getItem('wealthline_assistant') !== 'closed')
   const assistant = useAssistant()
+  const [rail, setRail] = useState(() => {
+    const saved = localStorage.getItem('wealthline_rail')
+    return saved ? saved === 'collapsed' : window.innerWidth < 1440
+  })
   const firstName = user?.name?.split(' ')[0]
 
   const bumpRefresh = useCallback(() => setRefreshKey(k => k + 1), [])
@@ -73,10 +81,20 @@ export default function AppShell() {
     setTheme(next)
     localStorage.setItem('wealthline_theme', next)
   }
+  function toggleRail() {
+    const next = !rail
+    setRail(next)
+    localStorage.setItem('wealthline_rail', next ? 'collapsed' : 'expanded')
+  }
   function toggleAssistant() {
+    if (window.innerWidth < 1360) { go('ask'); return }
     const next = !assistantOpen
     setAssistantOpen(next)
     localStorage.setItem('wealthline_assistant', next ? 'open' : 'closed')
+  }
+  function applyTheme(t) {
+    setTheme(t)
+    if (t) localStorage.setItem('wealthline_theme', t); else localStorage.removeItem('wealthline_theme')
   }
   function go(id) { setView(id); setSidebarOpen(false) }
 
@@ -92,19 +110,20 @@ export default function AppShell() {
     ask: <AskView {...props} assistant={assistant} name={firstName} />,
     scan: <ScanView {...props} />,
     notifications: <NotificationsView {...props} />,
+    settings: <SettingsView {...props} theme={theme} setTheme={applyTheme} assistantOpen={assistantOpen} toggleAssistant={toggleAssistant} />,
     metrics: <MetricsView theme={theme} />,
   }
 
   return (
-    <div className="shell">
+    <div className={`shell ${rail ? 'rail' : ''}`}>
       <aside className={`sidebar ${sidebarOpen ? 'open' : ''}`}>
         <div className="brand"><span className="logo-mark">W</span><span className="t">Wealthline</span></div>
-        <button className="btn btn-primary scan-cta" onClick={() => go('scan')}><Icon name="scan" /> Scan a bill</button>
+        <button className="btn btn-primary scan-cta" title="Scan a bill" onClick={() => go('scan')}><Icon name="scan" /> Scan a bill</button>
         {NAV.map(g => (
           <div key={g.group}>
             <div className="nav-group">{g.group}</div>
             {g.items.map(n => (
-              <button key={n.id} className={`navlink ${view === n.id ? 'active' : ''}`} onClick={() => go(n.id)}>
+              <button key={n.id} title={n.label} className={`navlink ${view === n.id ? 'active' : ''}`} onClick={() => go(n.id)}>
                 <Icon name={n.icon} />{n.label}
               </button>
             ))}
@@ -115,7 +134,8 @@ export default function AppShell() {
             <span className="avatar">{(user?.name || 'U').slice(0, 1).toUpperCase()}</span>
             <div className="who"><span className="n">{user?.name}</span><span className="e">{user?.email}</span></div>
           </div>
-          <button className="navlink" onClick={logout}><Icon name="logout" />Log out</button>
+          <button className="navlink rail-toggle" title="Collapse / expand menu" onClick={toggleRail}><Icon name="panel" />{rail ? 'Expand menu' : 'Collapse menu'}</button>
+          <button className="navlink" title="Log out" onClick={logout}><Icon name="logout" />Log out</button>
         </div>
       </aside>
 

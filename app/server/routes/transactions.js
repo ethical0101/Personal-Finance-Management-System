@@ -27,7 +27,7 @@ router.post("/", async (req, res) => {
   const category = await db.findOne("categories", c => c.id === categoryId && c.userId === req.userId);
   if (!category) return res.status(404).json({ error: "Category not found." });
 
-  const numericAmount = Math.abs(Number(amount));
+  const numericAmount = Number(amount);
   if (!Number.isFinite(numericAmount) || numericAmount <= 0) {
     return res.status(400).json({ error: "Amount must be a positive number." });
   }

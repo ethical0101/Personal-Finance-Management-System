@@ -24,6 +24,7 @@ app.use("/api/bills", requireAuth, require("./routes/bills"));
 app.use("/api/notifications", requireAuth, require("./routes/notifications"));
 app.use("/api/insights", requireAuth, require("./routes/insights"));
 app.use("/api/scan", requireAuth, require("./routes/scan"));
+app.use("/api/settings", requireAuth, require("./routes/settings"));
 app.use("/api/dashboard", requireAuth, require("./routes/dashboard"));
 
 app.use("/api", (req, res) => res.status(404).json({ error: "Not found." }));

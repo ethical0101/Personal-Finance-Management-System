@@ -71,6 +71,11 @@ const db = {
     const c = await collection("aicache");
     await c.updateOne({ key }, { $set: { key, value, expiresAt: Date.now() + ttlMs, createdAt: new Date().toISOString() } }, { upsert: true });
   },
+  async removeByUser(name, userId) {
+    const c = await collection(name);
+    const r = await c.deleteMany({ userId });
+    return r.deletedCount;
+  },
   async remove(name, id) {
     const c = await collection(name);
     const result = await c.deleteOne({ id });

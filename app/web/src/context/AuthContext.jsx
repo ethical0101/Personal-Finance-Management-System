@@ -27,6 +27,11 @@ export function AuthProvider({ children }) {
     return data.user
   }, [])
 
+  const updateUser = useCallback(u => {
+    localStorage.setItem('wealthline_user', JSON.stringify(u))
+    setUser(u)
+  }, [])
+
   const logout = useCallback(() => {
     localStorage.removeItem('wealthline_token')
     localStorage.removeItem('wealthline_user')
@@ -35,7 +40,7 @@ export function AuthProvider({ children }) {
   }, [])
 
   return (
-    <AuthContext.Provider value={{ user, token, login, signup, logout }}>
+    <AuthContext.Provider value={{ user, token, login, signup, logout, updateUser }}>
       {children}
     </AuthContext.Provider>
   )

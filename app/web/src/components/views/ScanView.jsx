@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { api, money, todayStr } from '../../lib/api.js'
 import { useToast } from '../../context/ToastContext.jsx'
 import Icon from '../Icon.jsx'
+import CameraModal from '../CameraModal.jsx'
 
 const SAMPLES = [
   { id: 'r1', label: 'Supermarket bill' },
@@ -43,6 +44,7 @@ export default function ScanView({ bumpRefresh, go }) {
   const [savedInfo, setSavedInfo] = useState(null)
   const fileRef = useRef(null)
   const camRef = useRef(null)
+  const [showCam, setShowCam] = useState(false)
   const toast = useToast()
 
   useEffect(() => {
@@ -84,6 +86,12 @@ export default function ScanView({ bumpRefresh, go }) {
     } catch (e) { setError(e.message); setStatus('idle') }
   }
 
+  // Phones/tablets: hand off to the native camera app. Desktops: live webcam preview.
+  function openCamera() {
+    const touch = window.matchMedia('(pointer: coarse)').matches
+    if (touch || !navigator.mediaDevices?.getUserMedia) camRef.current?.click()
+    else setShowCam(true)
+  }
   function reset() { setPreview(null); setResult(null); setStatus('idle'); setError(''); setSavedInfo(null) }
 
   // ---- live budget impact, recomputed as the user edits the amount/category ----
@@ -126,6 +134,10 @@ export default function ScanView({ bumpRefresh, go }) {
         <div><h1>Scan a bill</h1><p>Take a photo of any receipt or bill. AI reads it, files it under the right category, and shows what it does to your budget — you confirm before anything is saved.</p></div>
       </div>
 
+      {showCam && <CameraModal onClose={() => setShowCam(false)}
+        onCapture={d => { setShowCam(false); handleDataUrl(d) }}
+        onFallback={() => { setShowCam(false); fileRef.current?.click() }} />}
+
       <div className="scan-layout">
         {/* -------- left: image -------- */}
         <div>
@@ -141,7 +153,7 @@ export default function ScanView({ bumpRefresh, go }) {
                   <p>JPG, PNG or WebP. Photos taken on your phone work best in good light.</p>
                   <div style={{ marginTop: 16, display: 'flex', gap: 10, justifyContent: 'center' }}>
                     <button type="button" className="btn btn-primary" onClick={e => { e.stopPropagation(); fileRef.current?.click() }}><Icon name="upload" />Choose file</button>
-                    <button type="button" className="btn btn-outline" onClick={e => { e.stopPropagation(); camRef.current?.click() }}><Icon name="camera" />Take photo</button>
+                    <button type="button" className="btn btn-outline" onClick={e => { e.stopPropagation(); openCamera() }}><Icon name="camera" />Take photo</button>
                   </div>
                 </div>
               </div>

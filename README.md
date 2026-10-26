@@ -41,6 +41,8 @@ document.
 | Financial health score | 0–100 score with a four-part breakdown |
 | Ask AI | Ask questions about your own money in plain English; answers use only your data |
 | Reliability | Gemini model fallback chain, retry on overload, MongoDB response cache (`aicache`), clear "daily quota used up" message |
+| Settings | Edit profile, change password, download all your data (JSON), clear data, delete account, theme and assistant preferences |
+| Camera capture | Live webcam capture on desktop, native camera on phones, upload as fallback |
 | Metrics Command Deck | Module 3 (data collection, decision tree, box plot, control chart, Pearson/Spearman/Kendall correlation) and Module 4 (Bayesian risk & defect-prediction networks, risk register) — embedded as an in-app tab |
 
 ## Tech stack
@@ -201,3 +203,5 @@ node app/server/scripts/evaluate_models.js   # anomaly detector + forecaster bac
 node app/server/scripts/evaluate_scan.js     # bill-scan accuracy on report/eval_receipts -> analysis/eval_scan.json
 ```
 Measured results are summarised in the project report.
+
+Run `node app/server/scripts/smoke_test.js` for a 48-check end-to-end API test (set `SEED_BASE_URL` to target production).
