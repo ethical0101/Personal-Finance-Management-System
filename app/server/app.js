@@ -5,13 +5,14 @@
  * files are served directly by Vercel's CDN from app/web/dist).
  */
 require("dotenv").config();
+require("express-async-errors"); // route errors -> error middleware instead of crashing the process
 const express = require("express");
 const cors = require("cors");
 const { requireAuth } = require("./middleware/auth");
 
 const app = express();
 app.use(cors());
-app.use(express.json());
+app.use(express.json({ limit: "6mb" })); // receipt photos arrive as base64
 
 app.use("/api/auth", require("./routes/auth"));
 app.use("/api/accounts", requireAuth, require("./routes/accounts"));
@@ -22,6 +23,7 @@ app.use("/api/goals", requireAuth, require("./routes/goals"));
 app.use("/api/bills", requireAuth, require("./routes/bills"));
 app.use("/api/notifications", requireAuth, require("./routes/notifications"));
 app.use("/api/insights", requireAuth, require("./routes/insights"));
+app.use("/api/scan", requireAuth, require("./routes/scan"));
 app.use("/api/dashboard", requireAuth, require("./routes/dashboard"));
 
 app.use("/api", (req, res) => res.status(404).json({ error: "Not found." }));

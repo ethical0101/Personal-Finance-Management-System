@@ -3,9 +3,11 @@ import { api, money } from '../../lib/api.js'
 import { useToast } from '../../context/ToastContext.jsx'
 import { SkelTableRows } from '../Skeleton.jsx'
 import Modal from '../Modal.jsx'
+import Icon from '../Icon.jsx'
 
 export default function BillsView({ refreshKey, bumpRefresh }) {
   const [bills, setBills] = useState([])
+  const [subs, setSubs] = useState([])
   const [categories, setCategories] = useState([])
   const [loading, setLoading] = useState(true)
   const [showAdd, setShowAdd] = useState(false)
@@ -13,8 +15,8 @@ export default function BillsView({ refreshKey, bumpRefresh }) {
 
   useEffect(() => {
     let cancelled = false
-    Promise.all([api('/bills'), api('/categories')])
-      .then(([b, c]) => { if (!cancelled) { setBills(b); setCategories(c) } })
+    Promise.all([api('/bills'), api('/categories'), api('/insights/subscriptions')])
+      .then(([b, c, sb]) => { if (!cancelled) { setBills(b); setCategories(c); setSubs(sb) } })
       .catch(e => { if (!cancelled) toast(e.message, 'error') })
       .finally(() => { if (!cancelled) setLoading(false) })
     return () => { cancelled = true }
@@ -24,6 +26,15 @@ export default function BillsView({ refreshKey, bumpRefresh }) {
   async function handleDelete(id) {
     try {
       await api(`/bills/${id}`, { method: 'DELETE' })
+      bumpRefresh()
+    } catch (e) { toast(e.message, 'error') }
+  }
+
+  async function trackSub(sub) {
+    try {
+      const day = Math.min(28, Number(sub.lastCharged.slice(8)) || 1)
+      await api('/bills', { method: 'POST', body: { name: sub.name, categoryId: sub.categoryId, amount: sub.amount, dueDay: day } })
+      toast(`${sub.name} added to recurring bills.`, 'success')
       bumpRefresh()
     } catch (e) { toast(e.message, 'error') }
   }
@@ -43,9 +54,26 @@ export default function BillsView({ refreshKey, bumpRefresh }) {
   return (
     <section className="view active">
       <div className="page-head">
-        <div><h1>Recurring Bills</h1><p>Bills that repeat every month.</p></div>
-        <button className="btn btn-primary" onClick={() => setShowAdd(true)} disabled={loading}>+ Add bill</button>
+        <div><h1>Bills &amp; Subscriptions</h1><p>Everything that repeats — including charges Wealthline spotted in your history that you never set up as a bill.</p></div>
+        <button className="btn btn-primary" onClick={() => setShowAdd(true)} disabled={loading}><Icon name="plus" />Add bill</button>
       </div>
+      {!loading && subs.length > 0 && (
+        <div className="card" style={{ marginBottom: 18 }}>
+          <div className="section-title"><h3>Detected subscriptions</h3>
+            <span className="chip info">{money(subs.reduce((a, x) => a + x.yearlyCost, 0)).replace('.00', '')} / year</span></div>
+          <p style={{ fontSize: 13 }}>Found automatically: the same charge, same amount, month after month.</p>
+          {subs.map(sb => (
+            <div className="list-row" key={sb.name}>
+              <div className="ico bill"><Icon name="repeat" size={17} /></div>
+              <div className="mid"><div className="t">{sb.name}</div><div className="s">{money(sb.amount).replace('.00', '')}/mo · seen {sb.monthsSeen} months · last {sb.lastCharged}</div></div>
+              <div style={{ textAlign: 'right' }}>
+                <div className="amt">{money(sb.yearlyCost).replace('.00', '')}<span style={{ color: 'var(--ink-faint)', fontWeight: 600 }}>/yr</span></div>
+                {sb.tracked ? <span className="chip good">Tracked</span> : <button className="btn btn-sm btn-primary" style={{ marginTop: 4 }} onClick={() => trackSub(sb)}>Track as bill</button>}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
       <div className="table-scroll">
         <table>
           <thead><tr><th>Name</th><th>Category</th><th className="num">Amount</th><th className="num">Due day</th><th></th></tr></thead>

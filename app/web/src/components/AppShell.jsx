@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react'
 import { useAuth } from '../context/AuthContext.jsx'
 import { api } from '../lib/api.js'
+import Icon from './Icon.jsx'
 import DashboardView from './views/DashboardView.jsx'
 import TransactionsView from './views/TransactionsView.jsx'
 import AccountsView from './views/AccountsView.jsx'
@@ -10,18 +11,33 @@ import BillsView from './views/BillsView.jsx'
 import InsightsView from './views/InsightsView.jsx'
 import NotificationsView from './views/NotificationsView.jsx'
 import MetricsView from './views/MetricsView.jsx'
+import ScanView from './views/ScanView.jsx'
+import AskView from './views/AskView.jsx'
 
 const NAV = [
-  { id: 'dashboard', label: 'Dashboard' },
-  { id: 'transactions', label: 'Transactions' },
-  { id: 'accounts', label: 'Accounts' },
-  { id: 'budgets', label: 'Budgets' },
-  { id: 'goals', label: 'Goals' },
-  { id: 'bills', label: 'Recurring Bills' },
-  { id: 'insights', label: 'AI Insights' },
-  { id: 'notifications', label: 'Notifications', badge: true },
-  { id: 'metrics', label: 'Metrics' },
+  { group: 'Overview', items: [
+    { id: 'dashboard', label: 'Dashboard', icon: 'dashboard' },
+  ] },
+  { group: 'Money', items: [
+    { id: 'transactions', label: 'Transactions', icon: 'transactions' },
+    { id: 'accounts', label: 'Accounts', icon: 'accounts' },
+    { id: 'budgets', label: 'Budgets', icon: 'budgets' },
+    { id: 'goals', label: 'Goals', icon: 'goals' },
+    { id: 'bills', label: 'Bills & Subscriptions', icon: 'bills' },
+  ] },
+  { group: 'Smart tools', items: [
+    { id: 'insights', label: 'AI Insights', icon: 'insights' },
+    { id: 'ask', label: 'Ask AI', icon: 'ask' },
+  ] },
+  { group: 'Project', items: [
+    { id: 'metrics', label: 'Metrics Deck', icon: 'metrics' },
+  ] },
 ]
+
+function greeting() {
+  const h = new Date().getHours()
+  return h < 12 ? 'Good morning' : h < 17 ? 'Good afternoon' : 'Good evening'
+}
 
 export default function AppShell() {
   const { user, logout } = useAuth()
@@ -44,52 +60,52 @@ export default function AppShell() {
       setUnread(notes.filter(n => !n.read && n.type !== 'recommendation-event').length)
     } catch { /* ignore */ }
   }, [])
-
   useEffect(() => { refreshBadge() }, [refreshBadge, refreshKey])
 
+  const isDark = theme === 'dark' || (theme === null && window.matchMedia('(prefers-color-scheme: dark)').matches)
   function toggleTheme() {
-    const next = theme === 'dark' ? 'light' : 'dark'
+    const next = isDark ? 'light' : 'dark'
     setTheme(next)
     localStorage.setItem('wealthline_theme', next)
   }
+  function go(id) { setView(id); setSidebarOpen(false) }
 
-  function selectView(id) {
-    setView(id)
-    setSidebarOpen(false)
-  }
-
+  const props = { refreshKey, bumpRefresh, go }
   const views = {
-    dashboard: <DashboardView refreshKey={refreshKey} bumpRefresh={bumpRefresh} />,
-    transactions: <TransactionsView refreshKey={refreshKey} bumpRefresh={bumpRefresh} />,
-    accounts: <AccountsView refreshKey={refreshKey} bumpRefresh={bumpRefresh} />,
-    budgets: <BudgetsView refreshKey={refreshKey} bumpRefresh={bumpRefresh} />,
-    goals: <GoalsView refreshKey={refreshKey} bumpRefresh={bumpRefresh} />,
-    bills: <BillsView refreshKey={refreshKey} bumpRefresh={bumpRefresh} />,
-    insights: <InsightsView refreshKey={refreshKey} bumpRefresh={bumpRefresh} />,
-    notifications: <NotificationsView refreshKey={refreshKey} bumpRefresh={bumpRefresh} />,
+    dashboard: <DashboardView {...props} />,
+    transactions: <TransactionsView {...props} />,
+    accounts: <AccountsView {...props} />,
+    budgets: <BudgetsView {...props} />,
+    goals: <GoalsView {...props} />,
+    bills: <BillsView {...props} />,
+    insights: <InsightsView {...props} />,
+    ask: <AskView {...props} />,
+    scan: <ScanView {...props} />,
+    notifications: <NotificationsView {...props} />,
     metrics: <MetricsView theme={theme} />,
   }
 
   return (
     <div className="shell">
       <aside className={`sidebar ${sidebarOpen ? 'open' : ''}`}>
-        <div className="brand"><span className="mark">W</span><span>Wealthline</span></div>
-        {NAV.map(n => (
-          <button
-            key={n.id}
-            className={`navlink ${view === n.id ? 'active' : ''}`}
-            onClick={() => selectView(n.id)}
-          >
-            {n.label}
-            {n.badge && unread > 0 && <span className="badge">{unread}</span>}
-          </button>
+        <div className="brand"><span className="logo-mark">W</span><span className="t">Wealthline</span></div>
+        <button className="btn btn-primary scan-cta" onClick={() => go('scan')}><Icon name="scan" /> Scan a bill</button>
+        {NAV.map(g => (
+          <div key={g.group}>
+            <div className="nav-group">{g.group}</div>
+            {g.items.map(n => (
+              <button key={n.id} className={`navlink ${view === n.id ? 'active' : ''}`} onClick={() => go(n.id)}>
+                <Icon name={n.icon} />{n.label}
+              </button>
+            ))}
+          </div>
         ))}
         <div className="sidebar-foot">
           <div className="user-chip">
             <span className="avatar">{(user?.name || 'U').slice(0, 1).toUpperCase()}</span>
             <div className="who"><span className="n">{user?.name}</span><span className="e">{user?.email}</span></div>
           </div>
-          <button className="navlink" onClick={logout}>Log out</button>
+          <button className="navlink" onClick={logout}><Icon name="logout" />Log out</button>
         </div>
       </aside>
 
@@ -97,8 +113,14 @@ export default function AppShell() {
 
       <div className="main">
         <header className="topbar">
-          <button className="mobile-nav-toggle" aria-label="Open menu" onClick={() => setSidebarOpen(true)}>☰</button>
-          <button className="icon-btn" title="Toggle theme" onClick={toggleTheme}>◐</button>
+          <button className="icon-btn mobile-nav-toggle" aria-label="Open menu" onClick={() => setSidebarOpen(true)}><Icon name="menu" /></button>
+          <span className="greet">{greeting()}, {user?.name?.split(' ')[0]}</span>
+          <span className="spacer" />
+          <button className="icon-btn" title="Scan a bill" onClick={() => go('scan')}><Icon name="camera" /></button>
+          <button className="icon-btn" title="Notifications" onClick={() => go('notifications')}>
+            <Icon name="bell" />{unread > 0 && <span className="dotbadge">{unread}</span>}
+          </button>
+          <button className="icon-btn" title="Toggle theme" onClick={toggleTheme}><Icon name={isDark ? 'sun' : 'moon'} /></button>
         </header>
         <main className={`content ${view === 'metrics' ? 'full-bleed' : ''}`}>
           {views[view]}

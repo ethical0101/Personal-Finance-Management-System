@@ -8,6 +8,8 @@ export default function InsightsView({ refreshKey }) {
   const [recs, setRecs] = useState([])
   const [loading, setLoading] = useState(true)
   const [actedOn, setActedOn] = useState({})
+  const [simCat, setSimCat] = useState('')
+  const [simCut, setSimCut] = useState(20)
   const toast = useToast()
 
   useEffect(() => {
@@ -26,6 +28,9 @@ export default function InsightsView({ refreshKey }) {
     setActedOn(a => ({ ...a, [id]: action }))
     toast(action === 'accepted' ? 'Recommendation accepted.' : 'Recommendation dismissed.', 'success')
   }
+
+  const simRow = forecasts.find(f => f.categoryId === simCat) || forecasts[0]
+  const monthlySave = simRow ? simRow.forecast * (simCut / 100) : 0
 
   return (
     <section className="view active">
@@ -69,6 +74,24 @@ export default function InsightsView({ refreshKey }) {
             </div>
           )) : <div className="empty">No recommendations right now — you're on track.</div>}
         </div>
+      </div>
+      <div className="card" style={{ marginTop: 18 }}>
+        <div className="section-title"><h3>What-if savings simulator</h3><span className="chip info">Try it</span></div>
+        {loading ? <SkelRows count={2} /> : simRow ? (
+          <div className="grid cols-2" style={{ alignItems: 'center' }}>
+            <div>
+              <div className="field"><label>If I cut spending on</label>
+                <select value={simRow.categoryId} onChange={e => setSimCat(e.target.value)}>{forecasts.map(f => <option key={f.categoryId} value={f.categoryId}>{f.categoryName} (forecast {money(f.forecast).replace('.00', '')}/mo)</option>)}</select></div>
+              <div className="field"><label>by {simCut}%</label>
+                <input type="range" min="5" max="60" step="5" value={simCut} onChange={e => setSimCut(Number(e.target.value))} style={{ accentColor: 'var(--accent)' }} /></div>
+            </div>
+            <div className="impact" style={{ margin: 0 }}>
+              <div className="row"><span>Saved every month</span><span className="mono">{money(monthlySave).replace('.00', '')}</span></div>
+              <div className="row"><span>Saved in a year</span><span className="mono">{money(monthlySave * 12).replace('.00', '')}</span></div>
+              <div className="note">That is {money(monthlySave * 12).replace('.00', '')} you could move into a goal — based on your forecast for {simRow.categoryName}.</div>
+            </div>
+          </div>
+        ) : <div className="empty">Add a few expenses to unlock the simulator.</div>}
       </div>
     </section>
   )

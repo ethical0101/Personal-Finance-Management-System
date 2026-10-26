@@ -1,7 +1,8 @@
 const express = require("express");
 const db = require("../db");
 const { forecastNextMonth, monthlyTotals } = require("../lib/ai");
-const { generateRecommendations } = require("../lib/gemini");
+const { generateRecommendations, askFinance } = require("../lib/gemini");
+const { buildSnapshot } = require("../lib/snapshot");
 
 const router = express.Router();
 
@@ -138,6 +139,54 @@ router.post("/recommendations/:id/action", async (req, res) => {
     message: `Recommendation ${req.params.id} ${action}`, read: true, recommendationId: req.params.id, action,
   });
   res.status(201).json(row);
+});
+
+// Detects subscription-like charges: the same description, in 3+ distinct
+// months, at most ~1.5 times a month on average, with amounts within +/-10% of
+// their median. Reports the yearly cost and whether it is already tracked as
+// a recurring bill.
+router.get("/subscriptions", async (req, res) => {
+  const [tx, bills] = await Promise.all([
+    db.find("transactions", t => t.userId === req.userId && t.type === "expense" && t.description),
+    db.find("bills", b => b.userId === req.userId),
+  ]);
+  const groups = {};
+  for (const t of tx) {
+    const key = t.description.trim().toLowerCase();
+    (groups[key] = groups[key] || []).push(t);
+  }
+  const median = a => { const s = a.slice().sort((x, y) => x - y); const m = Math.floor(s.length / 2); return s.length % 2 ? s[m] : (s[m - 1] + s[m]) / 2; };
+  const out = [];
+  for (const [key, rows] of Object.entries(groups)) {
+    const months = [...new Set(rows.map(r => r.date.slice(0, 7)))];
+    if (months.length < 3 || rows.length / months.length > 1.5) continue;
+    const med = median(rows.map(r => r.amount));
+    if (!rows.every(r => Math.abs(r.amount - med) <= 0.1 * med)) continue;
+    const last = rows.map(r => r.date).sort().pop();
+    out.push({
+      name: rows[0].description.trim(), amount: Number(med.toFixed(2)), monthsSeen: months.length,
+      lastCharged: last, yearlyCost: Number((med * 12).toFixed(2)),
+      categoryId: rows[0].categoryId,
+      tracked: bills.some(b => b.name.toLowerCase().includes(key) || key.includes(b.name.toLowerCase())),
+    });
+  }
+  out.sort((a, b) => b.yearlyCost - a.yearlyCost);
+  res.json(out);
+});
+
+// Free-form "Ask AI" questions, answered by Gemini from a snapshot of this
+// user's own data only (see lib/snapshot.js).
+router.post("/ask", async (req, res) => {
+  const question = String((req.body || {}).question || "").trim().slice(0, 500);
+  if (!question) return res.status(400).json({ error: "Type a question first." });
+  const snapshot = await buildSnapshot(req.userId);
+  const r = await askFinance({ question, snapshot });
+  if (!r.ok) {
+    return res.status(r.reason === "no-api-key" ? 503 : 502).json({
+      error: r.reason === "no-api-key" ? "The AI assistant isn't configured on this server." : "The assistant couldn't answer just now. Please try again.",
+    });
+  }
+  res.json({ answer: r.text });
 });
 
 module.exports = router;

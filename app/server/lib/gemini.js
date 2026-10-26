@@ -77,4 +77,91 @@ async function generateRecommendations(context) {
   }
 }
 
-module.exports = { generateRecommendations };
+/**
+ * Generic one-shot call used by the receipt scanner and the "Ask AI" chat.
+ * `parts` is the Gemini parts array (text and/or inlineData images).
+ * Returns { ok, text } or { ok:false, reason, detail }.
+ */
+async function callGemini(parts, { json = false, maxTokens = 1024, thinkingBudget = 128, timeoutMs = 45000, temperature = 0.2, attempts = 3 } = {}) {
+  const apiKey = process.env.GEMINI_API_KEY;
+  if (!apiKey) return { ok: false, reason: "no-api-key" };
+  const body = JSON.stringify({
+    contents: [{ role: "user", parts }],
+    generationConfig: {
+      temperature,
+      maxOutputTokens: maxTokens,
+      thinkingConfig: { thinkingBudget },
+      ...(json ? { responseMimeType: "application/json" } : {}),
+    },
+  });
+  let last = { ok: false, reason: "unknown" };
+  for (let i = 0; i < attempts; i++) {
+    if (i > 0) await new Promise(r => setTimeout(r, 1200 * i)); // back off on transient overload
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), timeoutMs);
+    try {
+      const res = await fetch(`${ENDPOINT}?key=${encodeURIComponent(apiKey)}`, {
+        method: "POST", headers: { "Content-Type": "application/json" }, signal: controller.signal, body,
+      });
+      clearTimeout(timeout);
+      if (res.ok) {
+        const data = await res.json();
+        const text = data?.candidates?.[0]?.content?.parts?.map(p => p.text || "").join("") || "";
+        return { ok: true, text: text.trim() };
+      }
+      const errBody = await res.text().catch(() => "");
+      last = { ok: false, reason: `http-${res.status}`, detail: errBody.slice(0, 300) };
+      if (![429, 500, 502, 503, 504].includes(res.status)) return last; // permanent error: don't retry
+    } catch (e) {
+      clearTimeout(timeout);
+      last = { ok: false, reason: e.name === "AbortError" ? "timeout" : "network-error", detail: String(e.message || e) };
+    }
+  }
+  return last;
+}
+
+function parseJsonLoose(text) {
+  const cleaned = text.replace(/^```json\s*|^```\s*|```$/g, "").trim();
+  try { return JSON.parse(cleaned); } catch (e) {
+    const m = cleaned.match(/\{[\s\S]*\}/);
+    if (m) { try { return JSON.parse(m[0]); } catch (e2) { /* fall through */ } }
+    return null;
+  }
+}
+
+/** Reads a receipt/bill photo and returns structured fields. */
+async function extractReceipt({ image, mimeType, categoryNames, today }) {
+  const prompt = `You are a precise receipt and bill parser for a personal finance app (currency is Indian Rupees unless the bill shows otherwise).
+Read the attached image and extract:
+- merchant: the shop/vendor/biller name
+- date: purchase or bill date as YYYY-MM-DD (if the year is missing assume the year of ${today}; if no date is visible use ${today})
+- total: the final amount payable/paid as a plain number (grand total including taxes, not subtotal)
+- currency: ISO code, default INR
+- category: exactly one of [${categoryNames.join(", ")}] -- the best fit for this purchase
+- items: up to 8 line items as {"name": string, "amount": number}
+- confidence: your confidence 0-1 that merchant, date and total are all correct
+If the image is not a receipt, bill or invoice, return {"error":"not_a_receipt"}.
+Return ONLY a JSON object.`;
+  const r = await callGemini(
+    [{ text: prompt }, { inlineData: { mimeType, data: image } }],
+    { json: true, maxTokens: 1500, thinkingBudget: 256, timeoutMs: 45000, temperature: 0.1 },
+  );
+  if (!r.ok) return r;
+  const parsed = parseJsonLoose(r.text);
+  if (!parsed) return { ok: false, reason: "unparseable-response" };
+  return { ok: true, data: parsed };
+}
+
+/** Answers a free-form question using only the supplied financial snapshot. */
+async function askFinance({ question, snapshot }) {
+  const prompt = `You are Wealthline's finance assistant. Answer the user's question using ONLY the data below. Quote exact figures in rupees (₹). Be concise (under 120 words), plain text, no markdown headings. If the data cannot answer the question, say so plainly instead of guessing.
+
+DATA (JSON):
+${JSON.stringify(snapshot)}
+
+QUESTION: ${question}`;
+  const r = await callGemini([{ text: prompt }], { maxTokens: 900, thinkingBudget: 256, timeoutMs: 30000, temperature: 0.3 });
+  return r;
+}
+
+module.exports = { generateRecommendations, callGemini, extractReceipt, askFinance };

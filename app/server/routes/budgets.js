@@ -23,6 +23,39 @@ router.get("/", async (req, res) => {
   res.json(withSpend);
 });
 
+// Suggested monthly limits: average of the last (up to) 3 completed months of
+// spend per category + 10% headroom, rounded up to the nearest 100. Falls back
+// to this month's spend if there is no completed month yet.
+router.get("/suggest", async (req, res) => {
+  const month = currentMonth();
+  const categories = await db.find("categories", c => c.userId === req.userId && c.name !== "Income");
+  const expenses = await db.find("transactions", t => t.userId === req.userId && t.type === "expense");
+  const existing = await db.find("budgets", b => b.userId === req.userId && b.month === month);
+
+  const suggestions = [];
+  for (const cat of categories) {
+    const byMonth = {};
+    for (const t of expenses.filter(t => t.categoryId === cat.id)) {
+      const k = t.date.slice(0, 7);
+      byMonth[k] = (byMonth[k] || 0) + t.amount;
+    }
+    let keys = Object.keys(byMonth).filter(k => k < month).sort().slice(-3);
+    let basis = "last " + keys.length + " month" + (keys.length === 1 ? "" : "s");
+    if (keys.length === 0 && byMonth[month]) { keys = [month]; basis = "this month so far"; }
+    if (keys.length === 0) continue;
+    const avg = keys.reduce((s, k) => s + byMonth[k], 0) / keys.length;
+    const current = existing.find(b => b.categoryId === cat.id);
+    suggestions.push({
+      categoryId: cat.id, categoryName: cat.name,
+      avgMonthly: Number(avg.toFixed(2)), basis,
+      suggested: Math.ceil((avg * 1.1) / 100) * 100,
+      current: current ? current.monthlyLimit : null,
+    });
+  }
+  suggestions.sort((a, b) => b.avgMonthly - a.avgMonthly);
+  res.json(suggestions);
+});
+
 router.post("/", async (req, res) => {
   const { categoryId, monthlyLimit, month } = req.body || {};
   if (!categoryId || !monthlyLimit) return res.status(400).json({ error: "categoryId and monthlyLimit are required." });

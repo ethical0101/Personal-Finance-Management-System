@@ -1,6 +1,6 @@
 import { useState } from 'react'
 
-export default function Modal({ title, children, onClose, onSubmit, submitLabel = 'Save', submitDisabled = false }) {
+export default function Modal({ title, children, onClose, onSubmit, submitLabel = 'Save', submitDisabled = false, wide = false }) {
   const [error, setError] = useState('')
   const [busy, setBusy] = useState(false)
 
@@ -20,7 +20,7 @@ export default function Modal({ title, children, onClose, onSubmit, submitLabel 
 
   return (
     <div className="modal-backdrop" onClick={(e) => { if (e.target === e.currentTarget) onClose() }}>
-      <div className="modal">
+      <div className={`modal ${wide ? 'wide' : ''}`}>
         <h3>{title}</h3>
         <form onSubmit={handleSubmit}>
           {children}

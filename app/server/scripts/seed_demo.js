@@ -60,35 +60,57 @@ async function main() {
   }
   console.log("Accounts ready");
 
-  const transactions = [
-    // ---- last month (history, feeds the AI forecast) ----
-    { type: "income", amount: 65000, categoryId: catByName["Income"], accountId: checking.id, description: "Monthly salary", date: lastMonth(1) },
-    { type: "expense", amount: 1450, categoryId: catByName["Groceries"], accountId: checking.id, description: "Weekly groceries", date: lastMonth(4) },
-    { type: "expense", amount: 1620, categoryId: catByName["Groceries"], accountId: checking.id, description: "Weekly groceries", date: lastMonth(11) },
-    { type: "expense", amount: 1380, categoryId: catByName["Groceries"], accountId: checking.id, description: "Weekly groceries", date: lastMonth(18) },
-    { type: "expense", amount: 1510, categoryId: catByName["Groceries"], accountId: checking.id, description: "Weekly groceries", date: lastMonth(25) },
-    { type: "expense", amount: 18000, categoryId: catByName["Rent"], accountId: checking.id, description: "Monthly rent", date: lastMonth(2) },
-    { type: "expense", amount: 1150, categoryId: catByName["Utilities"], accountId: checking.id, description: "Electricity bill", date: lastMonth(6) },
-    { type: "expense", amount: 699, categoryId: catByName["Utilities"], accountId: checking.id, description: "Internet bill", date: lastMonth(6) },
-    { type: "expense", amount: 550, categoryId: catByName["Dining"], accountId: checking.id, description: "Dinner out", date: lastMonth(9) },
-    { type: "expense", amount: 780, categoryId: catByName["Dining"], accountId: checking.id, description: "Weekend brunch", date: lastMonth(20) },
-    { type: "expense", amount: 1600, categoryId: catByName["Transport"], accountId: checking.id, description: "Fuel", date: lastMonth(14) },
-    { type: "expense", amount: 599, categoryId: catByName["Entertainment"], accountId: checking.id, description: "Netflix + Spotify", date: lastMonth(10) },
-    { type: "expense", amount: 900, categoryId: catByName["Health"], accountId: checking.id, description: "Pharmacy", date: lastMonth(16) },
+  // Deterministic pseudo-random so every run builds the same demo history.
+  let seedState = 20261026;
+  const rnd = () => { seedState = (seedState + 0x6D2B79F5) | 0; let t = Math.imul(seedState ^ (seedState >>> 15), 1 | seedState); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; };
+  const between = (lo, hi) => Math.round((lo + rnd() * (hi - lo)) / 10) * 10;
+  const ymd = (y, m, d) => `${y}-${String(m + 1).padStart(2, "0")}-${String(d).padStart(2, "0")}`;
+  const C = (name) => catByName[name];
+  const tx = (type, amount, cat, description, date) => ({ type, amount, categoryId: C(cat), accountId: checking.id, description, date });
 
-    // ---- this month (populates Dashboard + Budgets "this month" views) ----
-    { type: "income", amount: 65000, categoryId: catByName["Income"], accountId: checking.id, description: "Monthly salary", date: thisMonth(1) },
-    { type: "income", amount: 4000, categoryId: catByName["Income"], accountId: checking.id, description: "Freelance project", date: thisMonth(1) },
-    { type: "expense", amount: 1470, categoryId: catByName["Groceries"], accountId: checking.id, description: "Weekly groceries", date: thisMonth(1) },
-    { type: "expense", amount: 9800, categoryId: catByName["Groceries"], accountId: checking.id, description: "Big Bazaar bulk order", date: thisMonth(1) }, // anomaly
-    { type: "expense", amount: 18000, categoryId: catByName["Rent"], accountId: checking.id, description: "Monthly rent", date: thisMonth(1) },
-    { type: "expense", amount: 1200, categoryId: catByName["Utilities"], accountId: checking.id, description: "Electricity bill", date: thisMonth(1) },
-    { type: "expense", amount: 650, categoryId: catByName["Dining"], accountId: checking.id, description: "Dinner with friends", date: thisMonth(1) },
-    { type: "expense", amount: 320, categoryId: catByName["Dining"], accountId: checking.id, description: "Coffee shop", date: thisMonth(1) },
-    { type: "expense", amount: 450, categoryId: catByName["Transport"], accountId: checking.id, description: "Cab rides", date: thisMonth(1) },
-    { type: "expense", amount: 599, categoryId: catByName["Entertainment"], accountId: checking.id, description: "Netflix + Spotify", date: thisMonth(1) },
-    { type: "expense", amount: 500, categoryId: catByName["Other"], accountId: checking.id, description: "Miscellaneous", date: thisMonth(1) },
-  ];
+  const transactions = [];
+  // ---- five completed months of history (feeds trends, forecasts, auto-budget) ----
+  for (let back = 5; back >= 1; back--) {
+    const d0 = new Date(now.getFullYear(), now.getMonth() - back, 1);
+    const y = d0.getFullYear(), m = d0.getMonth();
+    transactions.push(tx("income", 65000, "Income", "Monthly salary", ymd(y, m, 1)));
+    if (back % 2 === 0) transactions.push(tx("income", between(3000, 6000), "Income", "Freelance project", ymd(y, m, 14)));
+    transactions.push(tx("expense", 18000, "Rent", "Monthly rent", ymd(y, m, 2)));
+    transactions.push(tx("expense", between(1000, 1350), "Utilities", "Electricity bill", ymd(y, m, 6)));
+    transactions.push(tx("expense", 699, "Utilities", "Internet bill", ymd(y, m, 5)));
+    for (const day of [4, 11, 18, 25]) transactions.push(tx("expense", between(1300, 1700), "Groceries", "Weekly groceries", ymd(y, m, day)));
+    for (const day of [8, 21]) transactions.push(tx("expense", between(400, 950), "Dining", day === 8 ? "Dinner out" : "Weekend brunch", ymd(y, m, day)));
+    transactions.push(tx("expense", between(1400, 1900), "Transport", "Fuel", ymd(y, m, 12)));
+    transactions.push(tx("expense", between(300, 600), "Transport", "Cab rides", ymd(y, m, 22)));
+    transactions.push(tx("expense", 599, "Entertainment", "Netflix + Spotify", ymd(y, m, 10)));
+    if (back % 2 === 1) transactions.push(tx("expense", between(500, 900), "Entertainment", "Movie night", ymd(y, m, 19)));
+    if (back % 3 === 0) transactions.push(tx("expense", between(800, 1400), "Health", "Pharmacy", ymd(y, m, 16)));
+    transactions.push(tx("expense", 1200, "Health", "Gym membership", ymd(y, m, 7))); // a subscription never set up as a bill
+  }
+  // ---- this month, spread across the days that have already happened ----
+  const Y = now.getFullYear(), M = now.getMonth(), today = now.getDate();
+  const thisMonthTx = [
+    tx("income", 65000, "Income", "Monthly salary", ymd(Y, M, 1)),
+    tx("expense", 18000, "Rent", "Monthly rent", ymd(Y, M, 2)),
+    tx("expense", 1480, "Groceries", "Weekly groceries", ymd(Y, M, 3)),
+    tx("expense", 699, "Utilities", "Internet bill", ymd(Y, M, 5)),
+    tx("expense", 1180, "Utilities", "Electricity bill", ymd(Y, M, 6)),
+    tx("expense", 720, "Dining", "Dinner with friends", ymd(Y, M, 7)),
+    tx("income", 4500, "Income", "Freelance project", ymd(Y, M, 8)),
+    tx("expense", 599, "Entertainment", "Netflix + Spotify", ymd(Y, M, 10)),
+    tx("expense", 1560, "Groceries", "Weekly groceries", ymd(Y, M, 10)),
+    tx("expense", 1750, "Transport", "Fuel", ymd(Y, M, 12)),
+    tx("expense", 340, "Dining", "Coffee shop", ymd(Y, M, 14)),
+    tx("expense", 1420, "Groceries", "Weekly groceries", ymd(Y, M, 17)),
+    tx("expense", 9800, "Groceries", "Big Bazaar bulk order", ymd(Y, M, 19)), // deliberate anomaly
+    tx("expense", 450, "Transport", "Cab rides", ymd(Y, M, 20)),
+    tx("expense", 640, "Entertainment", "Movie night", ymd(Y, M, 22)),
+    tx("expense", 1200, "Health", "Gym membership", ymd(Y, M, 7)),
+    tx("expense", 500, "Other", "Gift wrapping & misc", ymd(Y, M, 23)),
+  ].filter(t => Number(t.date.slice(8)) <= today);
+  transactions.push(...thisMonthTx);
+  // history first, then chronological, so the anomaly detector sees a realistic baseline
+  transactions.sort((a, b) => a.date.localeCompare(b.date));
 
   let added = 0, anomalyFlagged = 0;
   for (const tx of transactions) {
@@ -109,6 +131,7 @@ async function main() {
     [catByName["Dining"], 3000],
     [catByName["Entertainment"], 2000],
     [catByName["Transport"], 2500],
+    [catByName["Utilities"], 2500],
   ];
   for (const [categoryId, monthlyLimit] of budgetPlan) {
     if (!haveBudget(categoryId)) await api("/budgets", { method: "POST", token, body: { categoryId, monthlyLimit } });
