@@ -8,7 +8,7 @@ const {
 } = require("docx");
 
 const ROOT = path.resolve(__dirname, "..");
-const SH = path.join(__dirname, "screenshots_v2");
+const SH = path.join(__dirname, "screenshots_v3");
 const FIG = path.join(__dirname, "figures");
 const CH = path.join(ROOT, "charts");
 const A = f => JSON.parse(fs.readFileSync(path.join(ROOT, "analysis", f)));
@@ -177,6 +177,8 @@ c.push(...T(["Feature", "What the user gets", "Why they would open the app"], [
   ["Financial health score", "0–100 with four-part breakdown", "A single number to improve"],
   ["Ask AI", "Plain-English questions about the user's own money", "Faster than reading charts; answers only from the user's data"],
   ["Anomaly alerts and forecast", "Unusual expenses flagged; next-month spend predicted", "Catches mistakes and fraud, prepares the next month"],
+  ["Account settings", "Edit profile, change password, theme, export or clear data, delete account", "Users stay in control of their data"],
+  ["Live camera capture", "Webcam preview on desktop, native camera on phones, upload fallback", "Scan a bill without leaving the app"],
   ["Metrics tab", "Engineering-quality dashboard of the project itself", "Shows the system is engineered and measured"],
 ], [2200, 3700, 3460]));
 c.push(H2("7.2 Screens of the working system"));
@@ -194,10 +196,13 @@ const shots = [
   ["11-ask-ai.png", "Figure 13. Ask AI answering from the user's own data"],
   ["12-notifications.png", "Figure 14. Notifications"],
   ["13-metrics.png", "Figure 15. Metrics tab (Modules 3 and 4 dashboard embedded in the app)"],
-  ["14-dashboard-dark.png", "Figure 16. Dark theme"],
+  ["09b-accounts.png", "Figure 16. Accounts"],
+  ["17-settings.png", "Figure 17. Account settings: profile, password, theme, data export, clear data, delete account"],
+  ["18-sidebar-collapsed.png", "Figure 18. Collapsible sidebar (icon rail) — the page content moves with it and is never covered"],
+  ["14-dashboard-dark.png", "Figure 19. Dark theme"],
 ];
 for (const [f, cap] of shots) c.push(...IMG(path.join(SH, f), cap, 560));
-c.push(...IMG(path.join(SH, "16-mobile-dashboard.png"), "Figure 17. Mobile layout", 200));
+c.push(...IMG(path.join(SH, "16-mobile-dashboard.png"), "Figure 20. Mobile layout", 200));
 c.push(H2("7.3 Security and privacy"));
 c.push(B("Passwords are hashed with bcrypt; sessions use signed JWTs; every route except sign-in and sign-up checks the token and filters data by user."));
 c.push(B("Bill images are processed in memory and are not stored. Only the extracted fields the user confirms are saved."));
@@ -263,14 +268,14 @@ c.push(...T(["Method", "MAPE (lower is better)", "Std. deviation"], [
 c.push(P(`Over ${em.forecaster.totalForecasts} forecasts exponential smoothing beat linear regression on ${pct(em.forecaster.smoothingBeatsRegression)} of cases and the naive baseline on ${pct(em.forecaster.smoothingBeatsNaive)}. The advantage over the 3-month moving average is small (${pct(em.forecaster.smoothingBeatsMovingAvg)} win rate), so the honest conclusion is that smoothing and moving averages are about equally good and both are better than regression on short noisy history. These series are simulated; real accuracy must be checked on real user data.`));
 c.push(H2("9.4 Module 3 — metrics analysis results"));
 c.push(P(`Decision tree. The tree classifies modules as High or Low defect risk. It reaches ${pct(res.decision_tree.accuracy_on_training_data)} accuracy on the data it was trained on, but leave-one-out cross-validation gives only ${pct(tcv.loocv_accuracy)} against a ${pct(tcv.majority_baseline)} majority-class baseline (n = ${tcv.n}). Lack of cohesion carries ${pct(res.decision_tree.feature_importances.cohesion_lcom)} of the importance and coupling ${pct(res.decision_tree.feature_importances.coupling_cbo)}. With only 12 modules the tree is an explanatory picture, not a dependable predictor.`));
-c.push(...IMG(path.join(CH, "decision_tree.png"), "Figure 18. Decision tree for defect-proneness", 560));
+c.push(...IMG(path.join(CH, "decision_tree.png"), "Figure 21. Decision tree for defect-proneness", 560));
 c.push(P("Box plot and control chart. The box plot summarises the spread of each metric across modules, and the individuals–moving-range chart over the sprint series flags week 12 as outside the control limits, i.e. special-cause variation to investigate rather than normal noise."));
-c.push(...IMG(path.join(CH, "box_plot.png"), "Figure 19. Box plot of module metrics", 520));
-c.push(...IMG(path.join(CH, "control_chart.png"), "Figure 20. I-MR control chart", 520));
+c.push(...IMG(path.join(CH, "box_plot.png"), "Figure 22. Box plot of module metrics", 520));
+c.push(...IMG(path.join(CH, "control_chart.png"), "Figure 23. I-MR control chart", 520));
 c.push(P("Correlation. The same three pairs were tested with all three coefficients."));
 c.push(...T(["Pair", "Pearson r (p)", "Spearman ρ (p)", "Kendall τ (p)"], res.correlation.tests.map(t => [t.pair, `${t.pearson.r} (${t.pearson.p_value})`, `${t.spearman.rho} (${t.spearman.p_value})`, `${t.kendall.tau} (${t.kendall.p_value})`]), [3300, 2000, 2000, 2060]));
 c.push(P(`Complexity vs. defect density is positive under all three measures, and the Spearman (p = 0.043) and Kendall (p = 0.033) tests are significant at 5%. Coupling vs. delay is positive under all three but only Pearson reaches 5%. Test coverage vs. defect density is negative but not significant under any measure, and the t-test for low-coverage vs. high-coverage modules is also not significant (t = ${res.correlation.t_test_low_vs_high_coverage.t_stat}, p = ${res.correlation.t_test_low_vs_high_coverage.p_value}); we therefore do not claim that coverage reduces defects on this dataset.`));
-c.push(...IMG(path.join(CH, "correlation_three_types.png"), "Figure 21. Pearson, Spearman and Kendall comparison", 520));
+c.push(...IMG(path.join(CH, "correlation_three_types.png"), "Figure 24. Pearson, Spearman and Kendall comparison", 520));
 c.push(H2("9.5 Module 4 — Bayesian network results"));
 const sc = bn.network1_project_risk.scenarios;
 c.push(...T(["Scenario (evidence)", "P(Low)", "P(Medium)", "P(High)"], sc.map(x => [x.scenario, x.posterior_P.Low, x.posterior_P.Medium, x.posterior_P.High]), [5200, 1300, 1400, 1460]));

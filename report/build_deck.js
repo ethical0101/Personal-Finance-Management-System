@@ -4,7 +4,7 @@ const path = require("path");
 const pptxgen = require("pptxgenjs");
 
 const ROOT = path.resolve(__dirname, "..");
-const SH = path.join(__dirname, "screenshots_v2");
+const SH = path.join(__dirname, "screenshots_v3");
 const FIG = path.join(__dirname, "figures");
 const CH = path.join(ROOT, "charts");
 const A = f => JSON.parse(fs.readFileSync(path.join(ROOT, "analysis", f)));
@@ -194,6 +194,15 @@ function table(s, rows, x, y, w, colW, o = {}) {
     const x = 0.6 + (i % 2) * 6.15, y = 1.45 + Math.floor(i / 2) * 2.85;
     img(s, path.join(SH, f), x, y, 4.0);
     s.addText(l, { x: x + 4.05, y: y + 1.0, w: 2.0, h: 0.4, fontFace: FONT, fontSize: 14, color: SUB });
+  });
+}
+
+{
+  const s = slide("Settings, collapsible sidebar and accounts", "Screenshot of working model");
+  [["17-settings.png", "Account settings"], ["18-sidebar-collapsed.png", "Collapsible sidebar"], ["09b-accounts.png", "Accounts"]].forEach(([f, l], i) => {
+    const x = 0.6 + i * 4.1;
+    img(s, path.join(SH, f), x, 1.6, 3.9);
+    s.addText(l, { x, y: 3.9, w: 3.9, h: 0.4, fontFace: FONT, fontSize: 14, color: SUB, align: "center" });
   });
 }
 
