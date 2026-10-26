@@ -192,8 +192,11 @@ export default function ScanView({ bumpRefresh, go }) {
                 <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', justifyContent: 'flex-end' }}>
                   <span className={`chip ${result.confidence >= 0.8 ? 'good' : 'warn'}`}>{Math.round(result.confidence * 100)}% confident</span>
                   {result.possibleDuplicate && <span className="chip critical">Possible duplicate</span>}
+                  {result.dateWarning && <span className="chip warn">Check the date</span>}
                 </div>
               </div>
+
+              {result.dateWarning && <div className="impact" style={{ background: 'var(--warn-soft)' }}><div className="note" style={{ marginTop: 0, color: 'var(--warn)' }}>{result.dateWarning}</div></div>}
 
               {result.items.length > 0 && (
                 <div className="items-list">

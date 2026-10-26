@@ -61,6 +61,16 @@ const db = {
     const result = await c.findOneAndUpdate({ id }, { $set: updatedFields }, { returnDocument: "after", projection: { _id: 0 } });
     return result?.value ?? result ?? null;
   },
+  // ---- tiny key/value cache with expiry (used for AI responses) ----
+  async cacheGet(key) {
+    const c = await collection("aicache");
+    const row = await c.findOne({ key, expiresAt: { $gt: Date.now() } }, NO_ID);
+    return row ? row.value : null;
+  },
+  async cacheSet(key, value, ttlMs) {
+    const c = await collection("aicache");
+    await c.updateOne({ key }, { $set: { key, value, expiresAt: Date.now() + ttlMs, createdAt: new Date().toISOString() } }, { upsert: true });
+  },
   async remove(name, id) {
     const c = await collection(name);
     const result = await c.deleteOne({ id });

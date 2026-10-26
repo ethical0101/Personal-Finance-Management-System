@@ -1,0 +1,101 @@
+{
+  "generatedAt": "2026-10-26T09:37:25.415Z",
+  "seed": 20261026,
+  "anomalyDetector": {
+    "trials": 300,
+    "transactionsPerTrial": 200,
+    "anomalyRate": 0.1,
+    "byThreshold": {
+      "2": {
+        "tp": 4426,
+        "fp": 182,
+        "fn": 1689,
+        "tn": 53703,
+        "precision": 0.961,
+        "recall": 0.724,
+        "f1": 0.826,
+        "falsePositiveRate": 0.0034
+      },
+      "3": {
+        "tp": 3273,
+        "fp": 19,
+        "fn": 2842,
+        "tn": 53866,
+        "precision": 0.994,
+        "recall": 0.535,
+        "f1": 0.696,
+        "falsePositiveRate": 0.0004
+      },
+      "2.5": {
+        "tp": 3861,
+        "fp": 61,
+        "fn": 2254,
+        "tn": 53824,
+        "precision": 0.984,
+        "recall": 0.631,
+        "f1": 0.769,
+        "falsePositiveRate": 0.0011
+      }
+    },
+    "recallByMagnitude": {
+      "1.5-2x": {
+        "injected": 890,
+        "recallAt2_5": 0.067
+      },
+      "2-3x": {
+        "injected": 1735,
+        "recallAt2_5": 0.281
+      },
+      "3-5x": {
+        "injected": 3490,
+        "recallAt2_5": 0.949
+      }
+    }
+  },
+  "forecaster": {
+    "series": 300,
+    "forecastsPerSeries": 8,
+    "totalForecasts": 2400,
+    "overall": {
+      "exponentialSmoothing": {
+        "MAPE": 13.76,
+        "sd": 13.28
+      },
+      "linearRegression": {
+        "MAPE": 15.95,
+        "sd": 15.36
+      },
+      "movingAverage3": {
+        "MAPE": 14.05,
+        "sd": 13.61
+      },
+      "naiveLastMonth": {
+        "MAPE": 17.04,
+        "sd": 15.55
+      }
+    },
+    "smoothingBeatsRegression": 0.6,
+    "smoothingBeatsNaive": 0.634,
+    "smoothingBeatsMovingAvg": 0.521,
+    "bySlope": {
+      "slope -1%/mo": {
+        "smoothingMAPE": 15.64,
+        "regressionMAPE": 17.67,
+        "movingAvgMAPE": 16.19,
+        "naiveMAPE": 18.68
+      },
+      "slope +0%/mo": {
+        "smoothingMAPE": 13.48,
+        "regressionMAPE": 15.72,
+        "movingAvgMAPE": 13.71,
+        "naiveMAPE": 17.02
+      },
+      "slope +2%/mo": {
+        "smoothingMAPE": 12.18,
+        "regressionMAPE": 14.45,
+        "movingAvgMAPE": 12.25,
+        "naiveMAPE": 15.42
+      }
+    }
+  }
+}

@@ -12,6 +12,7 @@
 const express = require("express");
 const db = require("../db");
 const { extractReceipt } = require("../lib/gemini");
+const { cached, hash, DAY } = require("../lib/aicache");
 
 const router = express.Router();
 
@@ -27,14 +28,18 @@ router.post("/receipt", async (req, res) => {
   const categories = await db.find("categories", c => c.userId === req.userId && c.name !== "Income");
   const today = new Date().toISOString().slice(0, 10);
 
-  const out = await extractReceipt({ image, mimeType, categoryNames: categories.map(c => c.name), today });
+  const categoryNames = categories.map(c => c.name);
+  // Same photo + same categories -> same answer; don't re-spend quota or make the user wait.
+  const out = await cached(`scan:${req.userId}:${hash(image, categoryNames)}`, 30 * DAY, () => extractReceipt({ image, mimeType, categoryNames, today }));
   if (!out.ok) {
     const msg = out.reason === "no-api-key"
       ? "Bill scanning isn't configured on this server (missing GEMINI_API_KEY)."
-      : out.reason === "timeout"
-        ? "Scanning took too long. Please try again."
-        : "Couldn't read that image. Try a clearer photo, or add the expense manually.";
-    return res.status(out.reason === "no-api-key" ? 503 : 502).json({ error: msg, reason: out.reason });
+      : out.reason === "quota"
+        ? "Today's free AI quota is used up, so scanning is paused. It resets daily — add this expense manually for now."
+        : out.reason === "timeout"
+          ? "Scanning took too long. Please try again."
+          : "Couldn't read that image. Try a clearer photo, or add the expense manually.";
+    return res.status(out.reason === "no-api-key" ? 503 : out.reason === "quota" ? 429 : 502).json({ error: msg, reason: out.reason });
   }
   const d = out.data;
   if (d.error === "not_a_receipt") {
@@ -46,6 +51,9 @@ router.post("/receipt", async (req, res) => {
     return res.status(422).json({ error: "Couldn't find a total amount on that bill. Try a clearer photo." });
   }
   const date = /^\d{4}-\d{2}-\d{2}$/.test(d.date || "") ? d.date : today;
+  // Two-digit-year formats (e.g. "18-10-26") are ambiguous; if the date is wildly in the past or future, make the user check it.
+  const ageDays = (new Date(today) - new Date(date)) / 86400000;
+  const dateWarning = ageDays > 400 || ageDays < -7 ? "The date on this bill looks unusual — please check it before saving." : null;
   const category = categories.find(c => c.name.toLowerCase() === String(d.category || "").toLowerCase())
     || categories.find(c => c.name === "Other") || categories[0];
 
@@ -81,6 +89,7 @@ router.post("/receipt", async (req, res) => {
     confidence: Math.max(0, Math.min(1, Number(d.confidence) || 0)),
     budgetImpact,
     possibleDuplicate: !!duplicate,
+    dateWarning,
   });
 });
 

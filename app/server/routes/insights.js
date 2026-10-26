@@ -3,6 +3,7 @@ const db = require("../db");
 const { forecastNextMonth, monthlyTotals } = require("../lib/ai");
 const { generateRecommendations, askFinance } = require("../lib/gemini");
 const { buildSnapshot } = require("../lib/snapshot");
+const { cached, hash, DAY } = require("../lib/aicache");
 
 const router = express.Router();
 
@@ -101,7 +102,7 @@ router.get("/recommendations", async (req, res) => {
   }));
 
   if (user) {
-    const gemini = await generateRecommendations({
+    const geminiContext = {
       user: { name: user.name },
       summary: {
         netWorth: Number(netWorth.toFixed(2)),
@@ -113,11 +114,13 @@ router.get("/recommendations", async (req, res) => {
       budgets: budgetsWithSpend,
       forecasts,
       anomalies: anomalyContext,
-    });
+    };
+    // Same data -> same advice. Cached for a day so opening the page doesn't burn LLM quota.
+    const gemini = await cached(`recs:${req.userId}:${hash(geminiContext)}`, DAY, () => generateRecommendations(geminiContext));
 
     if (gemini.ok && gemini.recommendations.length) {
       gemini.recommendations.forEach((text, i) => recs.push({
-        id: `gemini-${month}-${i}`, type: "gemini", severity: "good", source: "gemini-3.6-flash",
+        id: `gemini-${month}-${i}`, type: "gemini", severity: "good", source: gemini.model || "gemini",
         message: text, suggestion: "",
       }));
     } else if (!gemini.ok && gemini.reason !== "no-api-key") {
@@ -180,11 +183,12 @@ router.post("/ask", async (req, res) => {
   const question = String((req.body || {}).question || "").trim().slice(0, 500);
   if (!question) return res.status(400).json({ error: "Type a question first." });
   const snapshot = await buildSnapshot(req.userId);
-  const r = await askFinance({ question, snapshot });
+  const r = await cached(`ask:${req.userId}:${hash(snapshot, question.toLowerCase())}`, DAY, () => askFinance({ question, snapshot }));
   if (!r.ok) {
-    return res.status(r.reason === "no-api-key" ? 503 : 502).json({
-      error: r.reason === "no-api-key" ? "The AI assistant isn't configured on this server." : "The assistant couldn't answer just now. Please try again.",
-    });
+    const msg = r.reason === "no-api-key" ? "The AI assistant isn't configured on this server."
+      : r.reason === "quota" ? "Today's free AI quota is used up. The assistant will be back after it resets."
+      : "The assistant couldn't answer just now. Please try again.";
+    return res.status(r.reason === "no-api-key" ? 503 : r.reason === "quota" ? 429 : 502).json({ error: msg });
   }
   res.json({ answer: r.text });
 });

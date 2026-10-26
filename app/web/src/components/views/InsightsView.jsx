@@ -37,7 +37,7 @@ export default function InsightsView({ refreshKey }) {
       <div className="page-head">
         <div>
           <h1>AI Insights</h1>
-          <p>Expense forecasts (linear regression) and Gemini-generated recommendations, built from your own transaction history.</p>
+          <p>Expense forecasts (exponential smoothing) and Gemini-generated recommendations, built from your own transaction history.</p>
         </div>
       </div>
       <div className="grid cols-2">

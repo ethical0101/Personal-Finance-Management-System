@@ -1,0 +1,2 @@
+http://localhost:4000/api {"/dashboard/summary":{"p50":58,"p95":84},"/transactions":{"p50":52,"p95":56},"/insights/forecast":{"p50":174,"p95":197},"/budgets":{"p50":91,"p95":95},"/insights/subscriptions":{"p50":56,"p95":79}}
+https://wealthline-eight.vercel.app/api {"/dashboard/summary":{"p50":653,"p95":675},"/transactions":{"p50":653,"p95":669},"/insights/forecast":{"p50":870,"p95":881},"/budgets":{"p50":869,"p95":902},"/insights/subscriptions":{"p50":657,"p95":717}}

@@ -94,3 +94,16 @@ rule-based recommendations only (forecast-vs-budget, anomalies, savings rate).
 `/api/accounts`, `/api/categories`, `/api/transactions`, `/api/budgets`,
 `/api/goals` (+`/:id/contribute`), `/api/bills`, `/api/notifications`,
 `/api/insights/forecast`, `/api/insights/recommendations`, `/api/dashboard/summary`.
+
+
+## Added routes
+
+| Route | Purpose |
+|---|---|
+| `POST /api/scan/receipt` | Bill image (base64) → structured fields, budget impact, duplicate and date-sanity flags |
+| `GET /api/insights/subscriptions` | Detected recurring charges |
+| `POST /api/insights/ask` | Natural-language question answered from the user's data snapshot |
+| `GET /api/budgets/suggest` | Auto-budget suggestions from history |
+| `GET /api/dashboard/summary` | Now also returns health score, safe-to-spend, trend, upcoming bills |
+
+Forecasting uses exponential smoothing (α=0.4). Gemini calls go through `lib/gemini.js` (model fallback, retry) and `lib/aicache.js` (MongoDB cache).

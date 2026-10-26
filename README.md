@@ -32,15 +32,22 @@ document.
 | Goals | Savings targets with contribution tracking |
 | Recurring bills | Monthly bill tracking |
 | Anomaly detection | z-score check on every new expense against category history |
-| Expense forecasting | Linear regression over monthly category totals |
+| Expense forecasting | Exponential smoothing (α=0.4) over monthly category totals — chosen over linear regression after a 2,400-forecast backtest (MAPE 13.8% vs 15.9%) |
 | AI recommendations | Gemini API reads the user's real financial snapshot and returns specific, actionable advice, with Accept/Dismiss tracked as an event |
+| Bill scanning | Photo of a bill → Gemini vision extracts merchant, date, total, category and items → shows the budget impact and duplicate warning → one tap to save. Image is never stored. Dates far from today are flagged for review |
+| Safe-to-spend | Daily spending allowance = (balance − upcoming bills − savings pace) ÷ days left |
+| Subscription detector | Finds recurring charges in your history and totals them per year |
+| What-if simulator, goal ETA, month-end projection, auto-budget | Everyday planning tools on the dashboard / budgets / goals pages |
+| Financial health score | 0–100 score with a four-part breakdown |
+| Ask AI | Ask questions about your own money in plain English; answers use only your data |
+| Reliability | Gemini model fallback chain, retry on overload, MongoDB response cache (`aicache`), clear "daily quota used up" message |
 | Metrics Command Deck | Module 3 (data collection, decision tree, box plot, control chart, Pearson/Spearman/Kendall correlation) and Module 4 (Bayesian risk & defect-prediction networks, risk register) — embedded as an in-app tab |
 
 ## Tech stack
 
 **Frontend** — React 19, Vite, vanilla CSS (IBM Plex Sans / IBM Plex Mono)
 **Backend** — Node.js, Express, JWT (`jsonwebtoken`), `bcryptjs`, `dotenv`
-**AI** — Google Gemini API (`gemini-3.6-flash`)
+**AI** — Google Gemini API (`gemini-3.6-flash` with automatic fallback to other models; set `GEMINI_MODELS` to override)
 **Data & analysis** — Python: pandas, numpy, scipy, scikit-learn, matplotlib
 **Storage** — MongoDB Atlas
 **Deployment** — Vercel (serverless function for the API, static hosting for the React build and the metrics dashboard)
@@ -186,3 +193,11 @@ layer's implementation notes.
 ## Team
 
 K Druthendra · G Sai Santhosh · P Siva Kiran · Shaik Nihal
+
+## Evaluation scripts
+
+```bash
+node app/server/scripts/evaluate_models.js   # anomaly detector + forecaster backtest -> analysis/eval_models.json
+node app/server/scripts/evaluate_scan.js     # bill-scan accuracy on report/eval_receipts -> analysis/eval_scan.json
+```
+Measured results are summarised in the project report.

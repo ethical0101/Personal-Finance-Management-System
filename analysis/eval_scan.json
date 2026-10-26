@@ -1,0 +1,268 @@
+{
+  "summary": {
+    "generatedAt": "2026-10-26T09:44:30.449Z",
+    "target": "http://localhost:4000/api",
+    "receipts": 10,
+    "nonReceiptImages": 1,
+    "totalExactMatch": 100,
+    "dateExactMatch": 90,
+    "categoryMatch": 100,
+    "merchantMatch": 90,
+    "wrongDatesFlaggedBySanityCheck": "1/1",
+    "allFourFieldsCorrect": 90,
+    "nonReceiptRejected": 1,
+    "meanLatencyMs": 157,
+    "medianLatencyMs": 168,
+    "maxLatencyMs": 198,
+    "meanConfidence": 1
+  },
+  "rows": [
+    {
+      "id": "e01",
+      "hard": null,
+      "status": 200,
+      "ms": 198,
+      "predicted": {
+        "merchant": "FRESHMART SUPERMARKET",
+        "date": "2026-10-24",
+        "total": 1156.05,
+        "category": "Groceries",
+        "confidence": 1
+      },
+      "expected": {
+        "merchant": "FRESHMART SUPERMARKET",
+        "date": "2026-10-24",
+        "total": 1156.05,
+        "category": "Groceries"
+      },
+      "totalOk": true,
+      "dateOk": true,
+      "dateFlagged": false,
+      "categoryOk": true,
+      "merchantOk": true
+    },
+    {
+      "id": "e02",
+      "hard": null,
+      "status": 200,
+      "ms": 177,
+      "predicted": {
+        "merchant": "BESCOM",
+        "date": "2026-10-20",
+        "total": 1700.4,
+        "category": "Utilities",
+        "confidence": 1
+      },
+      "expected": {
+        "merchant": "BESCOM",
+        "date": "2026-10-20",
+        "total": 1700.4,
+        "category": "Utilities"
+      },
+      "totalOk": true,
+      "dateOk": true,
+      "dateFlagged": false,
+      "categoryOk": true,
+      "merchantOk": true
+    },
+    {
+      "id": "e03",
+      "hard": null,
+      "status": 200,
+      "ms": 191,
+      "predicted": {
+        "merchant": "The Spice Route Restaurant",
+        "date": "2026-10-25",
+        "total": 1025.33,
+        "category": "Dining",
+        "confidence": 1
+      },
+      "expected": {
+        "merchant": "The Spice Route Restaurant",
+        "date": "2026-10-25",
+        "total": 1025.33,
+        "category": "Dining"
+      },
+      "totalOk": true,
+      "dateOk": true,
+      "dateFlagged": false,
+      "categoryOk": true,
+      "merchantOk": true
+    },
+    {
+      "id": "e04",
+      "hard": null,
+      "status": 200,
+      "ms": 128,
+      "predicted": {
+        "merchant": "INDIAN OIL - HP NAGAR FUELS",
+        "date": "2018-10-26",
+        "total": 2400,
+        "category": "Transport",
+        "confidence": 1
+      },
+      "expected": {
+        "merchant": "Indian Oil Petrol Pump",
+        "date": "2026-10-18",
+        "total": 2400,
+        "category": "Transport"
+      },
+      "totalOk": true,
+      "dateOk": false,
+      "dateFlagged": true,
+      "categoryOk": true,
+      "merchantOk": false
+    },
+    {
+      "id": "e05",
+      "hard": null,
+      "status": 200,
+      "ms": 129,
+      "predicted": {
+        "merchant": "MedPlus Pharmacy",
+        "date": "2026-10-23",
+        "total": 684.5,
+        "category": "Health",
+        "confidence": 1
+      },
+      "expected": {
+        "merchant": "MedPlus Pharmacy",
+        "date": "2026-10-23",
+        "total": 684.5,
+        "category": "Health"
+      },
+      "totalOk": true,
+      "dateOk": true,
+      "dateFlagged": false,
+      "categoryOk": true,
+      "merchantOk": true
+    },
+    {
+      "id": "e06",
+      "hard": null,
+      "status": 200,
+      "ms": 171,
+      "predicted": {
+        "merchant": "Uber",
+        "date": "2026-10-21",
+        "total": 342.5,
+        "category": "Transport",
+        "confidence": 1
+      },
+      "expected": {
+        "merchant": "Uber",
+        "date": "2026-10-21",
+        "total": 342.5,
+        "category": "Transport"
+      },
+      "totalOk": true,
+      "dateOk": true,
+      "dateFlagged": false,
+      "categoryOk": true,
+      "merchantOk": true
+    },
+    {
+      "id": "e07",
+      "hard": null,
+      "status": 200,
+      "ms": 168,
+      "predicted": {
+        "merchant": "airtel",
+        "date": "2026-10-15",
+        "total": 599,
+        "category": "Utilities",
+        "confidence": 1
+      },
+      "expected": {
+        "merchant": "Airtel",
+        "date": "2026-10-15",
+        "total": 599,
+        "category": "Utilities"
+      },
+      "totalOk": true,
+      "dateOk": true,
+      "dateFlagged": false,
+      "categoryOk": true,
+      "merchantOk": true
+    },
+    {
+      "id": "e08",
+      "hard": null,
+      "status": 200,
+      "ms": 168,
+      "predicted": {
+        "merchant": "PVR CINEMAS",
+        "date": "2026-10-17",
+        "total": 780,
+        "category": "Entertainment",
+        "confidence": 1
+      },
+      "expected": {
+        "merchant": "PVR Cinemas",
+        "date": "2026-10-17",
+        "total": 780,
+        "category": "Entertainment"
+      },
+      "totalOk": true,
+      "dateOk": true,
+      "dateFlagged": false,
+      "categoryOk": true,
+      "merchantOk": true
+    },
+    {
+      "id": "e09",
+      "hard": "rotated 5 degrees, blurred, low contrast",
+      "status": 200,
+      "ms": 197,
+      "predicted": {
+        "merchant": "CAFE COFFEE CORNER",
+        "date": "2026-10-19",
+        "total": 355,
+        "category": "Dining",
+        "confidence": 1
+      },
+      "expected": {
+        "merchant": "Cafe Coffee Corner",
+        "date": "2026-10-19",
+        "total": 355,
+        "category": "Dining"
+      },
+      "totalOk": true,
+      "dateOk": true,
+      "dateFlagged": false,
+      "categoryOk": true,
+      "merchantOk": true
+    },
+    {
+      "id": "e10",
+      "hard": "handwritten-style font",
+      "status": 200,
+      "ms": 140,
+      "predicted": {
+        "merchant": "Sharma Stationery",
+        "date": "2026-10-12",
+        "total": 245,
+        "category": "Other",
+        "confidence": 1
+      },
+      "expected": {
+        "merchant": "Sharma Stationery",
+        "date": "2026-10-12",
+        "total": 245,
+        "category": "Other"
+      },
+      "totalOk": true,
+      "dateOk": true,
+      "dateFlagged": false,
+      "categoryOk": true,
+      "merchantOk": true
+    },
+    {
+      "id": "e11",
+      "nonReceipt": true,
+      "status": 422,
+      "rejected": true,
+      "ms": 58
+    }
+  ]
+}

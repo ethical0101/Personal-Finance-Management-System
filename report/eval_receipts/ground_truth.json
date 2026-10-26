@@ -1,0 +1,131 @@
+[
+  {
+    "id": "e01",
+    "file": "e01.png",
+    "hard": null,
+    "nonReceipt": false,
+    "truth": {
+      "merchant": "FRESHMART SUPERMARKET",
+      "date": "2026-10-24",
+      "total": 1156.05,
+      "category": "Groceries"
+    }
+  },
+  {
+    "id": "e02",
+    "file": "e02.png",
+    "hard": null,
+    "nonReceipt": false,
+    "truth": {
+      "merchant": "BESCOM",
+      "date": "2026-10-20",
+      "total": 1700.4,
+      "category": "Utilities"
+    }
+  },
+  {
+    "id": "e03",
+    "file": "e03.png",
+    "hard": null,
+    "nonReceipt": false,
+    "truth": {
+      "merchant": "The Spice Route Restaurant",
+      "date": "2026-10-25",
+      "total": 1025.33,
+      "category": "Dining"
+    }
+  },
+  {
+    "id": "e04",
+    "file": "e04.png",
+    "hard": null,
+    "nonReceipt": false,
+    "truth": {
+      "merchant": "Indian Oil Petrol Pump",
+      "date": "2026-10-18",
+      "total": 2400,
+      "category": "Transport"
+    }
+  },
+  {
+    "id": "e05",
+    "file": "e05.png",
+    "hard": null,
+    "nonReceipt": false,
+    "truth": {
+      "merchant": "MedPlus Pharmacy",
+      "date": "2026-10-23",
+      "total": 684.5,
+      "category": "Health"
+    }
+  },
+  {
+    "id": "e06",
+    "file": "e06.png",
+    "hard": null,
+    "nonReceipt": false,
+    "truth": {
+      "merchant": "Uber",
+      "date": "2026-10-21",
+      "total": 342.5,
+      "category": "Transport"
+    }
+  },
+  {
+    "id": "e07",
+    "file": "e07.png",
+    "hard": null,
+    "nonReceipt": false,
+    "truth": {
+      "merchant": "Airtel",
+      "date": "2026-10-15",
+      "total": 599,
+      "category": "Utilities"
+    }
+  },
+  {
+    "id": "e08",
+    "file": "e08.png",
+    "hard": null,
+    "nonReceipt": false,
+    "truth": {
+      "merchant": "PVR Cinemas",
+      "date": "2026-10-17",
+      "total": 780,
+      "category": "Entertainment"
+    }
+  },
+  {
+    "id": "e09",
+    "file": "e09.png",
+    "hard": "rotated 5 degrees, blurred, low contrast",
+    "nonReceipt": false,
+    "truth": {
+      "merchant": "Cafe Coffee Corner",
+      "date": "2026-10-19",
+      "total": 355,
+      "category": "Dining"
+    }
+  },
+  {
+    "id": "e10",
+    "file": "e10.png",
+    "hard": "handwritten-style font",
+    "nonReceipt": false,
+    "truth": {
+      "merchant": "Sharma Stationery",
+      "date": "2026-10-12",
+      "total": 245,
+      "category": "Other"
+    }
+  },
+  {
+    "id": "e11",
+    "file": "e11.png",
+    "hard": null,
+    "nonReceipt": true,
+    "truth": {
+      "rejected": true
+    }
+  }
+]
