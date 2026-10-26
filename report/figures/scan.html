@@ -1,0 +1,17 @@
+<!doctype html><meta charset=utf-8><style>
+*{box-sizing:border-box;font-family:Arial,Helvetica,sans-serif}body{margin:0;width:1600px;height:520px;background:#fff;position:relative}
+.t{text-align:center;font-size:26px;font-weight:700;padding-top:14px}
+.b{position:absolute;top:130px;width:200px;height:200px;border-radius:12px;border:2px solid;padding:12px;font-size:14px;line-height:1.4;text-align:center}
+.b b{display:block;font-size:16px;margin-bottom:6px}.n{display:inline-block;width:28px;height:28px;border-radius:50%;background:#1e293b;color:#fff;line-height:28px;font-weight:700;margin-bottom:6px}
+.c{border-color:#C2410C;background:#FFF1E8}.s{border-color:#1e293b;background:#E8ECF4}.a{border-color:#7c3aed;background:#F1EAFE}.d{border-color:#047857;background:#E4F6EE}
+svg{position:absolute;left:0;top:0}.note{position:absolute;left:40px;right:40px;top:380px;font-size:15px;line-height:1.6}
+</style><div class=t>Bill-Scanning Pipeline — from photo to budget decision</div>
+<svg width=1600 height=520><defs><marker id=m markerWidth=10 markerHeight=10 refX=8 refY=5 orient=auto><path d="M0,0 L10,5 L0,10z" fill="#334155"/></marker></defs><g stroke="#334155" stroke-width=2 marker-end="url(#m)"><path d="M232,230 L268,230"/><path d="M468,230 L504,230"/><path d="M704,230 L740,230"/><path d="M940,230 L976,230"/><path d="M1176,230 L1212,230"/><path d="M1412,230 L1448,230"/></g></svg>
+<div class="b c" style="left:32px"><span class=n>1</span><b>Capture</b>Camera / upload / sample bill. Resized in the browser</div>
+<div class="b s" style="left:268px"><span class=n>2</span><b>Validate</b>JWT · type (JPEG/PNG/WebP) · size ≤ 3 MB · fetch the user's categories</div>
+<div class="b d" style="left:504px"><span class=n>3</span><b>Cache lookup</b>SHA-256(image + categories) in MongoDB — a hit returns in about 150 ms and uses no quota</div>
+<div class="b a" style="left:740px"><span class=n>4</span><b>Gemini vision</b>Model fallback chain, JSON mode; returns merchant, date, total, category, items; rejects non-bills</div>
+<div class="b s" style="left:976px"><span class=n>5</span><b>Sanity checks</b>Total &gt; 0 · date format · date within about 400 days · duplicate (same date and amount)</div>
+<div class="b d" style="left:1212px"><span class=n>6</span><b>Budget impact</b>Spent before/after, % of limit, over-by amount for that category and month</div>
+<div class="b c" style="left:1448px;width:130px"><span class=n>7</span><b>Confirm</b>User edits and saves → transaction, balance, alerts</div>
+<div class=note><b>Why this design:</b> the model only <i>reads</i> the bill; every consequence (budget impact, duplicates, anomaly check after saving) is computed by deterministic server code, and nothing is saved until the user confirms. The image is processed in memory and never stored.</div>

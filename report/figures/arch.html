@@ -1,0 +1,56 @@
+<!doctype html><meta charset=utf-8><style>
+*{box-sizing:border-box;font-family:Arial,Helvetica,sans-serif}
+body{margin:0;background:#fff;width:1600px;height:1000px;position:relative;color:#111}
+.t{position:absolute;left:0;right:0;top:14px;text-align:center;font-size:26px;font-weight:700}
+.lane{position:absolute;border:2px dashed #94a3b8;border-radius:12px;background:#f8fafc}
+.lab{position:absolute;top:-13px;left:16px;background:#fff;padding:0 8px;font-weight:700;font-size:15px;color:#475569}
+.b{position:absolute;border-radius:10px;padding:8px 10px;font-size:14px;line-height:1.35;border:2px solid;text-align:center;background:#fff}
+.b b{display:block;font-size:15px;margin-bottom:2px}
+.c{border-color:#C2410C;background:#FFF1E8}.s{border-color:#1e293b;background:#E8ECF4}.a{border-color:#7c3aed;background:#F1EAFE}.d{border-color:#047857;background:#E4F6EE}.e{border-color:#b45309;background:#FEF3C7}
+svg{position:absolute;left:0;top:0}
+</style>
+<div class=t>Wealthline — System Architecture</div>
+<svg width=1600 height=1000><defs><marker id=m markerWidth=10 markerHeight=10 refX=8 refY=5 orient=auto><path d="M0,0 L10,5 L0,10z" fill="#334155"/></marker></defs>
+<g stroke="#334155" stroke-width=2 fill=none marker-end="url(#m)">
+<path d="M310,230 L350,230"/><path d="M660,230 L690,230"/><path d="M1180,230 L1260,230"/>
+<path d="M925,360 L925,425"/><path d="M1230,500 L1330,500"/>
+
+</g></svg>
+<div class=lane style="left:20px;top:80px;width:290px;height:300px"><span class=lab>CLIENT (Browser / Phone)</span></div>
+<div class="b c" style="left:40px;top:120px;width:250px"><b>React 19 SPA (Vite)</b>Dashboard · Scan · Ask AI · Transactions · Budgets · Goals · Bills · Insights · Metrics</div>
+<div class="b c" style="left:40px;top:222px;width:250px;height:80px"><b>Browser-side image resize</b>Photo shrunk before upload; JWT kept in browser</div>
+<div class="b c" style="left:40px;top:312px;width:250px;height:48px">Light / dark themes · responsive</div>
+
+<div class=lane style="left:330px;top:80px;width:330px;height:300px"><span class=lab>VERCEL EDGE</span></div>
+<div class="b s" style="left:350px;top:120px;width:290px"><b>CDN — static assets</b>web/dist (HTML, JS, CSS) + /metrics Python dashboard (iframe)</div>
+<div class="b s" style="left:350px;top:215px;width:290px"><b>Rewrites (vercel.json)</b>/api/* → serverless function · else SPA index.html</div>
+<div class="b s" style="left:350px;top:295px;width:290px;height:65px">Serverless function api/index.js · maxDuration 60 s</div>
+
+<div class=lane style="left:690px;top:80px;width:490px;height:300px"><span class=lab>EXPRESS API (Node.js)</span></div>
+<div class="b s" style="left:710px;top:120px;width:450px"><b>Middleware</b>CORS · JSON (6 MB) · JWT auth (RFC 7519) · express-async-errors</div>
+<div class="b s" style="left:710px;top:205px;width:450px"><b>Routes</b>auth · accounts · categories · transactions · budgets · goals · bills · dashboard · insights · scan · notifications</div>
+<div class="b s" style="left:710px;top:290px;width:450px;height:70px"><b>db.js data layer</b>all / find / insert / update / remove · cacheGet / cacheSet</div>
+
+<div class=lane style="left:690px;top:400px;width:540px;height:290px"><span class=lab>AI &amp; ANALYTICS SERVICES (lib/)</span></div>
+<div class="b a" style="left:710px;top:440px;width:250px"><b>ai.js</b>z-score anomaly detection (|z|≥2.5) · exponential-smoothing forecast (α=0.4)</div>
+<div class="b a" style="left:975px;top:440px;width:240px"><b>snapshot.js</b>Net worth, budgets, goals, bills, anomalies, forecasts → grounded context</div>
+<div class="b a" style="left:710px;top:535px;width:250px;height:80px"><b>Rule engines</b>Health score · safe-to-spend · subscriptions · goal ETA</div>
+<div class="b a" style="left:975px;top:535px;width:240px;height:80px"><b>gemini.js</b>Model fallback chain · retry on 5xx · quota detection · JSON mode</div>
+<div class="b a" style="left:710px;top:625px;width:505px;height:52px"><b>aicache.js</b>SHA-256 request key → cached AI answer (30 d scans, 1 d insights)</div>
+
+<div class="b e" style="left:1330px;top:420px;width:250px"><b>Google Gemini API</b>Vision: bill → merchant, date, total, category, items<br>Text: recommendations · Ask AI<br>(per-model free-tier quotas)</div>
+<div class=lane style="left:1260px;top:80px;width:320px;height:290px"><span class=lab>PERSISTENCE</span></div>
+<div class="b d" style="left:1280px;top:120px;width:280px;height:230px"><b>MongoDB Atlas</b>users · accounts · categories · transactions · budgets · goals · bills · notifications · recommendation events · aicache<br><br>(MongoClient cached and reused across serverless calls)</div>
+
+<div class=lane style="left:20px;top:420px;width:640px;height:380px"><span class=lab>SOFTWARE-METRICS PIPELINE (Python, offline)</span></div>
+<div class="b d" style="left:40px;top:460px;width:290px"><b>generate_data.py</b>module_metrics.csv · sprint_metrics.csv (GQ(I)M-driven)</div>
+<div class="b d" style="left:350px;top:460px;width:290px"><b>analyze.py</b>Decision tree · box plot · I-MR control chart · Pearson / Spearman / Kendall · t-test</div>
+<div class="b d" style="left:40px;top:565px;width:290px"><b>bayesian_network.py</b>Project-risk BN + defect-prediction BN · scenarios</div>
+<div class="b d" style="left:350px;top:565px;width:290px"><b>build_dashboard.py</b>Self-contained HTML (base64 charts) → /metrics</div>
+<div class="b d" style="left:40px;top:665px;width:600px;height:110px"><b>Link to the application</b>The metrics dashboard is shipped inside the app as the "Metrics" tab, themed to match; the metrics (complexity, coupling, coverage, defects) judge the application's own quality against ISO/IEC 25010.</div>
+
+<div class="b e" style="left:1330px;top:560px;width:250px"><b>Evaluation harness</b>evaluate_models.js · evaluate_scan.js<br>→ analysis/eval_*.json (numbers quoted in the report)</div>
+<div class=lane style="left:20px;top:830px;width:1560px;height:140px"><span class=lab>LEGEND &amp; DATA FLOW</span></div>
+<div style="position:absolute;left:50px;top:865px;font-size:15px;line-height:1.7;width:1500px">
+<span style="color:#C2410C"><b>■ Client</b></span> &nbsp; <span style="color:#1e293b"><b>■ Hosting / API</b></span> &nbsp; <span style="color:#7c3aed"><b>■ AI &amp; analytics</b></span> &nbsp; <span style="color:#047857"><b>■ Data / metrics</b></span> &nbsp; <span style="color:#b45309"><b>■ External service / evaluation</b></span><br>
+1) User action in SPA → HTTPS → Vercel rewrite → Express route (JWT verified). 2) Route reads/writes MongoDB through db.js. 3) AI routes build a data snapshot, check aicache, otherwise call Gemini (with model fallback) and cache the answer. 4) Response returns to the SPA; the Python metrics dashboard is served as static content.</div>
