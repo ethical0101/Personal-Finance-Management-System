@@ -3,7 +3,7 @@
 const fs = require("fs");
 const path = require("path");
 const {
-  Document, Packer, Paragraph, TextRun, Table, TableRow, TableCell, WidthType, ShadingType,
+  Document, Packer, Paragraph, TextRun, Table, TableRow, TableCell, WidthType, BorderStyle,
   AlignmentType, ImageRun, PageBreak, Footer, PageNumber, LevelFormat,
 } = require("docx");
 
@@ -16,7 +16,7 @@ const res = A("results.json"), bn = A("bn_results.json"), em = A("eval_models.js
 const lat = fs.readFileSync(path.join(ROOT, "analysis", "eval_latency.txt"), "utf8").trim().split("\n").map(l => { const i = l.indexOf(" "); return [l.slice(0, i), JSON.parse(l.slice(i + 1))]; });
 
 const FONT = "Times New Roman", BODY = 24, HEAD = 28;
-const run = (text, o = {}) => new TextRun({ text, font: FONT, size: BODY, ...o });
+const run = (text, o = {}) => new TextRun({ text, font: FONT, size: BODY, color: "000000", ...o });
 const P = (text, o = {}) => new Paragraph({ alignment: AlignmentType.JUSTIFIED, spacing: { after: 140, line: 300 }, children: Array.isArray(text) ? text : [run(text, o)] });
 const H = text => new Paragraph({ spacing: { before: 320, after: 140 }, keepNext: true, children: [run(text, { bold: true, size: HEAD })] });
 const H2 = text => new Paragraph({ spacing: { before: 200, after: 100 }, keepNext: true, children: [run(text, { bold: true, size: HEAD })] });
@@ -35,13 +35,14 @@ function IMG(file, caption, maxW = 600) {
   ];
 }
 
-const GREEN = "1F2937";
-function cell(t, { head = false, w, shade } = {}) {
+const BORDER = { style: BorderStyle.SINGLE, size: 4, color: "000000" };
+const BORDERS = { top: BORDER, bottom: BORDER, left: BORDER, right: BORDER };
+function cell(t, { head = false, w } = {}) {
   return new TableCell({
     width: { size: w, type: WidthType.DXA },
-    shading: head ? { type: ShadingType.CLEAR, fill: GREEN } : shade ? { type: ShadingType.CLEAR, fill: shade } : undefined,
+    borders: BORDERS,
     margins: { top: 60, bottom: 60, left: 90, right: 90 },
-    children: [new Paragraph({ children: [run(String(t), { size: 21, bold: head, color: head ? "FFFFFF" : undefined })] })],
+    children: [new Paragraph({ children: [run(String(t), { size: 21, bold: head })] })],
   });
 }
 function T(headers, rows, widths) {
@@ -49,7 +50,7 @@ function T(headers, rows, widths) {
   return [new Table({
     width: { size: sum, type: WidthType.DXA }, columnWidths: widths,
     rows: [new TableRow({ tableHeader: true, children: headers.map((h, i) => cell(h, { head: true, w: widths[i] })) }),
-      ...rows.map((r, ri) => new TableRow({ cantSplit: true, children: r.map((c, i) => cell(c, { w: widths[i], shade: ri % 2 ? "F3F4F6" : undefined })) }))],
+      ...rows.map((r, ri) => new TableRow({ cantSplit: true, children: r.map((c, i) => cell(c, { w: widths[i],  })) }))],
   }), new Paragraph({ spacing: { after: 160 }, children: [] })];
 }
 const pct = x => (x * 100).toFixed(1) + "%";
@@ -73,40 +74,40 @@ c.push(BR());
 
 /* ---------------- 2. PROBLEM STATEMENT ---------------- */
 c.push(H("1. Problem Statement"));
-c.push(P("Most people do not lack money-tracking apps; they lack the habit of using them. Entering every expense by hand is slow, so records become incomplete, budgets are set once and ignored, and the user only discovers an overspend after the month has ended. Existing apps either require tedious manual entry, show charts without telling the user what to do, or use AI as a decoration with no checking of its output."));
-c.push(P("At the same time, we are building this system as a software-engineering project, and a software project that cannot be measured cannot be managed. We therefore need to answer two questions together:"));
-c.push(B("Product question — How can a personal-finance system reduce the effort of recording spending (for example by reading a photographed bill), keep the budget up to date automatically, and give the user a concrete reason to open it every day?"));
-c.push(B("Engineering question — How do we use software metrics (GQ(I)M, ISO/IEC 25010 quality attributes, defect taxonomy, statistical and probabilistic models) to plan, monitor and predict the quality and risk of building that product?"));
-c.push(P("This report presents Wealthline, a working full-stack system that answers both questions, together with the measurements that show how well each part works and where it does not."));
+c.push(P("Most people already have a money-tracking app. What they do not have is the habit of using it. Typing in every expense by hand takes time, so the records end up incomplete, a budget gets set once and then forgotten, and the overspend is only noticed after the month is over. Many apps also just show charts without saying what the user should do next, and the ones that add AI usually do not check what the AI produces."));
+c.push(P("This is also a software engineering project, and a project that is not measured is hard to manage. So we had two questions to answer together:"));
+c.push(B("Product question: how can a personal finance system cut down the effort of recording spending (for example by reading a photo of a bill), keep the budget up to date by itself, and give the user a real reason to open it every day?"));
+c.push(B("Engineering question: how can software metrics (GQ(I)M, ISO/IEC 25010 quality attributes, defect taxonomy, statistical and probabilistic models) be used to plan, monitor and predict the quality and risk of building that product?"));
+c.push(P("This report describes Wealthline, a working full-stack system built to answer both questions, along with the measurements showing how well each part works and where it falls short."));
 
 /* ---------------- 3. INTRODUCTION & ABSTRACT ---------------- */
 c.push(H("2. Introduction and Abstract"));
 c.push(H2("Abstract"));
-c.push(P(`Wealthline is a web-based personal-finance management system that combines everyday financial tools with software-metrics analysis. A user can scan a photographed bill; a vision model reads the merchant, date, total, category and line items, and the server then computes what saving the bill would do to the matching budget, checks for duplicates, and asks the user to confirm. The application also provides a safe-to-spend daily allowance, subscription detection, goal completion estimates, a what-if simulator, a month-end projection, automatic budget suggestions, a 0–100 financial health score, and a natural-language "Ask AI" assistant that answers only from the user's own data. Spending anomalies are detected with a z-score rule and next-month spending is forecast with exponential smoothing. On the engineering side, a Python pipeline applies GQ(I)M, decision-tree classification, box plots, an individuals–moving-range control chart, three correlation measures and two Bayesian networks to project data, and the resulting dashboard is embedded in the application. Measured results on our test sets: the bill reader obtained the exact total on ${es.summary.totalExactMatch}% of ${es.summary.receipts} bills and rejected the one non-bill image; the anomaly rule reached precision ${em.anomalyDetector.byThreshold["2.5"].precision} at recall ${em.anomalyDetector.byThreshold["2.5"].recall}; and exponential smoothing reduced forecasting error (MAPE) from ${em.forecaster.overall.linearRegression.MAPE}% to ${em.forecaster.overall.exponentialSmoothing.MAPE}% against linear regression.`));
+c.push(P(`Wealthline is a web-based personal finance management system that combines everyday money tools with software metrics analysis. The user can scan a photo of a bill. A vision model reads the merchant, date, total, category and line items, and the server then works out what saving that bill would do to the matching budget, checks whether it is a duplicate, and asks the user to confirm. The application also gives a safe-to-spend daily amount, subscription detection, goal completion estimates, a what-if simulator, a month-end projection, automatic budget suggestions, a 0 to 100 financial health score, and an Ask AI assistant that answers only from the user's own data. Unusual expenses are found with a z-score rule and next month's spending is forecast with exponential smoothing. For the engineering side, a Python pipeline applies GQ(I)M, decision tree classification, box plots, an individuals and moving range control chart, three correlation measures and two Bayesian networks to the project data, and the resulting dashboard is embedded in the application. On our test sets the bill reader got the exact total on ${es.summary.totalExactMatch}% of ${es.summary.receipts} bills and rejected the one image that was not a bill. The anomaly rule reached a precision of ${em.anomalyDetector.byThreshold["2.5"].precision} at a recall of ${em.anomalyDetector.byThreshold["2.5"].recall}, and exponential smoothing brought the forecasting error (MAPE) down from ${em.forecaster.overall.linearRegression.MAPE}% with linear regression to ${em.forecaster.overall.exponentialSmoothing.MAPE}%.`));
 c.push(H2("Introduction"));
-c.push(P("Personal-finance management sits at the intersection of everyday usability and data analysis. Three observations shaped the design. First, the largest barrier to good financial tracking is data entry, so reducing entry effort has more impact than adding charts. Second, numbers are only useful when they change a decision; a user needs to know \"can I afford this today?\", not only \"what did I spend last month?\". Third, any AI feature that touches money must be bounded: the model may read and suggest, but deterministic code must verify, and the user must confirm."));
-c.push(P("The project was developed across four review modules. Modules 1–2 defined the goals and measurement plan using the Goal–Question–(Indicator)–Metric approach and mapped them to the ISO/IEC 25010 quality model. Module 3 collected and analysed software metrics (classification, distribution, control and correlation analysis). Module 4 applied Bayesian networks to project risk and defect prediction. This final stage turned the plan into a deployed application and added direct bill scanning, budget updating from scanned bills, more everyday features, a redesigned interface, and a measured evaluation."));
+c.push(P("Personal finance management is partly about everyday usability and partly about data analysis. Three things shaped our design. First, the biggest problem in tracking money is data entry, so reducing the typing helps more than adding another chart. Second, numbers only matter when they change a decision; a user wants to know whether they can afford something today, not only what they spent last month. Third, any AI feature that deals with money needs limits: the model can read and suggest, but ordinary code should check the result and the user should confirm it."));
+c.push(P("The project was done over four review modules. Modules 1 and 2 set the goals and the measurement plan using the Goal-Question-(Indicator)-Metric approach and linked them to the ISO/IEC 25010 quality model. Module 3 collected and analysed software metrics (classification, distribution, control and correlation analysis). Module 4 used Bayesian networks for project risk and defect prediction. In this final stage we turned the plan into a deployed application, and added direct bill scanning, budget updates from scanned bills, more everyday features, a redesigned interface and a measured evaluation."));
 
 /* ---------------- 4. SUMMARY ---------------- */
 c.push(H("3. Summary"));
 c.push(...T(["Aspect", "What was done"], [
   ["Application", "React 19 single-page app + Node/Express API on Vercel, MongoDB Atlas storage, JWT authentication"],
-  ["Direct bill scanning", "Photo → Gemini vision → merchant/date/total/category/items → budget impact + duplicate + date-sanity check → user confirms"],
+  ["Direct bill scanning", "Photo, then Gemini vision reads merchant, date, total, category and items, then budget impact, duplicate and date checks, then the user confirms"],
   ["Budget manipulation", "Scanned or manual expenses update the category budget instantly; auto-budget suggests limits from history; the scan screen warns before a limit would be exceeded"],
-  ["Reasons to use it daily", "Safe-to-spend today, subscription detector, goal ETA, what-if simulator, month-end projection, health score, Ask AI"],
+  ["Why use it daily", "Safe-to-spend today, subscription detector, goal ETA, what-if simulator, month-end projection, health score, Ask AI"],
   ["AI methods", "z-score anomaly detection, exponential-smoothing forecast, LLM extraction / recommendations / Q&A with model fallback and caching"],
   ["Metrics program", "GQ(I)M, ISO 25010, error→fault→failure→bug taxonomy, decision tree, box plot, I-MR chart, Pearson/Spearman/Kendall, two Bayesian networks"],
   ["Evaluation", "10 labelled bills + 1 non-bill; 300 simulated anomaly trials; 2,400 forecast backtests; leave-one-out decision-tree test; API latency"],
-  ["UI", "Complete redesign: warm canvas with pastel tiles, slim icon rail, docked AI assistant panel with animated orb, motion effects; light and dark themes, mobile layout"],
+  ["UI", "Interface redesigned with a warm background and pastel tiles, a collapsible sidebar, a docked AI assistant panel, light and dark themes and a mobile layout"],
 ], [2300, 7060]));
-c.push(P("Honest headline findings: bill-total extraction was exact on every test bill, and a date sanity check caught the one date the model misread; the anomaly rule is very precise but misses small anomalies; exponential smoothing beat linear regression; and the decision tree that scores 91.7% on its own training data scores only 58.3% under leave-one-out testing, so it is explanatory rather than predictive on our 12-module dataset."));
+c.push(P("The main findings are as follows. Bill totals were read exactly on every test bill, and the date check caught the one date the model got wrong. The anomaly rule is very precise but misses small anomalies. Exponential smoothing did better than linear regression. The decision tree scores 91.7% on the data it was trained on but only 58.3% under leave-one-out testing, so with 12 modules it only explains the data and cannot be relied on to predict."));
 
 /* ---------------- 5. METHODOLOGY ---------------- */
 c.push(H("4. Methodology (with Classification Methods)"));
 c.push(H2("4.1 Measurement planning — GQ(I)M and ISO/IEC 25010"));
-c.push(P("We used the Goal–Question–(Indicator)–Metric method (Park, Goethert and Florac, 1996). A business goal is refined into questions, each question into indicators (how the answer will be displayed) and then into metrics that can be collected. The overall goal was to deliver a reliable, maintainable finance application on schedule. Sub-goals covered code quality, defect behaviour, schedule and delivery, and AI accuracy. The ISO/IEC 25010 product-quality characteristics were mapped to measurable attributes: functional suitability (extraction accuracy), performance efficiency (API latency), reliability (fault handling, retry and fallback), maintainability (complexity, coupling, cohesion, coverage) and security (hashed passwords, token authentication)."));
+c.push(P("We used the Goal-Question-(Indicator)-Metric method (Park, Goethert and Florac, 1996). A business goal is broken into questions, each question into indicators (how the answer will be shown) and then into metrics that can actually be collected. The overall goal was to deliver a reliable, maintainable finance application on time. The sub-goals covered code quality, defect behaviour, schedule and delivery, and AI accuracy. The ISO/IEC 25010 quality characteristics were matched to things we can measure: functional suitability (extraction accuracy), performance efficiency (API latency), reliability (fault handling, retry and fallback), maintainability (complexity, coupling, cohesion, coverage) and security (hashed passwords, token authentication)."));
 c.push(H2("4.2 Defect taxonomy"));
-c.push(P("We separate four terms and measure each one: an error is a human mistake; a fault is the incorrect code that results; a failure is the observable wrong behaviour when the fault executes; a bug is the report that gets tracked. The module dataset records errors logged, fault count, defect count and failures observed per module, which lets us compute defect density (defects per thousand lines of code, KLOC)."));
+c.push(P("We keep four terms apart and measure each one. An error is a mistake made by a person. A fault is the wrong code that results from it. A failure is the wrong behaviour the user sees when the fault runs. A bug is the report that gets tracked. The module dataset records errors logged, fault count, defect count and failures observed for each module, which lets us calculate defect density (defects per thousand lines of code, KLOC)."));
 c.push(H2("4.3 Classification methods used"));
 c.push(...T(["Task", "Classes", "Method", "Rule / parameters"], [
   ["Defect-proneness of a module", "High / Low", "Decision tree (CART, scikit-learn)", "Label = defect density above / below median; features: complexity, CBO, LCOM, coverage; max depth 3, min leaf 2"],
@@ -118,35 +119,35 @@ c.push(...T(["Task", "Classes", "Method", "Rule / parameters"], [
   ["Forecast confidence", "Low / Medium", "History length rule", "Medium with 6 or more months of history, otherwise Low"],
 ], [1900, 1500, 2300, 3660]));
 c.push(H2("4.4 Statistical analyses"));
-c.push(B("Box plot — distribution, median, inter-quartile range and outliers of the metrics per module."));
-c.push(B("Individuals–moving-range (I-MR) control chart over sprint metrics to detect special-cause variation (week 12 was flagged)."));
-c.push(B("Correlation — Pearson (linear), Spearman (rank) and Kendall (concordance) on the same pairs, because small samples can make any one coefficient misleading; we report all three and mark a finding as robust only if they agree."));
-c.push(B("Hypothesis test — a two-sample t-test comparing defect density in low-coverage and high-coverage modules."));
+c.push(B("Box plot: distribution, median, inter-quartile range and outliers of the metrics for each module."));
+c.push(B("Individuals and moving range (I-MR) control chart over the sprint metrics to detect special-cause variation (week 12 was flagged)."));
+c.push(B("Correlation: Pearson (linear), Spearman (rank) and Kendall (concordance) on the same pairs. With small samples any single coefficient can mislead, so we report all three and call a finding robust only when they agree."));
+c.push(B("Hypothesis test: a two-sample t-test comparing defect density in low-coverage and high-coverage modules."));
 c.push(H2("4.5 Forecasting"));
-c.push(P("Monthly spending per category is forecast with simple exponential smoothing, S(t) = α·x(t) + (1 − α)·S(t−1) with α = 0.4. Linear regression was used first, but a backtest against three simpler baselines (see Section 9) showed it was the weakest of the trend-following methods on noisy household data, so it was replaced."));
+c.push(P("Monthly spending for each category is forecast with simple exponential smoothing, S(t) = a x(t) + (1 - a) S(t-1), with a = 0.4. We first used linear regression, but when we compared it with three simpler baselines (Section 9) it was the weakest of the trend-following methods on noisy household data, so we replaced it."));
 c.push(H2("4.6 Bill scanning method"));
-c.push(P("The photo is resized in the browser and sent to the API. The server first looks for an identical earlier request in the cache. Otherwise it sends the image and the user's category list to a Gemini vision model with a strict JSON schema prompt (merchant, date, total, currency, category, items, confidence). A fallback chain tries other models if one is out of quota or unavailable, and retries once on server overload. The response is then checked by ordinary code: the total must be positive, the date must parse and lie within about a year of today (otherwise the user sees a “check the date” warning), the category must exist, and a transaction with the same date and amount raises a duplicate warning. The budget impact is computed from the stored transactions. Nothing is saved until the user presses Confirm, and the image itself is never stored."));
+c.push(P("The photo is resized in the browser and sent to the API. The server first looks in the cache for an identical earlier request. If there is none, it sends the image and the user's category list to a Gemini vision model with a prompt that asks for strict JSON (merchant, date, total, currency, category, items, confidence). If one model is out of quota or unavailable, a fallback chain tries the next one, and a request is retried once if the server is overloaded. The reply is then checked by normal code: the total must be positive, the date must be valid and within about a year of today (otherwise the user sees a check-the-date warning), the category must exist, and an existing transaction with the same date and amount raises a duplicate warning. The budget impact is calculated from the stored transactions. Nothing is saved until the user presses Confirm, and the image itself is never stored."));
 c.push(H2("4.7 Bayesian networks"));
-c.push(P("Network 1 models project risk: requirement volatility (R) and team experience (T) influence schedule delay (S) and defect density (D), which together determine project risk (P). Posterior probabilities are computed by exact enumeration for different evidence scenarios. Network 2 predicts whether a module is defect-prone from code complexity and test coverage."));
+c.push(P("Network 1 models project risk. Requirement volatility (R) and team experience (T) affect schedule delay (S) and defect density (D), and those two together decide the project risk (P). The posterior probabilities are calculated by exact enumeration for different sets of evidence. Network 2 predicts whether a module is defect-prone from its code complexity and test coverage."));
 c.push(H2("4.8 Evaluation protocol"));
-c.push(B("Bill scanning: 10 labelled bill images (8 clean; 2 deliberately hard: one rotated 5° with blur and low contrast, one in a handwritten-style font; with ground truth in report/eval_receipts/ground_truth.json) plus one image that is not a bill. Fields compared: total (exact), date (exact), merchant (token overlap ≥ 60%), category (exact)."));
-c.push(B("Anomaly detector: 300 simulated users × 200 transactions, 10% of transactions multiplied by a random factor between 1.5× and 5×, thresholds 2.0, 2.5 and 3.0."));
-c.push(B("Forecaster: 300 simulated monthly series (three trend slopes) × 8 one-step-ahead forecasts = 2,400 forecasts, compared with last-month, 3-month moving average and linear regression using MAPE."));
+c.push(B("Bill scanning: 10 labelled bill images (8 clean and 2 deliberately hard, one rotated 5 degrees with blur and low contrast and one in a handwriting-style font, with the correct answers in report/eval_receipts/ground_truth.json) plus one image that is not a bill. Fields compared: total (exact), date (exact), merchant (token overlap ≥ 60%), category (exact)."));
+c.push(B("Anomaly detector: 300 simulated users with 200 transactions each, 10% of the transactions multiplied by a random factor between 1.5 and 5, thresholds 2.0, 2.5 and 3.0."));
+c.push(B("Forecaster: 300 simulated monthly series (three trend slopes) with 8 one-step-ahead forecasts each, 2,400 forecasts in total, compared with last-month, 3-month moving average and linear regression using MAPE."));
 c.push(B("Decision tree: leave-one-out cross-validation on the 12 modules, compared with the majority-class baseline."));
 c.push(B("API latency: 11 timed requests per endpoint after one warm-up, on the local server and on the Vercel deployment."));
 
 /* ---------------- 6. RELATED WORK ---------------- */
 c.push(H("5. Related Work"));
-c.push(P("Measurement planning. The GQM family was introduced by Basili and colleagues, and the SEI guidebook by Park, Goethert and Florac extended it with indicators, which is the version used in Modules 1–2 [1]. ISO/IEC 25010 gives the quality vocabulary for what to measure [2]."));
-c.push(P("Code metrics and defect prediction. McCabe's cyclomatic complexity [3] and the Chidamber–Kemerer object-oriented metrics (coupling between objects, lack of cohesion) [4] are the standard code-level predictors; Fenton and Neil's review shows that simple size and complexity measures predict defects only weakly and that causal models such as Bayesian networks explain more [5]. Our correlation and decision-tree results are consistent with this caution: lack of cohesion was the single strongest signal, and the tree did not generalise."));
-c.push(P("Anomaly detection. Chandola, Banerjee and Kumar survey statistical anomaly detection and note that simple parametric rules such as z-scores are strong when the data are roughly Gaussian and history is available, but weak on small deviations [6]. This matches our measured behaviour."));
-c.push(P("Forecasting. Hyndman and Koehler discuss MAPE and related accuracy measures and why naive and smoothing baselines are hard to beat on short, noisy series [7]; this motivated our baseline comparison."));
-c.push(P("Receipt understanding. The ICDAR 2019 SROIE competition defined the task of extracting company, date, address and total from scanned receipts, which is the same set of fields we extract [8]. Earlier systems used OCR followed by rule-based or sequence-labelling models; large multimodal models such as Gemini read the image directly and can also classify the purchase category [9]. Our contribution is not a new recogniser but the surrounding verification: deterministic checks, budget impact, duplicate and date warnings, caching, model fallback, and a measured evaluation."));
+c.push(P("Measurement planning. The GQM family was introduced by Basili and colleagues, and the SEI guidebook by Park, Goethert and Florac added indicators to it; that is the version we used in Modules 1 and 2 [1]. ISO/IEC 25010 gives the vocabulary for what to measure [2]."));
+c.push(P("Code metrics and defect prediction. McCabe's cyclomatic complexity [3] and the Chidamber and Kemerer object-oriented metrics (coupling between objects, lack of cohesion) [4] are the usual code-level predictors. Fenton and Neil reviewed defect prediction models and found that simple size and complexity measures predict defects only weakly, and that causal models such as Bayesian networks explain more [5]. Our results point the same way: lack of cohesion was the strongest signal and the tree did not generalise."));
+c.push(P("Anomaly detection. Chandola, Banerjee and Kumar survey statistical anomaly detection and note that simple parametric rules such as z-scores work well when the data are roughly Gaussian and some history exists, but are poor at small deviations [6]. This is what we saw in our own tests."));
+c.push(P("Forecasting. Hyndman and Koehler discuss MAPE and other accuracy measures, and why naive and smoothing baselines are hard to beat on short, noisy series [7]. This is why we compared against baselines."));
+c.push(P("Receipt understanding. The ICDAR 2019 SROIE competition defined the task of extracting the company, date, address and total from scanned receipts, which is close to the set of fields we extract [8]. Older systems used OCR followed by rule-based or sequence-labelling models. Large multimodal models such as Gemini can read the image directly and also guess the purchase category [9]. We did not build a new recogniser. What we added is the checking around it: ordinary code checks, budget impact, duplicate and date warnings, caching, model fallback and a measured evaluation."));
 c.push(P("Authentication. Sessions use JSON Web Tokens as specified in RFC 7519 [10]."));
 
 /* ---------------- 7. ARCHITECTURE ---------------- */
 c.push(H("6. Architecture Diagram"));
-c.push(P("Figure 1 shows the complete system. The browser loads a React single-page application from the Vercel CDN. Requests to /api are rewritten to one serverless Express function, which authenticates the JWT, runs the route, and reads or writes MongoDB through a small data layer. AI routes build a compact snapshot of the user's data, consult a MongoDB-backed cache, and only then call the Gemini API. The Python metrics pipeline runs offline; its self-contained dashboard is served as static content inside the Metrics tab."));
+c.push(P("Figure 1 shows the whole system. The browser loads a React single-page application from the Vercel CDN. Requests to /api are rewritten to one serverless Express function, which checks the JWT, runs the route, and reads or writes MongoDB through a small data layer. The AI routes build a compact snapshot of the user's data, look in a MongoDB-backed cache, and only then call the Gemini API. The Python metrics pipeline runs offline, and its self-contained dashboard is served as static content inside the Metrics tab."));
 c.push(...IMG(path.join(FIG, "architecture.png"), "Figure 1. Wealthline system architecture (detailed)", 620));
 c.push(P("Figure 2 expands the bill-scanning path from the photo to the budget decision."));
 c.push(...IMG(path.join(FIG, "scan_flow.png"), "Figure 2. Bill-scanning pipeline", 620));
@@ -163,7 +164,7 @@ c.push(...T(["Component", "Responsibility", "Key design decision"], [
 
 /* ---------------- 8. PROPOSED SYSTEM ---------------- */
 c.push(H("7. Proposed System"));
-c.push(P("The proposed system is Wealthline. It is organised around one idea: the app should do the boring work and tell the user what matters today."));
+c.push(P("The proposed system is Wealthline. The main idea is that the app should do the boring work and tell the user what matters today."));
 c.push(H2("7.1 Why a user needs it — features and the reason for each"));
 c.push(...T(["Feature", "What the user gets", "Why they would open the app"], [
   ["Scan a bill", "Photo becomes a ready-to-save expense", "Saves typing; shows the budget effect before saving"],
@@ -227,7 +228,7 @@ c.push(P("A demo account with realistic data (demo@gmail.com) is created by app/
 c.push(H2("8.2 Software-metrics datasets (data/ folder)"));
 c.push(B("module_metrics.csv — 12 application modules; columns: LOC, cyclomatic complexity, coupling (CBO), lack of cohesion (LCOM), test coverage %, features delivered, errors logged, fault count, defect count, failures observed, delay days, average severity, defect density per KLOC."));
 c.push(B("sprint_metrics.csv — 16 weekly sprint observations used for the control chart and trend analysis."));
-c.push(P("Both files are generated by analysis/generate_data.py from a fixed random seed using GQ(I)M-driven distributions. They are synthetic project data created for this course, not measurements from an industrial project, and conclusions drawn from them are illustrative."));
+c.push(P("Both files are generated by analysis/generate_data.py from a fixed random seed. They are synthetic project data made for this course and are not measurements from a real industrial project, so any conclusions drawn from them are only illustrative."));
 c.push(H2("8.3 Evaluation datasets"));
 c.push(B("report/eval_receipts/ — 11 generated images (e01–e11) and ground_truth.json. The bills are synthetic renderings of typical Indian retail formats (grocery, restaurant, fuel, pharmacy, utility, etc.); two are degraded on purpose; e11 is a non-bill image."));
 c.push(B("Simulated anomaly and forecast series are produced inside analysis scripts with a fixed seed (20261026) so the results can be reproduced with node app/server/scripts/evaluate_models.js."));
@@ -249,14 +250,14 @@ c.push(...T(["Measure", "Result"], [
   ["Latency, first (uncached) run, mean", "about 3.3 s per bill"],
   ["Latency, repeated identical bill (cache hit), mean / max", `${s.meanLatencyMs} ms / ${s.maxLatencyMs} ms`],
 ], [5200, 4160]));
-c.push(P("The single error (bill e04) was a fuel receipt whose date was printed as “18-10-26”. The model read it as 2018 instead of 2026. The server's date-sanity rule now flags any date more than about a year from today, and the scan screen shows a “check the date” warning, so this error cannot be saved silently. The model's self-reported confidence was 1.0 on every bill, including the wrong one, so confidence is not a usable reliability signal and the app does not rely on it."));
-c.push(P("Limitations: ten bills is a small test; the bills are synthetic renderings rather than photographs taken with a phone; results will be lower on crumpled, rotated or handwritten bills. The Gemini free tier allows a limited number of requests per day per model, which is why caching and a fallback chain were added; when every model is out of quota the app shows a clear message and the user adds the expense manually."));
+c.push(P("The only error (bill e04) was a fuel receipt with the date printed as 18-10-26. The model read it as 2018 instead of 2026. The server's date check now flags any date more than about a year from today, and the scan screen shows a check-the-date warning, so this kind of error cannot be saved without the user noticing. The model reported a confidence of 1.0 on every bill, including the wrong one, so the confidence value is not a reliable signal and the app does not depend on it."));
+c.push(P("Limitations: ten bills is a small test, and the bills are synthetic renderings and not photos taken with a phone, so results will be lower on crumpled, rotated or handwritten bills. The Gemini free tier allows only a limited number of requests per day for each model, which is why we added caching and a fallback chain. When every model is out of quota the app shows a clear message and the user can add the expense by hand."));
 c.push(H2("9.2 Anomaly detector"));
 const at = em.anomalyDetector.byThreshold;
 c.push(...T(["Threshold |z|", "Precision", "Recall", "F1", "False-positive rate"], ["2", "2.5", "3"].map(k => [k + (k === "2.5" ? " (used)" : ""), at[k].precision, at[k].recall, at[k].f1, at[k].falsePositiveRate]), [2200, 1700, 1700, 1700, 2060]));
 const rm = em.anomalyDetector.recallByMagnitude;
 c.push(...T(["Injected anomaly size", "Number injected", "Recall at |z| ≥ 2.5"], Object.entries(rm).map(([k, v]) => [k + " normal spend", v.injected, pct(v.recallAt2_5)]), [3400, 2800, 3160]));
-c.push(P("At the chosen threshold almost every alert is real (precision 98%), but only 63% of injected anomalies are found. The detector is excellent at large spikes (95% of 3–5× expenses) and poor at mild ones (7% of 1.5–2× expenses). That is acceptable for a notification feature where false alarms annoy users, but it should be described as a “large unusual expense” detector, not a general fraud detector."));
+c.push(P("At the chosen threshold almost every alert is a real one (precision 98%), but only 63% of the injected anomalies are found. The detector is very good with large spikes (95% of expenses that were 3 to 5 times normal) and poor with mild ones (7% of those 1.5 to 2 times normal). That is acceptable for a notification feature, where false alarms annoy users, but it should be called a large unusual expense detector and not a general fraud detector."));
 c.push(H2("9.3 Spending forecaster"));
 const fo = em.forecaster.overall;
 c.push(...T(["Method", "MAPE (lower is better)", "Std. deviation"], [
@@ -265,24 +266,24 @@ c.push(...T(["Method", "MAPE (lower is better)", "Std. deviation"], [
   ["Linear regression (previous method)", fo.linearRegression.MAPE + "%", fo.linearRegression.sd],
   ["Naive (last month repeated)", fo.naiveLastMonth.MAPE + "%", fo.naiveLastMonth.sd],
 ], [4600, 2600, 2160]));
-c.push(P(`Over ${em.forecaster.totalForecasts} forecasts exponential smoothing beat linear regression on ${pct(em.forecaster.smoothingBeatsRegression)} of cases and the naive baseline on ${pct(em.forecaster.smoothingBeatsNaive)}. The advantage over the 3-month moving average is small (${pct(em.forecaster.smoothingBeatsMovingAvg)} win rate), so the honest conclusion is that smoothing and moving averages are about equally good and both are better than regression on short noisy history. These series are simulated; real accuracy must be checked on real user data.`));
+c.push(P(`Over ${em.forecaster.totalForecasts} forecasts, exponential smoothing did better than linear regression in ${pct(em.forecaster.smoothingBeatsRegression)} of cases and better than the naive baseline in ${pct(em.forecaster.smoothingBeatsNaive)}. Its advantage over the 3-month moving average is small (${pct(em.forecaster.smoothingBeatsMovingAvg)} win rate), so smoothing and moving averages are about equally good, and both beat regression on short noisy history. These series are simulated, so the real accuracy still has to be checked on real user data.`));
 c.push(H2("9.4 Module 3 — metrics analysis results"));
-c.push(P(`Decision tree. The tree classifies modules as High or Low defect risk. It reaches ${pct(res.decision_tree.accuracy_on_training_data)} accuracy on the data it was trained on, but leave-one-out cross-validation gives only ${pct(tcv.loocv_accuracy)} against a ${pct(tcv.majority_baseline)} majority-class baseline (n = ${tcv.n}). Lack of cohesion carries ${pct(res.decision_tree.feature_importances.cohesion_lcom)} of the importance and coupling ${pct(res.decision_tree.feature_importances.coupling_cbo)}. With only 12 modules the tree is an explanatory picture, not a dependable predictor.`));
+c.push(P(`Decision tree. The tree classifies modules as High or Low defect risk. It reaches ${pct(res.decision_tree.accuracy_on_training_data)} accuracy on the data it was trained on, but leave-one-out cross-validation gives only ${pct(tcv.loocv_accuracy)} against a ${pct(tcv.majority_baseline)} majority-class baseline (n = ${tcv.n}). Lack of cohesion carries ${pct(res.decision_tree.feature_importances.cohesion_lcom)} of the importance and coupling ${pct(res.decision_tree.feature_importances.coupling_cbo)}. With only 12 modules the tree helps explain the data but should not be trusted as a predictor.`));
 c.push(...IMG(path.join(CH, "decision_tree.png"), "Figure 21. Decision tree for defect-proneness", 560));
-c.push(P("Box plot and control chart. The box plot summarises the spread of each metric across modules, and the individuals–moving-range chart over the sprint series flags week 12 as outside the control limits, i.e. special-cause variation to investigate rather than normal noise."));
+c.push(P("Box plot and control chart. The box plot shows the spread of each metric across the modules. The individuals and moving range chart over the sprint series puts week 12 outside the control limits, which means it is special-cause variation that needs to be investigated and not normal noise."));
 c.push(...IMG(path.join(CH, "box_plot.png"), "Figure 22. Box plot of module metrics", 520));
 c.push(...IMG(path.join(CH, "control_chart.png"), "Figure 23. I-MR control chart", 520));
 c.push(P("Correlation. The same three pairs were tested with all three coefficients."));
 c.push(...T(["Pair", "Pearson r (p)", "Spearman ρ (p)", "Kendall τ (p)"], res.correlation.tests.map(t => [t.pair, `${t.pearson.r} (${t.pearson.p_value})`, `${t.spearman.rho} (${t.spearman.p_value})`, `${t.kendall.tau} (${t.kendall.p_value})`]), [3300, 2000, 2000, 2060]));
-c.push(P(`Complexity vs. defect density is positive under all three measures, and the Spearman (p = 0.043) and Kendall (p = 0.033) tests are significant at 5%. Coupling vs. delay is positive under all three but only Pearson reaches 5%. Test coverage vs. defect density is negative but not significant under any measure, and the t-test for low-coverage vs. high-coverage modules is also not significant (t = ${res.correlation.t_test_low_vs_high_coverage.t_stat}, p = ${res.correlation.t_test_low_vs_high_coverage.p_value}); we therefore do not claim that coverage reduces defects on this dataset.`));
+c.push(P(`Complexity against defect density is positive under all three measures, and the Spearman (p = 0.043) and Kendall (p = 0.033) tests are significant at 5%. Coupling against delay is also positive under all three, but only Pearson reaches 5%. Test coverage against defect density is negative but not significant under any of the measures, and the t-test between low-coverage and high-coverage modules is not significant either (t = ${res.correlation.t_test_low_vs_high_coverage.t_stat}, p = ${res.correlation.t_test_low_vs_high_coverage.p_value}), so we do not claim that coverage reduces defects on this dataset.`));
 c.push(...IMG(path.join(CH, "correlation_three_types.png"), "Figure 24. Pearson, Spearman and Kendall comparison", 520));
 c.push(H2("9.5 Module 4 — Bayesian network results"));
 const sc = bn.network1_project_risk.scenarios;
 c.push(...T(["Scenario (evidence)", "P(Low)", "P(Medium)", "P(High)"], sc.map(x => [x.scenario, x.posterior_P.Low, x.posterior_P.Medium, x.posterior_P.High]), [5200, 1300, 1400, 1460]));
-c.push(P("The network quantifies how risk changes: with no evidence the probability of High project risk is 28.1%; volatile requirements with an inexperienced team raise it to 55.0%; upskilling the team under the same volatile requirements brings it back to 26.5%, which is a measurable argument for the mitigation. Network 2 predicts a module as defect-prone with probability 0.75 when complexity is high and coverage is low, and 0.0 when both are low. The conditional probability tables are expert-set, not learned from data, so these results show how to reason with the model rather than prove its numbers."));
+c.push(P("The network puts numbers on how the risk changes. With no evidence the probability of High project risk is 28.1%. Volatile requirements with an inexperienced team raise it to 55.0%, and upskilling the team under the same volatile requirements brings it back to 26.5%, which gives a measurable reason for doing that mitigation. Network 2 predicts a module as defect-prone with probability 0.75 when complexity is high and coverage is low, and 0.0 when both are low. The conditional probability tables were set by us and not learned from data, so these results show how to reason with the model and do not prove its numbers."));
 c.push(H2("9.6 System performance (API latency)"));
 c.push(...T(["Endpoint", "Local p50 / p95 (ms)", "Vercel p50 / p95 (ms)"], Object.keys(lat[0][1]).map(k => [k, `${lat[0][1][k].p50} / ${lat[0][1][k].p95}`, `${lat[1][1][k].p50} / ${lat[1][1][k].p95}`]), [3600, 2880, 2880]));
-c.push(P("Vercel times include the network round trip from the test machine and a data layer that filters in memory; all endpoints respond in under one second at the median, which is adequate for this scale. If data volume grows, filters should be pushed into MongoDB queries."));
+c.push(P("The Vercel times include the network round trip from the test machine and a data layer that filters in memory. Every endpoint answers in under one second at the median, which is fine for this scale. If the data grows, the filters should be moved into the MongoDB queries."));
 c.push(H2("9.7 Working model of the application (end-to-end)"));
 c.push(B("A user signs in, sees the dashboard with health score and safe-to-spend, taps Scan Bill, and selects a photo."));
 c.push(B("The server returns the merchant, date, total and category, the effect on that category's budget (for example a category going from under its limit to over it, with the over-by amount), and whether it looks like a duplicate."));
@@ -291,18 +292,18 @@ c.push(B("The Insights page then shows the forecast, anomalies, subscriptions an
 
 /* ---------------- 11. CONCLUSION ---------------- */
 c.push(H("10. Conclusion"));
-c.push(P("Wealthline demonstrates that a personal-finance system can reduce data-entry effort with direct bill scanning while keeping the user in control: the AI reads, deterministic code checks, and the user confirms. The system updates budgets from scanned bills, warns before a limit is crossed, and offers features that give a reason to return daily. The measurements show where it is strong (exact totals on all test bills, 98% precision on anomaly alerts, forecasting better than regression) and where it is not (small anomalies are missed, confidence scores are uninformative, the decision tree does not generalise, and the free AI quota limits heavy use). Reporting those limits, and fixing the ones we could (the date check, the forecaster, caching and fallback), is part of applying software metrics to our own work."));
-c.push(P("The software-metrics modules gave the project a structure: GQ(I)M connected goals to measurements, the defect taxonomy defined what to count, the statistical tools showed which signals are robust (complexity and cohesion) and which are not (coverage on this dataset), and the Bayesian networks turned risk into numbers that support mitigation decisions."));
+c.push(P("Wealthline shows that a personal finance system can reduce the effort of data entry by scanning bills directly while still leaving the user in control: the AI reads the bill, normal code checks it, and the user confirms. The system updates budgets from scanned bills, warns before a limit is crossed, and has features that give people a reason to come back every day. The measurements show where it is strong (exact totals on all test bills, 98% precision on anomaly alerts, forecasting better than regression) and where it is weak (small anomalies are missed, the confidence score tells us nothing, the decision tree does not generalise, and the free AI quota limits heavy use). We fixed what we could (the date check, the forecaster, caching and fallback) and reported the rest, which is part of applying software metrics to our own work."));
+c.push(P("The software metrics modules gave the project some structure. GQ(I)M connected the goals to the measurements, the defect taxonomy defined what to count, the statistical tools showed which signals hold up (complexity and cohesion) and which do not (coverage on this dataset), and the Bayesian networks turned risk into numbers that can support mitigation decisions."));
 
 /* ---------------- 12. FUTURE WORK ---------------- */
 c.push(H("11. Future Work"));
 for (const t of [
-  "Evaluate bill scanning on real phone photographs (rotated, crumpled, multi-language, handwritten) and a larger set of at least 100 bills; add a local OCR fallback so scanning works without the cloud quota.",
-  "Calibrate the extraction confidence (for example by checking that the line items sum to the total) so low-quality reads can be flagged.",
+  "Test bill scanning on real phone photographs (rotated, crumpled, other languages, handwritten) with a larger set of at least 100 bills, and add a local OCR fallback so scanning still works when the cloud quota is used up.",
+  "Make the extraction confidence meaningful, for example by checking that the line items add up to the total, so poor reads can be flagged.",
   "Bank-statement and UPI SMS import, and multi-currency support.",
   "Push data filters down into MongoDB queries and add indexes for larger user volumes; add automated unit and integration tests with coverage reporting in CI.",
-  "Replace the simulated metrics datasets with real repository data (commits, issues, CI results) and re-run the correlation and Bayesian analyses; learn the Bayesian network tables from data.",
-  "Mild-anomaly detection using robust statistics (median and MAD) or seasonal models; per-merchant rules.",
+  "Replace the simulated metrics datasets with real repository data (commits, issues, CI results), repeat the correlation and Bayesian analyses, and learn the Bayesian network tables from data.",
+  "Better detection of mild anomalies using robust statistics (median and MAD) or seasonal models, and rules for each merchant.",
   "Shared household budgets, receipts attached to transactions with user consent, and push notifications.",
   "Accessibility audit and localisation (Telugu, Hindi, Tamil) of the interface.",
 ]) c.push(B(t));
@@ -331,7 +332,7 @@ const doc = new Document({
   styles: { default: { document: { run: { font: FONT, size: BODY } } } },
   sections: [{
     properties: { page: { size: { width: 11906, height: 16838 }, margin: { top: 1300, bottom: 1300, left: 1300, right: 1300 } } },
-    footers: { default: new Footer({ children: [new Paragraph({ alignment: AlignmentType.CENTER, children: [new TextRun({ children: ["Page ", PageNumber.CURRENT], font: FONT, size: 20 })] })] }) },
+    footers: { default: new Footer({ children: [new Paragraph({ alignment: AlignmentType.CENTER, children: [new TextRun({ children: ["Page ", PageNumber.CURRENT], font: FONT, size: 20, color: "000000" })] })] }) },
     children: process.env.LIMIT ? c.slice(0, +process.env.LIMIT) : c,
   }],
 });
