@@ -7,6 +7,7 @@
    preference, or an explicit data-theme stamp from the toggle).
    ============================================================ */
 :root {
+  color-scheme: light;   /* tells Edge/Chrome auto-dark not to recolour parts of the page */
   --bg: #E9E8E3;
   --surface: #FFFFFF;
   --surface-2: #F4F3EF;
@@ -33,6 +34,7 @@
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
+    color-scheme: dark;
     --bg: #0D0E12; --surface: #17181F; --surface-2: #1E2028; --surface-3: #2A2C37;
     --ink: #F2F3F7; --ink-dim: #B0B4C2; --ink-faint: #737888; --border: #262833;
     --accent: #8D98FF; --accent-ink: #0E1030; --accent-soft: #23264A;
@@ -44,6 +46,7 @@
   }
 }
 :root[data-theme="dark"] {
+  color-scheme: dark;
   --bg: #0D0E12; --surface: #17181F; --surface-2: #1E2028; --surface-3: #2A2C37;
   --ink: #F2F3F7; --ink-dim: #B0B4C2; --ink-faint: #737888; --border: #262833;
   --accent: #8D98FF; --accent-ink: #0E1030; --accent-soft: #23264A;
