@@ -1,0 +1,181 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>Wealthline - Slide by Slide Guide</title>
+<style>
+@page { size: A4; margin: 15mm; }
+*{box-sizing:border-box}
+body{font-family:"Segoe UI",Arial,sans-serif;font-size:10.8pt;line-height:1.5;color:#1b1b22;margin:0}
+h1{font-size:24pt;margin:0 0 4px}
+h2{font-size:14pt;margin:0;padding:6px 10px;background:#14151c;color:#fff;border-radius:6px;page-break-after:avoid}
+h2 span{float:right;font-weight:400;font-size:10pt;color:#c9ccff}
+.slide{page-break-inside:avoid;margin:0 0 14px}
+.row{display:grid;grid-template-columns:92px 1fr;gap:8px;margin:6px 0}
+.lab{font-size:8.5pt;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:#2d3bbd;padding-top:3px}
+.say{background:#e6f6ec;border-left:4px solid #1f9d57;padding:7px 11px;border-radius:5px}
+.sim{background:#fff4dc;border-left:4px solid #f0a81a;padding:6px 11px;border-radius:5px}
+.ask{background:#eaedff;border-left:4px solid #4C5CF0;padding:6px 11px;border-radius:5px}
+p{margin:3px 0} ul{margin:3px 0 3px 17px;padding:0}
+table{border-collapse:collapse;width:100%;font-size:9.8pt;margin:8px 0}
+th{background:#14151c;color:#fff;text-align:left;padding:5px 7px} td{border:1px solid #d9dbe8;padding:4px 7px}
+.box{background:#fde9e9;border-left:4px solid #d23f3f;padding:7px 11px;border-radius:5px;margin:8px 0}
+code{font-family:Consolas,monospace;background:#eef0ff;padding:1px 4px;border-radius:3px;font-size:9.6pt}
+.pb{page-break-before:always}
+</style></head><body>
+
+<h1>Wealthline: slide by slide guide</h1>
+<p>How to explain all 18 slides in simple words, about 12 to 13 minutes in total. Each slide has: what is on it, what to say (read it almost as it is), a simple real-life comparison, and the question you are most likely to get.</p>
+
+<div class="box"><b>Three rules for speaking</b><ul>
+<li>Do not read the slide. Look at the audience, glance at the slide, and say the sentence in your own words.</li>
+<li>One idea per slide. If you forget the rest, remember the sentence marked "Main point".</li>
+<li>If you do not know something, say "that value is in the code, I can show it" and open the file. Never guess a number.</li>
+</ul></div>
+
+<table>
+<tr><th>Slides</th><th>Topic</th><th>Time</th><th>Suggested speaker (change as you like)</th></tr>
+<tr><td>1 to 4</td><td>Title, problem, introduction, summary</td><td>3 min</td><td>Member 1</td></tr>
+<tr><td>5 to 8</td><td>Methodology and architecture</td><td>3.5 min</td><td>Member 2</td></tr>
+<tr><td>9 to 14</td><td>Proposed system, dataset, live screenshots (do the live demo here)</td><td>3 min</td><td>Member 3</td></tr>
+<tr><td>15 to 18</td><td>Results, novelty, conclusion</td><td>3 min</td><td>Member 4</td></tr>
+</table>
+
+<div class="slide">
+<h2>Slide 1: Title <span>20 seconds</span></h2>
+<div class="row"><div class="lab">On the slide</div><div>Project name, team names and numbers, live link and GitHub link.</div></div>
+<div class="row"><div class="lab">Say this</div><div class="say">"Good morning. We are [names]. Our project is Wealthline, a personal finance app where you can scan a bill with your camera, and where we also measured the quality of our own project using software metrics. It is live on the internet, the link is on the slide."</div></div>
+<div class="row"><div class="lab">Main point</div><div>An app plus the engineering measurement of that app.</div></div>
+</div>
+
+<div class="slide">
+<h2>Slide 2: Problem statement <span>40 seconds</span></h2>
+<div class="row"><div class="lab">On the slide</div><div>Three problems: manual entry kills the habit; numbers without decisions; unchecked AI. Then our two questions (product and engineering).</div></div>
+<div class="row"><div class="lab">Say this</div><div class="say">"People stop tracking money because typing every expense is boring. So records become old and budgets are forgotten. Second, most apps show charts of last month, but you want to know 'can I afford this today?'. Third, when AI is used with money, nobody checks what the AI says. So we asked two questions. Product question: how do we reduce typing and keep the budget updated automatically? Engineering question: how do we use software metrics to plan and measure the quality of building it?"</div></div>
+<div class="row"><div class="lab">Real life</div><div class="sim">It is like a gym app: everyone starts, but if logging each workout takes 5 minutes, you quit in week two.</div></div>
+<div class="row"><div class="lab">Likely question</div><div class="ask">"Why not just use an existing app?" Answer: they either need manual typing or they trust AI blindly. We scan the bill and then check the AI's answer with our own code.</div></div>
+</div>
+
+<div class="slide">
+<h2>Slide 3: Introduction and abstract <span>45 seconds</span></h2>
+<div class="row"><div class="lab">On the slide</div><div>What Wealthline is, the scan flow, everyday tools, anomaly detection and forecast, and the Python metrics program.</div></div>
+<div class="row"><div class="lab">Say this</div><div class="say">"Wealthline is a web app built with React, Node and MongoDB, hosted on Vercel. You photograph a bill. The AI reads the shop name, date, total and category. Then our server tells you what saving it will do to your budget and whether it looks like a duplicate. You confirm, and only then it is saved. On top of that we have daily tools like safe-to-spend, subscription finder and a health score, plus two methods of our own: anomaly detection with a z-score and a forecast with exponential smoothing. The same project also has a Python part, where we applied GQ(I)M, a decision tree, a control chart, correlations and Bayesian networks, and we show that inside the app."</div></div>
+<div class="row"><div class="lab">Real life</div><div class="sim">The AI is a fast intern who reads the bill. Our code is the manager who checks it. You are the boss who signs.</div></div>
+<div class="row"><div class="lab">Likely question</div><div class="ask">"Which AI do you use?" Answer: Google Gemini, only through its API, with a fallback chain of four models.</div></div>
+</div>
+
+<div class="slide">
+<h2>Slide 4: Summary <span>45 seconds</span></h2>
+<div class="row"><div class="lab">On the slide</div><div>A table of what was delivered and one line of headline numbers.</div></div>
+<div class="row"><div class="lab">Say this</div><div class="say">"This table is the whole project in one view: bill scanning, budget updates, daily-use features, AI methods, the metrics program and the new interface. The orange line at the bottom is the proof: bill totals were exactly right on all 10 test bills, the anomaly alerts were 98% precise, and our forecast error was 13.8% compared with 16% for linear regression, so we replaced regression."</div></div>
+<div class="row"><div class="lab">Main point</div><div>We did not only build it, we measured it.</div></div>
+<div class="row"><div class="lab">Likely question</div><div class="ask">"What is MAPE?" Answer: average percentage error between the forecast and the real value. Lower is better.</div></div>
+</div>
+
+<div class="slide pb">
+<h2>Slide 5: Methodology, planning and classification <span>1 min</span></h2>
+<div class="row"><div class="lab">On the slide</div><div>Three cards (GQ(I)M with ISO 25010, defect taxonomy, statistics) and a table of what we classify and how.</div></div>
+<div class="row"><div class="lab">Say this</div><div class="say">"We planned using GQ(I)M: start with a Goal, ask Questions, decide the Indicator, and only then pick the Metric, so we do not collect useless numbers. ISO 25010 gives the quality words: suitability, efficiency, reliability, maintainability, security. We also separate four terms: error is the human mistake, fault is the wrong code, failure is the wrong behaviour the user sees, bug is the report. The table shows our classifications. For example, an expense is called unusual when its z-score is 2.5 or more, which means it is 2.5 standard deviations away from that category's average. A module is high or low risk using a decision tree of depth 3."</div></div>
+<div class="row"><div class="lab">Real life</div><div class="sim">GQ(I)M is like planning a trip: first decide where you want to go (goal), then ask what you need to know (questions), then only buy the tickets you need (metrics).</div></div>
+<div class="row"><div class="lab">Likely question</div><div class="ask">"Why 2.5?" Answer: we tested 2, 2.5 and 3 on 300 simulated users. At 2.5 precision is 98% with 63% recall. At 2 false alarms triple, at 3 we miss almost half.</div></div>
+</div>
+
+<div class="slide">
+<h2>Slide 6: Methodology, scanning and forecasting <span>1 min</span></h2>
+<div class="row"><div class="lab">On the slide</div><div>The six steps: cache, Gemini with fallback, server checks, budget impact, confirm, forecast formula, Bayesian risk model.</div></div>
+<div class="row"><div class="lab">Say this</div><div class="say">"When a photo arrives, the server first checks the cache, so the same bill never costs a second AI call. If not found, Gemini reads it and returns structured fields. Then our code checks four things: the total is positive, the date is believable, the category exists, and it is not a duplicate. Then it calculates the budget impact: how much was spent before, after, and by how much the limit is crossed. Nothing is saved until you confirm, and the photo is never stored. For forecasting we use exponential smoothing: next value equals 40% of the latest month plus 60% of what we had before. It beat linear regression in a test of 2,400 forecasts. The last point is the Bayesian risk model, which gives the probability that the project is high risk."</div></div>
+<div class="row"><div class="lab">Real life</div><div class="sim">Smoothing is: 40% believe last month's news, 60% believe the old habit. One crazy month will not fully change the prediction.</div></div>
+<div class="row"><div class="lab">Likely question</div><div class="ask">"What if the AI is down or the quota is finished?" Answer: it tries the next model, results are cached, and if all fail the user sees a clear message and adds the expense manually. The anomaly, forecast and health score do not use AI at all.</div></div>
+</div>
+
+<div class="slide">
+<h2>Slide 7: Architecture diagram <span>45 seconds</span></h2>
+<div class="row"><div class="lab">On the slide</div><div>The block diagram and a short note on the right.</div></div>
+<div class="row"><div class="lab">Say this</div><div class="say">"Read the diagram from left to right. The user's browser loads our React app from Vercel. Every request to /api goes to one Express function that first checks the login token. Then it either does a normal database operation or goes to the AI part: our own z-score and smoothing code, or Gemini, always through the cache. Everything is stored in MongoDB Atlas. The Python metrics work runs offline and its dashboard is placed inside the app as the Metrics tab."</div></div>
+<div class="row"><div class="lab">Real life</div><div class="sim">A restaurant: browser is the customer, Express is the waiter who checks your table number (token), MongoDB is the kitchen store, Gemini is the guest chef called only when needed.</div></div>
+<div class="row"><div class="lab">Likely question</div><div class="ask">"How is user data kept separate?" Answer: the token gives the user id and every database query filters by that id.</div></div>
+</div>
+
+<div class="slide pb">
+<h2>Slide 8: Bill scanning pipeline <span>40 seconds</span></h2>
+<div class="row"><div class="lab">On the slide</div><div>The flow diagram from photo to saved expense.</div></div>
+<div class="row"><div class="lab">Say this</div><div class="say">"This is the same scanning story as a picture. Photo, cache check, Gemini, our checks, budget impact, your confirmation, then save. The important idea is the green path: AI reads, code checks, user confirms. If any check fails, for example the date looks like the year 1926, the user sees a warning instead of a silent mistake."</div></div>
+<div class="row"><div class="lab">Real life</div><div class="sim">Like a bank cheque: the clerk reads it (AI), the system verifies the signature and balance (our code), and you still sign the slip (confirm).</div></div>
+<div class="row"><div class="lab">Likely question</div><div class="ask">"Is the photo stored?" Answer: no, it is processed in memory and thrown away. Only the fields you confirm are saved.</div></div>
+</div>
+
+<div class="slide">
+<h2>Slide 9: Proposed system <span>40 seconds</span></h2>
+<div class="row"><div class="lab">On the slide</div><div>Six feature cards: scan, safe to spend, subscriptions, goal ETA and what-if, health score, Ask AI.</div></div>
+<div class="row"><div class="lab">Say this</div><div class="say">"These are the reasons a person opens the app every day. Safe to spend gives one number: what you can spend today. It is the remaining budget divided by the days left. The subscription detector finds charges that repeat every month, like a forgotten OTT plan. Goal ETA tells you the month you will reach your goal at your current saving speed, and the what-if slider shows what you save if you cut a category by some percent. The health score is out of 100 and made from four parts: 40 savings rate, 30 budget adherence, 15 for no unusual spending and 15 for goal progress. Ask AI answers questions only from your own data."</div></div>
+<div class="row"><div class="lab">Real life</div><div class="sim">Hostel mess logic: money left divided by days left gives your daily limit. The health score is a report card with four subjects of different marks.</div></div>
+<div class="row"><div class="lab">Likely question</div><div class="ask">"Why these weights for the health score?" Answer: saving is the main outcome so it gets 40, budget discipline creates saving so 30, and the other two are supporting signals. They are a transparent design choice, shown in the app, not learned.</div></div>
+</div>
+
+<div class="slide">
+<h2>Slide 10: Dataset and database <span>40 seconds</span></h2>
+<div class="row"><div class="lab">On the slide</div><div>A table of the data sources.</div></div>
+<div class="row"><div class="lab">Say this</div><div class="say">"We have three kinds of data. First, the live database in MongoDB with users, accounts, transactions, budgets, goals and so on. Second, two metrics files for Modules 3 and 4: 12 modules with their complexity, coupling, cohesion, coverage and defects, and 16 weeks of sprint data. Third, our evaluation data: 10 labelled bills plus one non-bill, and simulations with a fixed seed so anyone can repeat our results. We want to be open that the metrics and bill images are synthetic, made for this course, so the methods are real but the numbers are illustrative."</div></div>
+<div class="row"><div class="lab">Main point</div><div>Say "synthetic" yourself. Faculty respect it much more than if they discover it.</div></div>
+<div class="row"><div class="lab">Likely question</div><div class="ask">"Why not real data?" Answer: a student project has no production history, so we generated data with a fixed seed. Using real repository data is in future work.</div></div>
+</div>
+
+<div class="slide pb">
+<h2>Slides 11 to 14: Screenshots of the working model <span>2 min, or do a live demo</span></h2>
+<div class="row"><div class="lab">On the slides</div><div>11 dashboard and scan result; 12 insights, Ask AI, mobile; 13 budgets, goals, subscriptions, dark theme; 14 settings, collapsible sidebar, accounts.</div></div>
+<div class="row"><div class="lab">Say this</div><div class="say">
+<p><b>Slide 11:</b> "On the left is the dashboard: four tiles for income, spending, savings rate and safe to spend, the net worth card, the health score ring and the AI assistant on the right. On the right is a scanned supermarket bill. See the red line: saving this bill pushes Groceries 9,445 rupees over its limit. The user sees this before saving."</p>
+<p><b>Slide 12:</b> "Insights shows the next-month forecast for each category and recommendations. Ask AI answers in plain English from the user's data. The small screen is the mobile layout."</p>
+<p><b>Slide 13:</b> "Budgets with progress bars, goals with the estimated finishing month, detected subscriptions, and the dark theme."</p>
+<p><b>Slide 14:</b> "Settings: change profile and password, download or clear your data, delete the account. The sidebar can collapse to icons and the page moves with it, so it never covers the content. Accounts shows balances."</p></div></div>
+<div class="row"><div class="lab">Best idea</div><div>On slide 11, open the live site (demo@gmail.com / 12345678) and scan the Supermarket sample. Practice it once before, because the first AI call can take up to 25 seconds, and later calls are cached.</div></div>
+<div class="row"><div class="lab">Real life</div><div class="sim">Dark mode and mobile layout: "it works on the phone you use at midnight when you are regretting the biryani order."</div></div>
+<div class="row"><div class="lab">Likely question</div><div class="ask">"Does the camera work?" Answer: on phones it opens the phone camera, on laptops a live preview with a Capture button, and if there is no camera or permission it offers upload.</div></div>
+</div>
+
+<div class="slide pb">
+<h2>Slide 15: Measured results <span>1 min</span></h2>
+<div class="row"><div class="lab">On the slide</div><div>Four big numbers and a table with honest notes.</div></div>
+<div class="row"><div class="lab">Say this</div><div class="say">"Four results. One: 100% exact bill totals on 10 bills. Two: the non-bill image was rejected. Three: anomaly precision 0.98, which means when we raise an alert it is almost always right. Four: forecast error 13.76% against 15.95% for regression. Now the honest part in the table. One bill had its date misread, '18-10-26' became 2018, and we fixed it by adding a date check. The anomaly detector catches 95% of big spikes but only 7% of mild ones, so it is a big-spike detector, not a fraud detector. The decision tree is 91.7% on its training data, but only 58.3% when tested properly with leave-one-out, against a 50% coin-flip, so it explains but does not predict. Our pages answer in under one second on Vercel."</div></div>
+<div class="row"><div class="lab">Main point</div><div>We report weaknesses ourselves. That is what a metrics course asks for.</div></div>
+<div class="row"><div class="lab">Real life</div><div class="sim">The tree scoring 91.7% on its own data is like a student who memorised last year's paper: great on that paper, average on a new one.</div></div>
+<div class="row"><div class="lab">Likely question</div><div class="ask">"What are precision and recall?" Answer: precision is how many of our alerts were truly unusual; recall is how many of all truly unusual cases we caught.</div></div>
+</div>
+
+<div class="slide">
+<h2>Slide 16: Module 3 and 4 analysis <span>45 seconds</span></h2>
+<div class="row"><div class="lab">On the slide</div><div>The control chart, the decision tree, and one line of findings.</div></div>
+<div class="row"><div class="lab">Say this</div><div class="say">"The control chart tracks the weekly transaction failure rate. The centre line is 3.5%, the upper limit is 6.6%, and week 12 at 7.5% is outside it. That means something special happened, in our simulated data a bad release, not normal noise. The tree shows lack of cohesion is the strongest signal for risky modules. Complexity and defect density are positively correlated under all three methods, Pearson, Spearman and Kendall, and when all three agree we trust the result more. The Bayesian network gives numbers to risk: 28% chance of high project risk normally, 55% in the worst case with changing requirements and a new team, and 27% if we train the team."</div></div>
+<div class="row"><div class="lab">Real life</div><div class="sim">Control chart: some days the hostel dal is thin, some days thick, that is normal. The day the cook changes and everything is bad, that is the point outside the line.</div></div>
+<div class="row"><div class="lab">Likely question</div><div class="ask">"Where does 2.66 come from?" Answer: 3 divided by 1.128, a standard constant that converts the average moving range into 3-sigma limits.</div></div>
+</div>
+
+<div class="slide">
+<h2>Slide 17: Novelty and justification <span>45 seconds</span></h2>
+<div class="row"><div class="lab">On the slide</div><div>Six cards.</div></div>
+<div class="row"><div class="lab">Say this</div><div class="say">"Six reasons it is different. One, the AI only reads; our code checks and the user confirms. Two, our choices are based on evidence: we replaced the forecaster after a test, and chose the threshold from precision and recall. Three, product and engineering are together: the metrics dashboard that planned the project is inside the product. Four, it is reliable on a free AI tier because of the fallback models, retry and cache. Five, it gives a reason to return daily. Six, it respects privacy: photos are not stored and the assistant sees only your own summary."</div></div>
+<div class="row"><div class="lab">Likely question</div><div class="ask">"What is the single new thing?" Answer: showing the effect on your budget before you save a scanned bill, with AI proposing and code verifying.</div></div>
+</div>
+
+<div class="slide">
+<h2>Slide 18: Conclusion and future work <span>40 seconds</span></h2>
+<div class="row"><div class="lab">On the slide</div><div>Conclusion on the left, future work on the right.</div></div>
+<div class="row"><div class="lab">Say this</div><div class="say">"To conclude: direct bill scanning reduces typing while the user stays in control, budgets update and warn before a limit is crossed, and we measured where it is strong and where it is weak. The weak points are mild anomalies, the confidence score which was always 1.0, the small decision tree, and the free AI quota. In future we will test on 100 or more real phone photos, add an offline OCR fallback, import bank and UPI messages, add automated tests, use real repository data for the metrics, and add regional languages. Thank you. We are happy to take questions, and we can show anything live."</div></div>
+<div class="row"><div class="lab">Main point</div><div>End confidently, then stop talking. Do not add extra sentences.</div></div>
+</div>
+
+<div class="box pb" style="page-break-before:always"><b>Five numbers to remember if you forget everything else</b>
+<ul>
+<li><b>2.5</b>: anomaly threshold (98% precision, 63% recall)</li>
+<li><b>0.4</b>: smoothing weight (13.76% error vs 15.95% for regression)</li>
+<li><b>40, 30, 15, 15</b>: health score weights</li>
+<li><b>100%</b> exact bill totals on 10 bills, <b>90%</b> all four fields correct</li>
+<li><b>91.7% vs 58.3%</b>: tree on training data vs leave-one-out</li>
+</ul></div>
+
+<h2 style="margin-top:14px">If something goes wrong in the demo</h2>
+<table>
+<tr><th>Problem</th><th>What to do</th></tr>
+<tr><td>Scan is slow</td><td>Say "the first call asks Gemini and takes a few seconds; the second time it comes from our cache." Wait calmly, or use the screenshot on slide 11.</td></tr>
+<tr><td>Message "today's free AI quota is used up"</td><td>Say "this is the quota safety message we designed; the user can add the expense manually," then show Add transaction.</td></tr>
+<tr><td>Internet is down</td><td>Use the screenshot slides 11 to 14 and the PDF viva guide; everything is already shown there.</td></tr>
+<tr><td>You forget a number</td><td>Say "it is in the code at lib/ai.js line 29" for the anomaly threshold, then open it. Part 4 of the viva guide lists every constant with its file and line.</td></tr>
+</table>
+</body></html>
