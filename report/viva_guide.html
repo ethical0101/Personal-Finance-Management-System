@@ -1,0 +1,594 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<title>Wealthline - Viva Guide</title>
+<style>
+@page { size: A4; margin: 16mm 15mm 16mm 15mm; }
+*{box-sizing:border-box}
+body{font-family:"Segoe UI",Arial,sans-serif;font-size:10.6pt;line-height:1.5;color:#1b1b22;margin:0}
+h1{font-size:26pt;margin:0 0 4px;letter-spacing:-.5px}
+h2{font-size:17pt;margin:0 0 8px;padding-bottom:5px;border-bottom:3px solid #4C5CF0;page-break-after:avoid}
+h3{font-size:12.5pt;margin:16px 0 5px;color:#2d3bbd;page-break-after:avoid}
+h4{font-size:10.8pt;margin:10px 0 3px;page-break-after:avoid}
+p{margin:5px 0 7px}
+.part{page-break-before:always}
+.cover{height:255mm;display:flex;flex-direction:column;justify-content:center}
+.cover .tag{color:#4C5CF0;font-weight:700;letter-spacing:2px;font-size:10pt}
+.cover p.sub{font-size:13pt;color:#555;max-width:150mm}
+code,pre{font-family:Consolas,"Courier New",monospace}
+code{background:#eef0ff;padding:1px 4px;border-radius:3px;font-size:9.6pt}
+pre{background:#14151c;color:#e8e9f3;padding:9px 11px;border-radius:7px;font-size:8.6pt;line-height:1.42;white-space:pre-wrap;page-break-inside:avoid;margin:7px 0}
+pre .c{color:#8b90b5} pre .k{color:#ffcf6b} pre .n{color:#7fe3b0}
+table{border-collapse:collapse;width:100%;margin:7px 0 10px;font-size:9.6pt;page-break-inside:auto}
+tr{page-break-inside:avoid}
+th{background:#14151c;color:#fff;text-align:left;padding:5px 7px;font-weight:600}
+td{border:1px solid #d9dbe8;padding:4px 7px;vertical-align:top}
+tr:nth-child(even) td{background:#f6f7fc}
+.box{border-radius:8px;padding:8px 12px;margin:9px 0;page-break-inside:avoid}
+.fun{background:#fff4dc;border-left:5px solid #f0a81a}
+.say{background:#e6f6ec;border-left:5px solid #1f9d57}
+.warn{background:#fde9e9;border-left:5px solid #d23f3f}
+.key{background:#eaedff;border-left:5px solid #4C5CF0}
+.box b.t{display:block;font-size:9pt;letter-spacing:1px;text-transform:uppercase;margin-bottom:2px}
+.fun b.t{color:#a86f00}.say b.t{color:#16743f}.warn b.t{color:#a82a2a}.key b.t{color:#2d3bbd}
+ul,ol{margin:4px 0 8px 18px;padding:0} li{margin:2px 0}
+.small{font-size:9pt;color:#666}
+.num{font-family:Consolas,monospace;font-weight:700;color:#2d3bbd}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.toc td{border:none;padding:2px 6px;background:none!important}
+.q{font-weight:700;margin-top:9px;page-break-after:avoid}
+</style></head><body>
+
+<!-- ============ COVER ============ -->
+<div class="cover">
+  <div class="tag">VIVA PREPARATION GUIDE</div>
+  <h1>Wealthline</h1>
+  <p class="sub">Software Metrics-Driven, AI-Powered Personal Finance Management System</p>
+  <p class="sub" style="font-size:11pt">How every calculation works, which numbers (weights and thresholds) sit in the code and why, what every page and button does, and the exact words to use in front of faculty. With real-life (and slightly funny) examples.</p>
+  <p class="small" style="margin-top:30px">Team: K Druthendra 23MIS0213 &middot; G Sai Santhosh 23MIS0227 &middot; P Siva Kiran 23MIS0674 &middot; Shaik Nihal 23MIS0491<br>
+  Every number in this guide was read from the real source files (file and line given). Demo login: demo@gmail.com / 12345678</p>
+</div>
+
+<div class="part" style="page-break-before:auto">
+<h2>How to use this guide</h2>
+<table class="toc">
+<tr><td><b>Part 1</b></td><td>The 60-second pitch and a 10-minute demo script (what to click, what to say)</td></tr>
+<tr><td><b>Part 2</b></td><td><b>THE CODE: every calculation, weight and threshold</b> (anomaly detection, forecast, health score, safe-to-spend, auto-budget, subscriptions, goal ETA, what-if, bill scanning, Gemini settings, security)</td></tr>
+<tr><td><b>Part 3</b></td><td>The software-metrics side: GQ(I)M, decision tree, I-MR control chart, correlation, Bayesian network</td></tr>
+<tr><td><b>Part 4</b></td><td>Master table of ALL constants in one page (memorise this one)</td></tr>
+<tr><td><b>Part 5</b></td><td>Every page, every button, with real-life funny examples</td></tr>
+<tr><td><b>Part 6</b></td><td>Questions the faculty may ask, with model answers</td></tr>
+<tr><td><b>Part 7</b></td><td>Honest limitations (say them yourself before they ask: it earns marks)</td></tr>
+</table>
+<div class="box key"><b class="t">Rule for the viva</b>Never say "the AI decides". Say: "A simple, explainable formula decides, and AI only writes the English around it." Faculty love formulas they can check. Almost everything in Wealthline is a transparent formula; only bill reading, advice text and Ask AI use Gemini.</div>
+<div class="box key"><b class="t">What is "AI" and what is "formula" in our app</b>
+<table>
+<tr><th>Feature</th><th>Who does it</th></tr>
+<tr><td>Anomaly detection</td><td>Our own z-score formula (no AI service)</td></tr>
+<tr><td>Next-month forecast</td><td>Our own exponential smoothing (no AI service)</td></tr>
+<tr><td>Health score, safe-to-spend, auto-budget, subscriptions, goal ETA, what-if</td><td>Our own formulas</td></tr>
+<tr><td>Reading a bill photo</td><td>Google Gemini (vision), then our code validates and checks the budget</td></tr>
+<tr><td>Written recommendations and Ask AI</td><td>Google Gemini, but only from a summary of the user's own numbers</td></tr>
+</table></div>
+</div>
+
+<!-- ============ PART 1 ============ -->
+<div class="part">
+<h2>Part 1: Pitch and demo script</h2>
+<h3>The 60-second pitch (say it almost word for word)</h3>
+<div class="box say"><b class="t">Say this</b>
+"Most finance apps only record what you spent; the user has to do all the thinking. Wealthline does the thinking. You photograph a bill; Gemini reads it; <i>our</i> code checks the date, detects a duplicate and tells you what saving it will do to that category's budget <i>before</i> you save. Our own formulas flag unusual spends using a z-score with a threshold of 2.5, predict next month's spend with exponential smoothing at alpha 0.4, and give a 0 to 100 health score built from four visible weights: 40, 30, 15 and 15. Because this is a Software Metrics course, we also measured our own project: GQ(I)M plan, decision tree for defect-prone modules, I-MR control chart, three correlation methods and a Bayesian network. Everything is deployed live and tested by 48 automated checks."</div>
+
+<h3>The 10-minute demo (follow this order)</h3>
+<table>
+<tr><th>Min</th><th>Click</th><th>Say</th></tr>
+<tr><td>0:00</td><td>Login as demo</td><td>"Demo account is seeded with 94 transactions over 6 months."</td></tr>
+<tr><td>0:30</td><td>Dashboard</td><td>Point at 4 coloured tiles, net worth, safe-to-spend (&#8377;603/day), health score 78 and its four bars. "Every point is explainable, here is the formula." (Part 2.3)</td></tr>
+<tr><td>2:00</td><td>Scan a bill &rarr; Supermarket sample</td><td>Wait for result. Point at the red line "puts Groceries over its limit". Explain the 3 checks (date, duplicate, budget impact).</td></tr>
+<tr><td>4:00</td><td>Transactions &rarr; filter, search, Export CSV</td><td>"Anomalies get a flag: z-score 2.5."</td></tr>
+<tr><td>5:00</td><td>Budgets &rarr; Auto-budget</td><td>"Average of last 3 months plus 10%, rounded up to the next 100."</td></tr>
+<tr><td>6:00</td><td>Goals, Bills &amp; Subscriptions</td><td>Goal ETA formula; subscription detector (3+ months, within 10% of median).</td></tr>
+<tr><td>7:00</td><td>AI Insights &rarr; What-if slider</td><td>Forecast (alpha 0.4) and the savings simulator.</td></tr>
+<tr><td>8:00</td><td>Ask AI: "Where did most of my money go?"</td><td>"Answers only from a snapshot of the user's own data."</td></tr>
+<tr><td>9:00</td><td>Metrics Deck, Settings</td><td>Control chart week 12 breach; export / clear / delete data.</td></tr>
+</table>
+<div class="box warn"><b class="t">Demo safety</b>Gemini's free quota is shared and a fresh call can take 6 to 25 seconds (it tries up to 4 models). Scan each of the three sample bills once before the viva: results are cached for 30 days, so they then return in about 0.2 s. Ask AI answers are cached for 24 hours per identical question.</div>
+</div>
+
+<!-- ============ PART 2 ============ -->
+<div class="part">
+<h2>Part 2: THE CODE &mdash; weights, thresholds and calculations</h2>
+<p>All server logic is in <code>app/server</code>. Pure-formula code is in <code>lib/ai.js</code> and <code>routes/dashboard.js</code>; Gemini code in <code>lib/gemini.js</code>.</p>
+
+<h3>2.1 Anomaly detection (the question your madam asked)</h3>
+<p><b>File:</b> <code>app/server/lib/ai.js</code> lines 15 to 37. <b>Called from:</b> <code>routes/transactions.js</code> line 41, every time an <i>expense</i> is saved (manual entry or confirmed scan).</p>
+<pre><span class="c">// lib/ai.js</span>
+function mean(xs) { return xs.reduce((a, b) =&gt; a + b, 0) / (xs.length || 1); }
+function std(xs)  { const m = mean(xs); return Math.sqrt(mean(xs.map(x =&gt; (x - m) ** 2))); }
+
+function detectAnomaly(newAmount, historyAmounts) {
+  <span class="k">if (historyAmounts.length &lt; 4)</span>                      <span class="c">// MIN HISTORY = 4</span>
+    return { isAnomaly: false, zScore: 0, reason: "Not enough category history yet to judge." };
+  const m = mean(historyAmounts);
+  const s = std(historyAmounts) <span class="k">|| 1</span>;                   <span class="c">// guard: avoid divide-by-zero</span>
+  const z = (newAmount - m) / s;
+  const isAnomaly = <span class="k">Math.abs(z) &gt;= 2.5</span>;               <span class="c">// THRESHOLD = 2.5</span>
+  ...
+}</pre>
+<h4>The three numbers that matter</h4>
+<table>
+<tr><th>Constant</th><th>Value</th><th>Meaning</th><th>Why this value</th></tr>
+<tr><td>Minimum history</td><td class="num">4</td><td>Fewer than 4 past expenses in that category &rarr; we refuse to judge</td><td>With 1 to 3 points the "average" and "spread" are meaningless (cold-start protection)</td></tr>
+<tr><td>Threshold</td><td class="num">|z| &ge; 2.5</td><td>Flag when the new amount is 2.5 standard deviations away from the category average (either direction)</td><td>Chosen by simulation (table below): best balance of few false alarms and decent catching</td></tr>
+<tr><td>Spread guard</td><td class="num">|| 1</td><td>If all past amounts are identical, std = 0; we use 1 instead of crashing</td><td>Division safety</td></tr>
+</table>
+<h4>The formula in plain words</h4>
+<p><b>z = (new amount &minus; average of that category's past expenses) &divide; standard deviation of those past expenses.</b> Standard deviation is "the normal wobble". z tells you <i>how many normal wobbles</i> away from normal this purchase is. Here std is the <i>population</i> standard deviation (divide by n, as in line 17).</p>
+<div class="box fun"><b class="t">Funny example</b>Your chai usually costs &#8377;20 &plusmn; &#8377;5 (the "wobble"). One day the bill is &#8377;2,000. Distance from normal = 1,980, and 1,980 &divide; 5 is a z of about 396. Either you bought chai at a five-star hotel, or the chaiwala's QR code is now connected to someone else's phone. Wealthline raises its eyebrow (and a notification) exactly like your mother does when she sees the Swiggy bill.</div>
+<h4>Worked example with real arithmetic</h4>
+<p>Groceries history: 900, 1500, 1100, 1800, 1300, 1600. Mean = 1,366.67. Population std = 303.68. Flag line = mean + 2.5 &times; std = 1,366.67 + 759.2 = <b>&#8377;2,125.87</b>.</p>
+<table>
+<tr><th>New grocery bill</th><th>z = (x &minus; 1366.67) &divide; 303.68</th><th>Flagged?</th></tr>
+<tr><td>&#8377;2,000</td><td class="num">2.09</td><td>No (below 2.5)</td></tr>
+<tr><td>&#8377;2,600</td><td class="num">4.06</td><td><b>Yes</b></td></tr>
+<tr><td>&#8377;3,500</td><td class="num">7.02</td><td><b>Yes</b></td></tr>
+</table>
+<p><b>What happens when flagged:</b> the transaction is saved with <code>flaggedAnomaly: true</code> and its <code>anomalyZScore</code> (transactions.js line 46); a notification is inserted ("Unusual Groceries transaction of &#8377;... &mdash; This transaction is 7.0x the typical spread for this category (avg &#8377;1367)"); the Insights page lists the 5 latest flagged items as "critical" recommendations; the Health Score loses 5 points per flagged item this month; and the Ask AI snapshot includes the last 5 flagged items.</p>
+<p><b>The demo case:</b> in the demo account a &#8377;9,800 grocery bill shows z = 76.42, because the account's normal groceries are very steady, so the "wobble" is tiny.</p>
+
+<h4>Why 2.5? (evidence, not opinion). Script: <code>app/server/scripts/evaluate_models.js</code>, seed 20261026</h4>
+<p>We simulated 300 users &times; 200 transactions, injecting 10% anomalies, and tried three thresholds (results stored in <code>analysis/eval_models.json</code>):</p>
+<table>
+<tr><th>Threshold</th><th>Precision</th><th>Recall</th><th>F1</th><th>False-alarm rate</th></tr>
+<tr><td>2.0</td><td>96.1%</td><td>72.4%</td><td>0.826</td><td>0.34%</td></tr>
+<tr><td><b>2.5 (chosen)</b></td><td><b>98.4%</b></td><td><b>63.1%</b></td><td><b>0.769</b></td><td><b>0.11%</b></td></tr>
+<tr><td>3.0</td><td>99.4%</td><td>53.5%</td><td>0.696</td><td>0.04%</td></tr>
+</table>
+<p><b>Precision</b> = of the things we flagged, how many were truly unusual. <b>Recall</b> = of all truly unusual things, how many we caught. In a finance app a false alarm annoys users and makes them ignore alerts, so we favour precision (98.4%) over catching everything. Recall by size of the spike at 2.5: spikes of 1.5 to 2 times normal are caught only 6.7%; 2 to 3 times 28.1%; <b>3 to 5 times 94.9%</b>. So "we catch big, obviously unusual spends reliably; subtle ones we deliberately leave alone."</p>
+<div class="box say"><b class="t">Say this if asked "why not 2 or 3?"</b>"At 2 we catch more but false alarms triple (0.34% vs 0.11%). At 3 we are almost never wrong but we miss nearly half. 2.5 is the knee of that trade-off, and we measured it, we did not guess."</div>
+<div class="box warn"><b class="t">Known weakness (admit it)</b>A huge past outlier inflates the standard deviation and can hide later ones (called masking). A robust version would use the median and MAD. Also, anomaly is per category and amount only: it does not look at time of day, merchant or location.</div>
+
+<h3>2.2 Next-month forecast: exponential smoothing</h3>
+<p><b>File:</b> <code>lib/ai.js</code> lines 60 to 76. Used by the Insights page, the "forecast over budget" recommendation, the what-if simulator and the Ask AI snapshot.</p>
+<pre>const SMOOTHING_ALPHA = <span class="k">0.4</span>;
+function forecastNextMonth(transactions) {
+  const series = monthlyTotals(transactions);            <span class="c">// total spend per month, oldest first</span>
+  if (series.length === 0) return { forecast: 0, method: "none", confidence: "low" };
+  <span class="k">if (series.length &lt; 3)</span> return { forecast: mean(series), method: "average", confidence: "low" };
+  let level = series[0].total;
+  for (const { total } of series.slice(1))
+    <span class="k">level = 0.4 * total + 0.6 * level;</span>                   <span class="c">// the whole algorithm</span>
+  return { forecast: Math.max(0, level), method: "exp-smoothing",
+           confidence: <span class="k">series.length &gt;= 6 ? "medium" : "low"</span> };
+}</pre>
+<table>
+<tr><th>Constant</th><th>Value</th><th>Meaning</th></tr>
+<tr><td>alpha</td><td class="num">0.4</td><td>How much weight the <b>latest month</b> gets (40%); the history so far gets 60%</td></tr>
+<tr><td>Minimum months</td><td class="num">3</td><td>Under 3 months we just use the plain average and mark confidence "low"</td></tr>
+<tr><td>Medium-confidence cut</td><td class="num">6 months</td><td>6 or more months of data &rarr; "medium"; never "high" because it is only a statistical smoother</td></tr>
+<tr><td>Floor</td><td class="num">0</td><td>A forecast can never be negative</td></tr>
+</table>
+<p><b>Worked example</b> (monthly grocery totals 100, 120, 110, 130, 125, 140; in &#8377; hundreds): start level = 100; then 0.4&times;120+0.6&times;100 = 108.0; then 0.4&times;110+0.6&times;108 = 108.8; then 0.4&times;130+0.6&times;108.8 = 117.28; then 0.4&times;125+0.6&times;117.28 = 120.37; then 0.4&times;140+0.6&times;120.37 = <b>128.22</b>. So next month is forecast at about 128 (the latest 140 is pulled back toward the trend, which is what smoothing is for).</p>
+<div class="box fun"><b class="t">Funny example</b>alpha = 0.4 means: "40% believe last month's gossip, 60% believe the old wisdom." If you set alpha = 1 you believe only last month, like a friend who thinks one good IPL match makes a team world champions. If alpha = 0 you never update, like an uncle who still thinks petrol is &#8377;60.</div>
+<h4>Why smoothing and not regression? (we tested)</h4>
+<p>Original code used a linear-regression line. We measured MAPE (average percentage error) on 300 synthetic series &times; 8 forecasts = 2,400 forecasts:</p>
+<table>
+<tr><th>Method</th><th>MAPE</th></tr>
+<tr><td><b>Exponential smoothing (alpha 0.4)</b></td><td><b>13.76%</b></td></tr>
+<tr><td>3-month moving average</td><td>14.05%</td></tr>
+<tr><td>Linear regression</td><td>15.95%</td></tr>
+<tr><td>Naive (copy last month)</td><td>17.04%</td></tr>
+</table>
+<p>Smoothing beat regression in 60% of series and naive in 63.4%. It also won on rising, flat and falling trends. So we replaced regression with smoothing. <b>MAPE</b> = mean of |actual &minus; forecast| &divide; actual, as a percent.</p>
+<div class="box warn"><b class="t">Honest note</b>Alpha 0.4 was a reasonable fixed choice, not tuned per user. The 3-month moving average is almost as good (14.05%); smoothing wins mainly on robustness and simplicity. Evaluation data is synthetic, so say "on simulated series".</div>
+
+<h3>2.3 Financial Health Score (weights 40 / 30 / 15 / 15)</h3>
+<p><b>File:</b> <code>routes/dashboard.js</code> lines 18 to 46. The most "weights-heavy" calculation: your madam will like this one.</p>
+<pre>savings = clamp(savingsRate / 20, 0, 1) * <span class="k">40</span>;                  <span class="c">// full marks at 20%+ savings rate</span>
+adherence = (budgets within limit / total budgets) * <span class="k">30</span>;   <span class="c">// 1.0 if no budgets are set</span>
+calm = max(0, <span class="k">15 - 5 * anomaliesThisMonth</span>);                   <span class="c">// lose 5 per flagged anomaly</span>
+goalPts = (average of min(1, saved/target) over goals) * <span class="k">15</span>;  <span class="c">// 0 if there are no goals</span>
+score = round(savings + adherence + calm + goalPts);                <span class="c">// 0..100</span>
+grade = score&gt;=80 ? "Excellent" : score&gt;=60 ? "Good" : score&gt;=40 ? "Fair" : "Needs attention";</pre>
+<table>
+<tr><th>Component</th><th>Weight (max pts)</th><th>Rule</th><th>Full marks when</th></tr>
+<tr><td>Savings rate</td><td class="num">40</td><td>savings rate &divide; 20, capped at 1</td><td>You save 20% or more of income this month</td></tr>
+<tr><td>Budget adherence</td><td class="num">30</td><td>share of this month's budgets not exceeded</td><td>Every budget is at or below 100%</td></tr>
+<tr><td>No unusual spending</td><td class="num">15</td><td>15 minus 5 per anomaly, floor 0</td><td>Zero anomalies this month (3 anomalies = 0 points)</td></tr>
+<tr><td>Goal progress</td><td class="num">15</td><td>mean progress over goals</td><td>All goals are fully funded</td></tr>
+</table>
+<table>
+<tr><th>Score</th><th>Grade</th></tr><tr><td>80 to 100</td><td>Excellent</td></tr><tr><td>60 to 79</td><td>Good</td></tr><tr><td>40 to 59</td><td>Fair</td></tr><tr><td>0 to 39</td><td>Needs attention</td></tr>
+</table>
+<p><b>Worked example = the demo dashboard (score 78, "Good").</b> Savings rate 42% &rarr; min(1, 42/20)=1 &rarr; <b>40</b>. 5 budgets this month, 4 within limit (Groceries over) &rarr; 4/5 &times; 30 = <b>24</b>. 1 anomaly (the &#8377;9,800 bill) &rarr; 15 &minus; 5 = <b>10</b>. Goals about 27% funded on average &rarr; 0.27 &times; 15 = <b>4</b>. Total 40+24+10+4 = <b>78</b>. This is exactly what the bars on the dashboard show (40/40, 24/30, 10/15, 4/15).</p>
+<div class="box fun"><b class="t">Funny example</b>It is a report card with four subjects and unequal marks. Savings is Maths (40 marks, the big one), Budget discipline is Physics (30), "No weird spending" and "Goals" are the two 15-mark practicals. You can score 78 by topping Maths and failing the practicals, just like in real college.</div>
+<div class="box say"><b class="t">Why these weights?</b>"Saving is the strongest signal of financial health, so it gets the most weight (40). Staying within budgets is the habit that produces savings (30). Anomaly-free spending and goal progress are supporting signals (15 each). The weights are a documented, transparent design choice; they are not learned, and we show each component in the UI so the score is auditable."</div>
+
+<h3>2.4 Safe-to-spend and month-end projection</h3>
+<p><b>File:</b> <code>routes/dashboard.js</code> lines 106 to 126.</p>
+<pre>daysLeft = daysInMonth - dayOfMonth + 1;                     <span class="c">// includes today</span>
+remainingBudget = sum over this month's budgets of max(0, limit - spent);
+perDay = floor(remainingBudget / daysLeft);                  <span class="c">// null if no budgets are set</span>
+typicalMonthlyExpense = average expense of the last <span class="k">3</span> full months (months with 0 are skipped);
+projectedMonthExpense = spentSoFar + typical * ((daysLeft - 1) / daysInMonth);
+onPace = projected &lt;= typical * <span class="k">1.1</span>;               <span class="c">// UI chip: "On pace" vs "Above usual"</span></pre>
+<p><b>Worked example from the demo:</b> &#8377;3,622 left across 5 budgets, 6 days left &rarr; 3622 &divide; 6 = 603.67 &rarr; floor = <b>&#8377;603 per day</b>. Projected spend &#8377;45,509 is more than 1.1 &times; the typical month, so the chip says "Above usual".</p>
+<p><b>Important detail:</b> remaining budget uses <code>max(0, limit &minus; spent)</code> per category, so one overspent category never creates "negative money" that cancels another category's leftover.</p>
+<div class="box fun"><b class="t">Funny example</b>Hostel mess logic: you have &#8377;3,600 left and 6 days to payday. &#8377;600 a day. Spend &#8377;1,500 on one birthday biryani and the app does not scold you, it just quietly tells you tomorrow's budget is Maggi.</div>
+
+<h3>2.4b Budget used %: the colours</h3>
+<p><code>percentUsed = round(spent &divide; limit &times; 100)</code> (budgets.js line 21). In the UI: over 100% &rarr; red "critical"; over 80% &rarr; amber "warn"; otherwise green "good" (DashboardView).</p>
+
+<h3>2.5 Auto-budget (suggested limits)</h3>
+<p><b>File:</b> <code>routes/budgets.js</code> lines 26 to 57.</p>
+<pre>avg = average monthly spend of the last (up to) <span class="k">3 completed months</span> for that category
+        (falls back to "this month so far" if no completed month exists)
+suggested = Math.ceil( (avg * <span class="k">1.10</span>) / <span class="k">100</span> ) * <span class="k">100</span>;     <span class="c">// +10% headroom, rounded UP to nearest 100</span></pre>
+<p><b>Example:</b> average 4,130 &times; 1.10 = 4,543 &rarr; divide by 100 = 45.43 &rarr; ceil = 46 &rarr; <b>&#8377;4,600</b>. Constants: window 3 months, headroom 10%, rounding step 100.</p>
+<div class="box fun"><b class="t">Funny example</b>Mom's "extra roti rule": cook for exactly what the family eats, then add 10% in case a cousin drops in, and round up because nobody makes 4.4 rotis.</div>
+
+<h3>2.6 Subscription detector</h3>
+<p><b>File:</b> <code>routes/insights.js</code> lines 147 to 178. A group of expenses with the same description is called a subscription only if <b>all</b> are true:</p>
+<table>
+<tr><th>Rule</th><th>Value</th></tr>
+<tr><td>Seen in distinct months</td><td class="num">3 or more</td></tr>
+<tr><td>Charges per month (average)</td><td class="num">at most 1.5</td></tr>
+<tr><td>Every amount within the median</td><td class="num">&plusmn;10% (0.1 &times; median)</td></tr>
+</table>
+<p>Yearly cost = median amount &times; 12. "Tracked" = a bill with a similar name already exists. Descriptions are compared case-insensitively. Example: "Netflix" &#8377;649 in 4 different months &rarr; flagged, yearly &#8377;7,788.</p>
+<div class="box fun"><b class="t">Funny example</b>The "Netflix ghost": the gym membership you joined on 1 January and visited twice. Same amount, every month, never questioned. The detector is the friend who says "bro, you are still paying for that?"</div>
+
+<h3>2.7 Goal ETA and the what-if simulator</h3>
+<p><b>Goal ETA</b> (<code>GoalsView.jsx</code> lines 21 and 45 to 57):</p>
+<pre>avgSavings = average of (income - expense) over the last <span class="k">3 full months</span> that had income;
+months = ceil( (target - saved) / avgSavings );        <span class="c">// ETA = today + months</span>
+if deadline exists: monthsLeft = max(1, round(daysToDeadline / <span class="k">30.4</span>));
+   if (months &gt; monthsLeft) -&gt; "behind", neededPerMonth = ceil(remaining / monthsLeft)</pre>
+<p><b>What-if simulator</b> (<code>InsightsView.jsx</code> line 33): <code>monthly saving = forecast &times; (cut% &divide; 100)</code>, slider 5% to 60% in steps of 5; yearly saving = &times;12.</p>
+<div class="box fun"><b class="t">Funny example</b>Goa-trip goal: &#8377;30,000 target, &#8377;6,000 saved, you save &#8377;4,000 a month &rarr; 24,000 &divide; 4,000 = 6 months. Slider: "if I cut Swiggy (forecast &#8377;3,000) by 20%, I save &#8377;600 a month, &#8377;7,200 a year": that is one extra Goa night, paid by skipping 12 midnight biryanis.</div>
+
+<h3>2.8 Bill scanning pipeline (all the checks)</h3>
+<p><b>Files:</b> <code>routes/scan.js</code>, <code>lib/gemini.js</code>, web <code>ScanView.jsx</code>. Eight steps:</p>
+<ol>
+<li><b>Photo</b> in the browser: downscaled before upload; the server accepts only JPEG, PNG or WebP and rejects over 4,000,000 base64 characters (about 3 MB) with HTTP 413.</li>
+<li><b>Cache check:</b> key = hash(photo + category names); scan results live <b>30 days</b>. Same photo = no new API call.</li>
+<li><b>Gemini vision</b> returns JSON: merchant, date, total, currency, category (must be one of the user's own categories), up to 8 line items, confidence 0 to 1. Temperature <b>0.1</b> (near-deterministic), thinking budget 256, max 1,500 output tokens, timeout 45 s.</li>
+<li><b>Not a bill?</b> Gemini returns <code>not_a_receipt</code> &rarr; we answer HTTP 422.</li>
+<li><b>Total check:</b> must be a positive number, else 422.</li>
+<li><b>Date sanity:</b> if the date format is wrong we use today; if the bill is <b>more than 400 days old or more than 7 days in the future</b> we show "Check the date" (catches two-digit-year mistakes such as 18-10-26).</li>
+<li><b>Budget impact:</b> spent-before + bill total = spent-after; percent before and after; "over by" amount (all computed by our code, not by AI).</li>
+<li><b>Duplicate check:</b> an existing expense on the <b>same date</b> with amount within <b>&#8377;0.01</b> &rarr; "possible duplicate". The user always confirms before anything is saved, and the confirmed save goes through the normal transaction route, so anomaly detection runs on it too.</li>
+</ol>
+<p><b>Measured accuracy</b> (<code>scripts/evaluate_scan.js</code>, <code>analysis/eval_scan.json</code>): 10 labelled bills plus 1 non-bill. Total exact: <b>100%</b>; category: <b>100%</b>; date: <b>90%</b>; merchant: <b>90%</b>; all four correct: <b>90%</b>; the one wrong date was caught by the date check (1/1); non-bill rejected (1/1). Mean latency 157 ms (cached repeat; a first call takes several seconds).</p>
+<div class="box fun"><b class="t">Funny example</b>Gemini is a very fast intern who reads handwriting. We are the manager who checks: "date says year 1926? Sir, were you shopping in the British era?" (date check), "you already paid this biryani yesterday" (duplicate check), "this will blow your Dining budget" (impact). The intern never signs the cheque; you do.</div>
+
+<h3>2.9 Gemini settings (every parameter and why)</h3>
+<p><b>File:</b> <code>lib/gemini.js</code>. The only AI service we call is Google's Gemini REST <code>generateContent</code> endpoint. There is no OpenAI anywhere. Key: <code>GEMINI_API_KEY</code> in the server environment (never in the repo).</p>
+<table>
+<tr><th>Setting</th><th>Value</th><th>Reason</th></tr>
+<tr><td>Model fallback order</td><td>gemini-3.6-flash &rarr; 3.5-flash &rarr; 3.1-flash-lite &rarr; 2.5-flash</td><td>Free quota is per model; if one says 429 we try the next. Override with <code>GEMINI_MODELS</code></td></tr>
+<tr><td>Retry</td><td>1 retry after 1 s on a 5xx overload</td><td>Transient "high demand" errors</td></tr>
+<tr><td>Per-attempt timeout</td><td>25 s (overall budget 40 s default)</td><td>UI never hangs</td></tr>
+<tr><td>Temperature</td><td>scan 0.1, Ask AI 0.3, recommendations 0.4</td><td>Reading numbers must be exact; advice text can vary slightly</td></tr>
+<tr><td>Thinking budget</td><td>128 (recs), 256 (scan, Ask)</td><td>Small reasoning budget keeps answers fast and cheap (skipped for "lite" models)</td></tr>
+<tr><td>Max output tokens</td><td>1,024 recs, 1,500 scan, 900 Ask</td><td>Cost control</td></tr>
+<tr><td>Cache TTL</td><td>scan 30 days; Ask AI and recommendations 1 day</td><td>Same data + same question = same answer, zero quota</td></tr>
+<tr><td>Failure behaviour</td><td>Never throws; returns <code>reason</code> (quota, timeout, no-api-key...)</td><td>The rule-based parts of the app keep working</td></tr>
+</table>
+<p><b>Privacy of Ask AI</b> (<code>lib/snapshot.js</code>): only a compact summary goes to Gemini: net worth, accounts, this-month totals by category, monthly history, budgets, goals, bills, the last 5 flagged anomalies, forecasts, and the <b>15 most recent transactions</b>; the question is limited to 500 characters. The prompt says: answer using ONLY this data, quote exact rupee figures, under 120 words, and say so if the data cannot answer. Recommendations: asked to write 2 to 4 one-sentence, number-specific tips, returned as a JSON array.</p>
+<div class="box fun"><b class="t">Funny example</b>Model fallback is like booking an auto: first driver says "no, too far" (429), you call the second, then the third. Caching is "do not ask the professor the same doubt twice; look at your notes."</div>
+
+<h3>2.10 Security settings</h3>
+<table>
+<tr><th>Item</th><th>Value</th></tr>
+<tr><td>Password hashing</td><td>bcrypt (bcryptjs), cost factor <span class="num">10</span> (<code>routes/auth.js</code> line 31)</td></tr>
+<tr><td>Session token</td><td>JWT, expires in <span class="num">7 days</span> (<code>middleware/auth.js</code> line 6); every route except sign-in and sign-up needs it</td></tr>
+<tr><td>Minimum password</td><td>8 characters</td></tr>
+<tr><td>Data isolation</td><td>every query filters by <code>userId</code> from the token</td></tr>
+<tr><td>Amount validation</td><td>must be a positive finite number (negative amounts return 400); found and fixed by our smoke test</td></tr>
+<tr><td>Bill photos</td><td>processed in memory; never stored</td></tr>
+<tr><td>Secrets</td><td>environment variables only (<code>.env</code> is git-ignored)</td></tr>
+<tr><td>Account deletion</td><td>requires password; wipes every collection for that user</td></tr>
+</table>
+
+<h3>2.11 Testing numbers</h3>
+<p><code>app/server/scripts/smoke_test.js</code> runs 48 checks (demo read-only endpoints, Ask AI, then a throwaway account: signup, duplicate signup, wrong login, accounts, transactions, balance update, negative amount rejection, budgets, goals, bills, scan validation, profile, password, export, clear data, delete account) and passes <b>48/48</b> on the local server and on the live Vercel site.</p>
+</div>
+
+<!-- ============ PART 3 ============ -->
+<div class="part">
+<h2>Part 3: The software-metrics side (Modules 3 and 4)</h2>
+<div class="box warn"><b class="t">Be clear about this in the viva</b>The module and sprint metrics (<code>data/module_metrics.csv</code>, <code>sprint_metrics.csv</code>) are <b>synthetic data created for the course</b>: 12 modules and 16 weekly sprint observations. The <i>methods</i> are real; the numbers are illustrative. Say so first; it is worth more than hiding it.</div>
+
+<h3>3.1 GQ(I)M: Goal, Question, (Indicator), Metric</h3>
+<p>A top-down plan: start from a goal (e.g. "make financial advice trustworthy"), ask questions ("how often do users accept recommendations? how wrong is the forecast?"), and attach a metric to each. The app really logs these: accept/dismiss clicks are stored as <code>recommendation-event</code> notifications (<code>insights.js</code> line 135), which feeds the <b>Recommendation Acceptance Rate</b>; forecast error is <b>MAPE</b> (measured above); transaction failure rate is the control-chart metric. <b>Why GQ(I)M:</b> otherwise teams collect numbers nobody needs.</p>
+
+<h3>3.2 Decision tree for defect-prone modules (<code>analysis/analyze.py</code> line 152)</h3>
+<table>
+<tr><th>Setting</th><th>Value</th></tr>
+<tr><td>Algorithm</td><td>scikit-learn DecisionTreeClassifier</td></tr>
+<tr><td>max_depth</td><td class="num">3</td></tr>
+<tr><td>min_samples_leaf</td><td class="num">2</td></tr>
+<tr><td>random_state</td><td class="num">42</td></tr>
+<tr><td>Features</td><td>cyclomatic complexity, coupling (CBO), cohesion (LCOM), test coverage %</td></tr>
+<tr><td>Label</td><td>"High" if defect density per KLOC is above the median (5.28), else "Low"</td></tr>
+<tr><td>Training accuracy</td><td class="num">91.7%</td></tr>
+<tr><td>Leave-one-out cross-validation accuracy</td><td class="num">58.3% (majority-class baseline 50%)</td></tr>
+<tr><td>Feature importance</td><td>LCOM 0.918, CBO 0.082, complexity 0, coverage 0</td></tr>
+</table>
+<p><b>Say honestly:</b> depth 3 and min leaf 2 keep the tree small enough to read and stop it memorising 12 points. 91.7% is training accuracy and flatters the model; the fair number is leave-one-out 58.3%, only a little better than coin-flip 50%, because 12 modules is tiny. The point of the tree is <i>explanation</i> (low cohesion is the strongest split here), not prediction at scale.</p>
+<div class="box fun"><b class="t">Funny example</b>A decision tree is the 20-questions game: "Is cohesion bad? Yes. Is coupling high? Yes. Then this module is probably the one that will ruin your Friday release."</div>
+
+<h3>3.3 I-MR control chart (<code>analysis/analyze.py</code> lines 218 to 227)</h3>
+<pre>x = weekly transaction failure rate (%)           <span class="c">16 weeks</span>
+MR = |x[i] - x[i-1]|                                <span class="c">moving range (week-to-week change)</span>
+CL     = mean(x)              = <span class="n">3.517</span>
+UCL_I  = CL + <span class="k">2.66</span> * mean(MR)  = <span class="n">6.556</span>
+LCL_I  = max(CL - <span class="k">2.66</span> * mean(MR), 0) = <span class="n">0.477</span>
+UCL_MR = <span class="k">3.267</span> * mean(MR)</pre>
+<p><b>Where 2.66 and 3.267 come from:</b> standard control-chart constants for subgroup size 2. 2.66 = 3 &divide; 1.128 (1.128 is the constant d2 that turns an average moving range into an estimate of sigma, so the limits are 3-sigma); 3.267 is the constant D4 for the moving-range chart. Result: <b>week 12 (7.48%) breaches the UCL of 6.556</b>: the simulated release regression. Weeks 11 and 13 (5.76, 5.71) are high but inside the limit.</p>
+<div class="box fun"><b class="t">Funny example</b>Hostel mess quality: some days the dal is thin, some days thick, that is normal variation. Then the cook changes and every day is a disaster. The control chart is the mess committee that can tell "normal Tuesday dal" from "the cook was replaced".</div>
+
+<h3>3.4 Box plot, correlation, t-test</h3>
+<ul>
+<li><b>Box plot outliers:</b> Tukey fences at <b>1.5 &times; IQR</b> beyond Q1 and Q3. Defect density fence is 0.2 to 10.59, delay is &minus;2.58 to 15.03: no module is an outlier.</li>
+<li><b>Correlation, three kinds on purpose.</b> Pearson (straight-line strength), Spearman (rank order, robust to outliers), Kendall (agreement of pairs, best for small samples):</li>
+</ul>
+<table>
+<tr><th>Pair</th><th>Pearson r</th><th>Spearman rho</th><th>Kendall tau</th></tr>
+<tr><td>Complexity vs defect density</td><td>0.559 (p 0.059)</td><td>0.592 (p 0.043)</td><td>0.473 (p 0.033)</td></tr>
+<tr><td>Test coverage vs defect density</td><td>&minus;0.370 (p 0.237)</td><td>&minus;0.231 (p 0.471)</td><td>&minus;0.152 (p 0.545)</td></tr>
+<tr><td>Coupling (CBO) vs delay</td><td>0.647 (p 0.023)</td><td>0.558 (p 0.059)</td><td>0.369 (p 0.098)</td></tr>
+</table>
+<p>Significance level used: p &lt; 0.05. Complexity vs defects: Spearman and Kendall are significant, Pearson is borderline, all point the same direction. Coverage vs defects: negative as expected but <b>not significant</b>. A Welch t-test of low-coverage vs high-coverage modules (mean defect density 6.31 vs 4.50) gives t = 1.131, p = 0.285, not significant. <b>Correlation is not causation.</b></p>
+<div class="box fun"><b class="t">Funny example</b>Ice-cream sales and drowning both rise in summer; that does not mean ice cream drowns people. Likewise, complex code correlates with bugs, but we did not prove complexity <i>causes</i> them.</div>
+
+<h3>3.5 Bayesian network (<code>analysis/bayesian_network.py</code>)</h3>
+<p>A small cause-and-effect graph: Requirement Volatility (R) and Team Experience (T) influence Schedule Delay (S) and Defect Density (D), which influence Project Risk (P). Priors: P(R=High)=0.45, P(T=High)=0.60. Hand-specified conditional probability tables; exact inference by enumeration (Bayes theorem). Results for P(Project Risk = High): baseline <b>28.1%</b>; worst case (volatile requirements + inexperienced team) <b>55.0%</b>; best case <b>12.8%</b>; if delay is already observed High <b>50.0%</b>; if defect density is observed High <b>49.1%</b>. The same tables are re-implemented in the Metrics Deck so the risk calculator is live.</p>
+<div class="box fun"><b class="t">Funny example</b>You hear "the exam paper is leaked" (evidence). Your belief you will pass changes. A Bayesian network is that updating, but done with numbers. Worst case in our network is "changing requirements + freshers", which is every group project in the last week.</div>
+<div class="box warn"><b class="t">Honest note</b>The conditional probability tables are <b>hand-specified</b> from the module data distribution, not learned from a large dataset. Say "illustrative, expert-elicited".</div>
+</div>
+
+<!-- ============ PART 4 ============ -->
+<div class="part">
+<h2>Part 4: Master table of every constant</h2>
+<table>
+<tr><th>What</th><th>Value</th><th>File and line</th></tr>
+<tr><td>Anomaly min history</td><td>4 expenses</td><td>lib/ai.js:23</td></tr>
+<tr><td>Anomaly threshold</td><td>|z| &ge; 2.5</td><td>lib/ai.js:29</td></tr>
+<tr><td>Std guard</td><td>|| 1</td><td>lib/ai.js:27</td></tr>
+<tr><td>Smoothing alpha</td><td>0.4</td><td>lib/ai.js:60</td></tr>
+<tr><td>Forecast fallback / medium confidence</td><td>&lt;3 months mean / &ge;6 months medium</td><td>lib/ai.js:65, 73</td></tr>
+<tr><td>Health weights</td><td>40 + 30 + 15 + 15 = 100</td><td>routes/dashboard.js:27-34</td></tr>
+<tr><td>Savings full-marks rate</td><td>20%</td><td>dashboard.js:27</td></tr>
+<tr><td>Anomaly penalty</td><td>5 points each</td><td>dashboard.js:30</td></tr>
+<tr><td>Grade cut-offs</td><td>80 / 60 / 40</td><td>dashboard.js:36</td></tr>
+<tr><td>Typical monthly expense window</td><td>last 3 full months</td><td>dashboard.js:114</td></tr>
+<tr><td>"On pace" tolerance</td><td>projected &le; 1.1 &times; typical</td><td>DashboardView.jsx:56</td></tr>
+<tr><td>Budget colour bands</td><td>&gt;100% red, &gt;80% amber</td><td>DashboardView.jsx:148-152</td></tr>
+<tr><td>Auto-budget window / headroom / rounding</td><td>3 months / +10% / up to 100</td><td>routes/budgets.js:42, 51</td></tr>
+<tr><td>Low-savings recommendation trigger</td><td>savings rate &lt; 10%</td><td>routes/insights.js:59</td></tr>
+<tr><td>Subscription rule</td><td>&ge;3 months, &le;1.5/month, &plusmn;10% of median</td><td>routes/insights.js:165-167</td></tr>
+<tr><td>Anomalies shown in Insights</td><td>latest 5</td><td>routes/insights.js:43</td></tr>
+<tr><td>Goal ETA window / month length</td><td>3 months / 30.4 days</td><td>GoalsView.jsx:21, 53</td></tr>
+<tr><td>What-if slider</td><td>5% to 60%, step 5</td><td>InsightsView.jsx:86</td></tr>
+<tr><td>Scan date warning</td><td>&gt;400 days old or &gt;7 days ahead</td><td>routes/scan.js:56</td></tr>
+<tr><td>Duplicate rule</td><td>same date, amount within &#8377;0.01</td><td>routes/scan.js:79</td></tr>
+<tr><td>Scan image limit</td><td>4,000,000 base64 chars (~3 MB)</td><td>routes/scan.js:20</td></tr>
+<tr><td>Scan items kept</td><td>8 line items</td><td>routes/scan.js:88</td></tr>
+<tr><td>Scan cache</td><td>30 days</td><td>routes/scan.js:33</td></tr>
+<tr><td>Ask AI cache / question length</td><td>1 day / 500 chars</td><td>routes/insights.js:183, 186</td></tr>
+<tr><td>Ask AI snapshot</td><td>15 latest transactions, 5 anomalies</td><td>lib/snapshot.js:50-51</td></tr>
+<tr><td>Gemini timeouts</td><td>25 s per attempt, 40 s total</td><td>lib/gemini.js:19, 42</td></tr>
+<tr><td>Gemini temperatures</td><td>0.1 scan, 0.3 ask, 0.4 recs</td><td>lib/gemini.js:103,124,139</td></tr>
+<tr><td>bcrypt cost / JWT lifetime / min password</td><td>10 / 7 days / 8 chars</td><td>auth.js:31, middleware/auth.js:6, settings.js</td></tr>
+<tr><td>Decision tree</td><td>depth 3, min leaf 2, seed 42</td><td>analysis/analyze.py:152</td></tr>
+<tr><td>Control chart constants</td><td>2.66 (I), 3.267 (MR)</td><td>analysis/analyze.py:225-227</td></tr>
+<tr><td>Outlier fence</td><td>1.5 &times; IQR</td><td>analysis/analyze.py (iqr_outliers)</td></tr>
+</table>
+<div class="box key"><b class="t">One-line memory trick</b>"<b>2.5, 4, 0.4, 3</b>": threshold 2.5, minimum history 4, alpha 0.4, minimum months 3. "<b>40-30-15-15</b>": health weights. "<b>3 and 10%</b>": auto-budget uses 3 months and adds 10%.</div>
+</div>
+
+<!-- ============ PART 5 ============ -->
+<div class="part">
+<h2>Part 5: Every page and every button</h2>
+<p>Layout: a <b>left sidebar</b> (pinned, never covers the page; "Collapse menu" shrinks it to icons and the page slides over), a <b>top bar</b> (greeting, assistant toggle, camera, notifications bell, dark-mode moon), the <b>page</b>, and on wide screens the <b>AI assistant panel</b> docked on the right.</p>
+
+<h3>Sidebar and top bar</h3>
+<table>
+<tr><th>Control</th><th>What it does</th><th>Funny real-life version</th></tr>
+<tr><td>Scan a bill (purple)</td><td>Opens the bill scanner from anywhere</td><td>The "Shazam" for receipts</td></tr>
+<tr><td>Dashboard, Transactions, Accounts, Budgets, Goals, Bills &amp; Subscriptions</td><td>Money pages</td><td>Different rooms of one house</td></tr>
+<tr><td>AI Insights, Ask AI</td><td>Smart tools</td><td>The clever relative who knows your account</td></tr>
+<tr><td>Metrics Deck</td><td>The software-metrics dashboard of our own project</td><td>The class topper's marksheet of the app itself</td></tr>
+<tr><td>Settings</td><td>Profile, password, theme, data tools</td><td>Control panel</td></tr>
+<tr><td>Collapse / Expand menu</td><td>Sidebar to icons and back (remembered)</td><td>Folding the dining table to make room</td></tr>
+<tr><td>Log out</td><td>Ends the session</td><td>Locking the cupboard</td></tr>
+<tr><td>Sparkle icon (top)</td><td>Show or hide the AI assistant panel</td><td>Calling the clever relative</td></tr>
+<tr><td>Camera icon (top)</td><td>Jumps to scanning</td><td>Quick-draw for bills</td></tr>
+<tr><td>Bell with red dot</td><td>Notifications (red count = unread)</td><td>The nosy neighbour's alerts</td></tr>
+<tr><td>Moon</td><td>Light and dark theme</td><td>Night mode for 2 a.m. expense guilt</td></tr>
+</table>
+
+<h3>Dashboard</h3>
+<table>
+<tr><th>Element</th><th>Meaning and source</th><th>Funny example</th></tr>
+<tr><td>Four pastel tiles</td><td>Income, Spent, Savings rate, Safe to spend per day; numbers count up when the page loads. Savings rate = (income &minus; expense) &divide; income</td><td>Mint = salary, peach = "where did it go", lavender = how responsible you were, sky = what you may spend today</td></tr>
+<tr><td>Net worth card (dark)</td><td>Sum of all account balances</td><td>Your "if I sold everything" number</td></tr>
+<tr><td>Safe to spend today</td><td>Formula 2.4; chips: budgets over limit, On pace / Above usual</td><td>Hostel-mess daily limit</td></tr>
+<tr><td>Income vs expenses chart</td><td>Last 6 calendar months, green income, indigo expense</td><td>Salary day mountain, rent-day valley</td></tr>
+<tr><td>Financial health ring</td><td>Score 0 to 100 with four bars (2.3); the chip shows the grade</td><td>Report card</td></tr>
+<tr><td>Where it went</td><td>Donut of this month's expenses by category</td><td>The pie your wallet got eaten by</td></tr>
+<tr><td>Recent activity / View all</td><td>Last 6 transactions; View all opens Transactions</td><td>Last night's receipts</td></tr>
+<tr><td>Coming up / Bills</td><td>Next 4 recurring bills with "Due today / tomorrow / In n days"</td><td>Mom's reminder, but automatic</td></tr>
+<tr><td>Budgets / Manage</td><td>First 4 budgets with colour chips; Manage opens Budgets</td><td>Traffic lights for your spending</td></tr>
+<tr><td>Scan bill, Add transaction (header)</td><td>Open scanner or the add-transaction form</td><td>Lazy way and honest way</td></tr>
+</table>
+
+<h3>Scan a bill</h3>
+<table>
+<tr><th>Control</th><th>What it does</th></tr>
+<tr><td>Drop area / Choose file</td><td>Pick or drag a JPG, PNG or WebP photo</td></tr>
+<tr><td>Take photo</td><td>Desktop: live webcam preview with a Capture button. Phone: opens the phone camera. If camera is blocked or missing: friendly message and an Upload fallback</td></tr>
+<tr><td>Sample chips (Supermarket, Electricity, Restaurant)</td><td>Built-in test bills for demos and for people with no bill handy</td></tr>
+<tr><td>Result form</td><td>Merchant, total, date, category, pay-from account; all editable. Shows a confidence chip, line items, red/green budget-impact message, "Check the date" and "possible duplicate" warnings</td></tr>
+<tr><td>Save expense / Discard / Scan a different bill</td><td>Save creates a normal expense (and updates the account balance and runs anomaly detection); Discard throws it away</td></tr>
+</table>
+<div class="box fun"><b class="t">Funny example</b>Restaurant bill: your friend says "I'll pay, you send me later"; you scan the bill and the app instantly says "this uses 94% of your Dining budget". Friendship preserved, budget scolded.</div>
+
+<h3>Transactions</h3>
+<table>
+<tr><th>Control</th><th>What it does</th></tr>
+<tr><td>Search box</td><td>Filters by description, category, date or amount</td></tr>
+<tr><td>All / Expenses / Income</td><td>Type filter</td></tr>
+<tr><td>Export CSV</td><td>Downloads the visible rows to a spreadsheet</td></tr>
+<tr><td>Add transaction</td><td>Form: type, amount (positive only), category, account, date, note. Saving expense runs the anomaly check, updates the account balance and may create a notification</td></tr>
+<tr><td>Delete (per row)</td><td>Removes it and reverses the balance change</td></tr>
+</table>
+<div class="box fun"><b class="t">Funny example</b>Export CSV is for the day your parents say "show me where the money went" and you want an Excel sheet instead of a speech.</div>
+
+<h3>Accounts</h3>
+<p>Cards for each account (Checking, Savings, Credit Card). <b>Add account</b>: name, type, opening balance. Balances move automatically when you add or delete transactions. <i>Example:</i> "SBI Credit Card" at &#8377;0: the account you promised yourself you would not touch.</p>
+
+<h3>Budgets</h3>
+<table>
+<tr><th>Control</th><th>What it does</th></tr>
+<tr><td>Set budget</td><td>Choose a category and a monthly limit; setting again for the same category updates it</td></tr>
+<tr><td>Auto-budget</td><td>Opens suggestions (formula 2.5) with checkboxes; <b>Apply selected</b> sets them all</td></tr>
+<tr><td>Progress bars</td><td>Spent / limit; turn red above 100%</td></tr>
+<tr><td>Delete</td><td>Removes that month's budget</td></tr>
+</table>
+<div class="box fun"><b class="t">Funny example</b>Dining budget &#8377;2,000. Mid-month the bar goes red like your face when someone says "let's just order pizza, it's only &#8377;300 each".</div>
+
+<h3>Goals</h3>
+<p><b>Add goal</b> (name, target, optional deadline); <b>+ Contribute</b> adds money to a goal; each card shows percent, a progress bar and the ETA line from 2.7 ("On track for Mar 2027" or "needs &#8377;X a month to meet the deadline"); <b>Delete</b> removes. <i>Example:</i> "Laptop" goal; the ETA says March 2027, you buy a &#8377;4,000 game; the ETA slides to May. Instant regret, now in calendar form.</p>
+
+<h3>Bills &amp; Subscriptions</h3>
+<table>
+<tr><th>Control</th><th>What it does</th></tr>
+<tr><td>Add recurring bill</td><td>Name, amount, day of month, category; appears in "Coming up" on the Dashboard</td></tr>
+<tr><td>Delete</td><td>Removes a bill</td></tr>
+<tr><td>Detected subscriptions table</td><td>From formula 2.6, with monthly price, months seen, last charged, yearly cost</td></tr>
+<tr><td>Track as bill</td><td>Turns a detected subscription into a tracked recurring bill</td></tr>
+</table>
+
+<h3>AI Insights</h3>
+<table>
+<tr><th>Element</th><th>What it does</th></tr>
+<tr><td>Next-month forecast</td><td>One row per category with the forecast (2.2), method chip (exp-smoothing or average), confidence</td></tr>
+<tr><td>Recommendations</td><td>Rules first (forecast over budget, anomalies, savings under 10%), then Gemini lines labelled with the model name</td></tr>
+<tr><td>Accept / Dismiss</td><td>Logs your choice; this is the Recommendation Acceptance Rate metric from our GQ(I)M plan</td></tr>
+<tr><td>What-if savings simulator</td><td>Choose a category and a cut percentage; shows monthly and yearly savings (2.7)</td></tr>
+<tr><td>Subscriptions card</td><td>Same detector output</td></tr>
+</table>
+<div class="box fun"><b class="t">Funny example</b>Accept = "yes sir, I will stop ordering at midnight" (and then not do it). The app dutifully records the promise; the metric measures how many promises we collect, not how many are kept.</div>
+
+<h3>Ask AI (and the docked assistant)</h3>
+<p>Suggestion chips ("Where did most of my money go this month?", "Am I on track with my budgets?", "How can I save &#8377;5,000 more every month?", "Which of my expenses is the biggest outlier?", "How long until I reach my savings goals?") or type your own; the animated orb thinks while Gemini answers. Answers come only from your own snapshot (2.9). <i>Example question:</i> "Can I afford a &#8377;30,000 phone?" The assistant looks at your savings, not your emotions.</p>
+
+<h3>Notifications</h3>
+<p>List of anomaly alerts and system notices. <b>Mark read</b> clears the red dot. Accept/dismiss clicks are stored too but hidden from the count.</p>
+
+<h3>Metrics Deck</h3>
+<p>The self-contained Module 3 and 4 dashboard embedded in the app (built from <code>dashboard/template.html</code> by <code>build_dashboard.py</code>): GQ(I)M, decision tree, box plots, I-MR control chart, correlation views, and the live Bayesian risk calculator. This is the page that proves the project is not only an app but also <b>measured engineering</b>. <i>Example:</i> it is the app's own medical report.</p>
+
+<h3>Settings</h3>
+<table>
+<tr><th>Control</th><th>What it does</th></tr>
+<tr><td>Save profile</td><td>Change name and email (email already used &rarr; error 409)</td></tr>
+<tr><td>Update password</td><td>Current password required; new one at least 8 characters; confirm must match</td></tr>
+<tr><td>Theme: System / Light / Dark</td><td>Follows the device or forces a theme</td></tr>
+<tr><td>AI assistant: Show / Hide</td><td>Controls the docked panel</td></tr>
+<tr><td>Download my data</td><td>JSON file of everything stored about you</td></tr>
+<tr><td>Clear my data</td><td>Removes transactions, budgets, goals, bills, notifications, resets balances to 0; keeps login and categories; asks to confirm</td></tr>
+<tr><td>Log out</td><td>Ends session</td></tr>
+<tr><td>Delete my account</td><td>Needs your password; permanently removes the account and all data</td></tr>
+</table>
+<div class="box fun"><b class="t">Funny example</b>"Clear my data" is the "new year, new me" button. "Delete account" is the same, but with a password, because it is the "I am moving to a Himalayan monastery" button.</div>
+</div>
+
+<!-- ============ PART 6 ============ -->
+<div class="part">
+<h2>Part 6: Questions faculty may ask, and answers</h2>
+
+<p class="q">Q1. How do you detect anomalies in the budget? Show the threshold in the code.</p>
+<p>Open <code>lib/ai.js</code> line 29. We compute z = (amount &minus; category mean) &divide; category standard deviation and flag when |z| &ge; 2.5, but only if the category has at least 4 past expenses. 2.5 was chosen from a simulation of 300 users &times; 200 transactions: precision 98.4%, recall 63.1%, false-alarm rate 0.11%; thresholds 2 and 3 were worse trade-offs.</p>
+
+<p class="q">Q2. What is a z-score and why use it?</p>
+<p>The number of standard deviations a value is from the mean. It is unit-free, cheap, explainable to a normal user ("7x the usual spread") and needs no training data, which matters because each user starts with no history.</p>
+
+<p class="q">Q3. Why not machine learning for anomalies (isolation forest, autoencoder)?</p>
+<p>A new user has 0 to 20 transactions; ML needs far more. A z-score works from 4 points, is explainable and runs inside a serverless function. ML is listed under future work once enough data exists.</p>
+
+<p class="q">Q4. Is the anomaly check per user or global?</p>
+<p>Per user and per category (history is filtered by <code>userId</code> and <code>categoryId</code>, transactions.js lines 38 to 40). Rent of &#8377;18,000 is normal for Rent and not compared with Groceries.</p>
+
+<p class="q">Q5. What are the weights in your health score and why?</p>
+<p>40 savings rate, 30 budget adherence, 15 no unusual spending, 15 goal progress, total 100 (dashboard.js lines 26 to 46). Savings gets most weight because it is the outcome that matters; budget adherence is the habit that causes it; the other two are supporting signals. They are a transparent design choice and are shown component by component in the UI; they are not learned.</p>
+
+<p class="q">Q6. How is the forecast computed and how accurate is it?</p>
+<p>Simple exponential smoothing, alpha 0.4, on monthly category totals; below 3 months it uses the average and says "low" confidence. On simulated data MAPE is 13.76%, better than regression 15.95%, moving average 14.05% and naive 17.04%.</p>
+
+<p class="q">Q7. Why alpha = 0.4?</p>
+<p>It balances reacting to a real change (higher alpha) with ignoring one-off noise (lower alpha). We fixed it for transparency and validated the resulting method against alternatives. Tuning alpha per user is future work.</p>
+
+<p class="q">Q8. Which software metrics did you use, and how do they appear in the system?</p>
+<p>Product metrics (complexity, CBO, LCOM, coverage, defect density) for the decision tree and correlations; process metrics (weekly transaction failure rate) for the I-MR chart; AI-quality metrics (MAPE of forecast, precision/recall of anomaly detection, recommendation acceptance rate, scan field accuracy). The last group are measured on the real code and logged by the real system; they are the GQ(I)M "metrics" in practice.</p>
+
+<p class="q">Q9. Is your data real?</p>
+<p>The finance data in the demo is seeded sample data. The module/sprint metrics are synthetic, generated for the course by <code>analysis/generate_data.py</code>. The evaluation of forecast and anomaly methods uses seeded simulation (seed 20261026) so anyone can reproduce it. Scan accuracy uses 10 labelled bill images in <code>report/eval_receipts</code>.</p>
+
+<p class="q">Q10. Which AI API do you use? Is the user's data safe?</p>
+<p>Google Gemini REST API only (model chain gemini-3.6-flash &rarr; 3.5-flash &rarr; 3.1-flash-lite &rarr; 2.5-flash). Bill photos are processed in memory and not stored. Ask AI receives only a compact summary of that user's own data (15 latest transactions plus aggregates). Key is a server environment variable, never in the repo.</p>
+
+<p class="q">Q11. What if Gemini is down or the quota ends?</p>
+<p>The model chain falls back to the next model; results are cached (30 days for scans, 1 day for advice); the functions never throw, they return a reason, and the UI shows a friendly message and the manual add path. The formula-based features (anomaly, forecast, score) do not depend on Gemini at all.</p>
+
+<p class="q">Q12. How do you stop the AI from making up numbers on a bill?</p>
+<p>Temperature 0.1, a strict JSON format, and our own checks: the total must be positive, the date is sanity-checked (over 400 days old or over 7 days ahead is flagged), duplicates are detected, and the user must confirm and can edit every field. We measured 100% total accuracy and 90% all-fields on 10 labelled bills.</p>
+
+<p class="q">Q13. Explain the control chart limits.</p>
+<p>Centre line is the mean failure rate 3.517%. UCL = CL + 2.66 &times; average moving range = 6.556%, LCL = 0.477%. 2.66 = 3 &divide; d2 (1.128). A point outside the limits (week 12 at 7.48%) signals a special cause, not normal variation.</p>
+
+<p class="q">Q14. Your decision tree has 91.7% accuracy; is that good?</p>
+<p>That is training accuracy and over-optimistic. Leave-one-out accuracy is 58.3% against a 50% baseline, so it is only mildly better than guessing, as expected with 12 modules. Its value is explanation (LCOM importance 0.918), not prediction.</p>
+
+<p class="q">Q15. Why three correlation coefficients?</p>
+<p>Pearson assumes linearity and is sensitive to outliers; Spearman uses ranks; Kendall counts concordant pairs and suits tiny samples. When all three agree on direction (as for complexity vs defects) the conclusion is more trustworthy.</p>
+
+<p class="q">Q16. How is the budget affected when a bill is scanned?</p>
+<p>The server finds that category's budget for the bill's month, adds the bill total to month-to-date spend, and returns before/after percentage and the overspend amount. The scan alone changes nothing; only Save does.</p>
+
+<p class="q">Q17. How do you secure user accounts?</p>
+<p>bcrypt (cost 10) hashed passwords, JWT with 7-day expiry, per-user data filtering on every query, positive-amount validation, password-confirmed account deletion.</p>
+
+<p class="q">Q18. How did you test it?</p>
+<p>A 48-check automated smoke test (local and production, all pass), a labelled bill evaluation, a model evaluation script with fixed seed, and responsive-layout audits at six screen widths (1920 to 360 pixels).</p>
+
+<p class="q">Q19. What is the architecture?</p>
+<p>React single-page app on Vercel &rarr; one serverless Express function (<code>/api</code>) &rarr; MongoDB Atlas; Gemini called only from the server; Python scripts produce the metrics analysis and the embedded dashboard offline.</p>
+
+<p class="q">Q20. What is novel here?</p>
+<p>(1) Scan &rarr; budget-impact preview before saving; (2) every score is a visible formula; (3) the AI layer is measured with software-metrics methods (precision/recall, MAPE, acceptance rate, control chart) instead of just being used; (4) the project's own engineering metrics live inside the product.</p>
+
+<p class="q">Q21. What would you improve?</p>
+<p>Use robust statistics (median/MAD) for anomalies; per-user alpha tuning; real production metrics instead of simulated ones; add recurring-bill auto-posting, multi-currency and bank import; learn the health-score weights from user outcomes.</p>
+</div>
+
+<!-- ============ PART 7 ============ -->
+<div class="part">
+<h2>Part 7: Honest limitations (say these first)</h2>
+<ul>
+<li><b>Synthetic metrics data:</b> module and sprint metrics, and the forecast/anomaly simulations, are generated. Methods are real; absolute numbers are illustrative.</li>
+<li><b>Small-sample decision tree:</b> 12 modules; LOOCV 58.3% only slightly beats the 50% baseline.</li>
+<li><b>Z-score masking:</b> large past outliers inflate the standard deviation and can hide later anomalies; spikes under 2x normal are mostly not caught (recall 6.7% for 1.5 to 2x).</li>
+<li><b>Fixed hyper-parameters:</b> alpha 0.4, threshold 2.5 and the health weights are fixed by design, not personalised.</li>
+<li><b>Gemini dependency:</b> scanning and advice need a working API key and free-tier quota; first call can take up to 25 seconds. Results are cached and fallbacks exist.</li>
+<li><b>Scan accuracy sample:</b> only 10 labelled bills; date and merchant were 90%, not 100%. Real-world messy photos may do worse.</li>
+<li><b>Bayesian network tables:</b> hand-specified, not learned.</li>
+<li><b>Camera:</b> live webcam path tested only up to the permission prompt in automation; confirm once on a real laptop before the viva.</li>
+</ul>
+<div class="box say"><b class="t">Final tip</b>If you do not know an answer, say: "That value is in <code>lib/ai.js</code> line 29; I can open it", then open it. Showing the code beats guessing. Faculty are checking that <i>you</i> understand <i>your</i> code, and every number here is yours.</div>
+<p class="small">Generated from the Wealthline source at E:\Software-Metric. If any constant in the code is changed, update Part 4.</p>
+</div>
+
+</body></html>
