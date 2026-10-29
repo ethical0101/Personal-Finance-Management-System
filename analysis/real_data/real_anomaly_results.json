@@ -1,0 +1,47 @@
+{
+ "dataset": "ULB credit card fraud (OpenML 1597)",
+ "sample_size": 15000,
+ "frauds_in_sample": 492,
+ "fraud_rate_in_sample": 0.0328,
+ "train": 10500,
+ "test": 4500,
+ "seed": 20261029,
+ "results": [
+  {
+   "method": "z-score on Amount, |z| >= 2.5 (current rule)",
+   "precision": 0.078,
+   "recall": 0.027,
+   "f1": 0.04,
+   "roc_auc": 0.658,
+   "pr_auc": 0.066,
+   "tp": 4,
+   "fp": 47,
+   "fn": 144,
+   "tn": 4305
+  },
+  {
+   "method": "Isolation Forest (unsupervised)",
+   "precision": 0.63,
+   "recall": 0.622,
+   "f1": 0.626,
+   "roc_auc": 0.933,
+   "pr_auc": 0.637,
+   "tp": 92,
+   "fp": 54,
+   "fn": 56,
+   "tn": 4298
+  },
+  {
+   "method": "Gradient boosting (supervised, threshold 0.5)",
+   "precision": 0.983,
+   "recall": 0.784,
+   "f1": 0.872,
+   "roc_auc": 0.969,
+   "pr_auc": 0.861,
+   "tp": 116,
+   "fp": 2,
+   "fn": 32,
+   "tn": 4350
+  }
+ ]
+}

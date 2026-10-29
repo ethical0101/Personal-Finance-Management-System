@@ -26,3 +26,4 @@ __pycache__/
 Thumbs.db
 ~$*.docx
 report/screenshots/**/profile/
+analysis/real_data/creditcard_sample_15k.csv
